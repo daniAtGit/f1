@@ -16,6 +16,7 @@ return new class extends Migration
             $table->uuid('edition_id');
             $table->uuid('driver_id');
             $table->uuid('team_id');
+            $table->text('number')->nullable();
 
             $table->foreign('edition_id')->references('id')->on('editions')->onDelete('cascade');
             $table->foreign('driver_id')->references('id')->on('drivers')->onDelete('cascade');

@@ -50,9 +50,9 @@
                     <th>Country</th>
                     <th>City</th>
                     <th>Circuit</th>
-                    <th>Sprint result</th>
                     <th>Starting grid</th>
                     <th>Race result</th>
+                    <th>Sprint result</th>
                     <th>Video</th>
                     <th></th>
                 </tr>
@@ -66,20 +66,20 @@
                         <td>{{$editionCircuit->circuit->city}}</td>
                         <td>{{$editionCircuit->circuit->name}}</td>
                         <td>
-                            @foreach($editionCircuit->sprint->sortBy('position')->take(3) as $sprintCircuit)
-                                {{$sprintCircuit->position}}. {{$sprintCircuit->driverTeam->driver->name}} {{$sprintCircuit->driverTeam->driver->number}} - {{$sprintCircuit->time}}
-                                <br>
-                            @endforeach
-                        </td>
-                        <td>
                             @foreach($editionCircuit->grid->sortBy('position')->take(3) as $gridCircuit)
-                                {{$gridCircuit->position}}. {{$gridCircuit->driverTeam->driver->name}} {{$gridCircuit->driverTeam->driver->number}} - {{$gridCircuit->time}}
+                                {{$gridCircuit->position}}. {{$gridCircuit->driverTeam->driver->name}} {{$gridCircuit->driverTeam->number}} - {{$gridCircuit->time}}
                                 <br>
                             @endforeach
                         </td>
                         <td>
                             @foreach($editionCircuit->race->sortBy('position')->take(3) as $raceCircuit)
-                                {{$raceCircuit->position}}. {{$raceCircuit->driverTeam->driver->name}} {{$raceCircuit->driverTeam->driver->number}} - {{$raceCircuit->time}}
+                                {{$raceCircuit->position}}. {{$raceCircuit->driverTeam->driver->name}} {{$raceCircuit->driverTeam->number}} - {{$raceCircuit->time}}
+                                <br>
+                            @endforeach
+                        </td>
+                        <td>
+                            @foreach($editionCircuit->sprint->sortBy('position')->take(3) as $sprintCircuit)
+                                {{$sprintCircuit->position}}. {{$sprintCircuit->driverTeam->driver->name}} {{$sprintCircuit->driverTeam->number}} - {{$sprintCircuit->time}}
                                 <br>
                             @endforeach
                         </td>

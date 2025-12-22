@@ -27,6 +27,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('editions', EditionsController::class)->except('show')->parameters(['editions'=>'edition']);
     Route::post('editions-driver-team-create', [EditionsController::class, 'driverTeamCreate'])->name('editions.driver.team.create');
+    Route::post('editions-driver-team-delete', [EditionsController::class, 'driverTeamDelete'])->name('editions.driver.team.delete');
     Route::post('editions-circuit-create', [EditionsController::class, 'circuitCreate'])->name('editions.circuit.create');
     Route::get('editions/{editionId}/circuit/{circuitId}/edit', [EditionsController::class, 'circuitEdit'])->name('editions.circuit.edit');
     Route::get('editions/{editionId}/circuit/{circuitId}/delete', [EditionsController::class, 'circuitDestroy'])->name('editions.circuit.delete');

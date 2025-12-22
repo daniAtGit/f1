@@ -177,6 +177,11 @@
                             "width": "200px",
                         },
                         {
+                            "targets": 1,
+                            "width": "20px",
+                            "className": 'dt-center',
+                        },
+                        {
                             "targets": -1,
                             "width": "30px",
                             "className": 'dt-center',
@@ -248,7 +253,7 @@
                                                 ${grid.position}
                                             </div>
                                             <div style="width:30px;height:30px;line-height:30px;text-align:center;border:1px solid #ccc;" class="h5">
-                                                ${grid.driver_team.driver.number}
+                                                ${grid.driver_team.number}
                                             </div>
                                             <span class="h5" style="background:${grid.driver_team.team.color};width:100%;text-align:left;overflow:hidden;white-space:nowrap;color:#fff;">
                                                 <i class="fa fa-car-side mx-1"></i>
@@ -278,7 +283,7 @@
                                                 ${raceResult.position}
                                             </div>
                                             <div style="width:30px;height:30px;line-height:30px;text-align:center;border:1px solid #ccc;" class="h5">
-                                                ${raceResult.driver_team.driver.number}
+                                                ${raceResult.driver_team.number}
                                             </div>
                                             <span class="h5" style="background:${raceResult.driver_team.team.color};width:100%;text-align:left;overflow:hidden;white-space:nowrap;color:#fff;">
                                                 <i class="fa fa-car-side mx-1"></i>
@@ -308,7 +313,7 @@
                                                 ${sprint.position}
                                             </div>
                                             <div style="width:30px;height:30px;line-height:30px;text-align:center;border:1px solid #ccc;" class="h5">
-                                                ${sprint.driver_team.driver.number}
+                                                ${sprint.driver_team.number}
                                             </div>
                                             <span class="h5" style="background:${sprint.driver_team.team.color};width:100%;text-align:left;overflow:hidden;white-space:nowrap;color:#fff;">
                                                 <i class="fa fa-car-side mx-1"></i>

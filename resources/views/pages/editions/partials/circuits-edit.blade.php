@@ -160,7 +160,7 @@
                                 </div>
                                 <div class="col-1">
                                     <div style="width:25px;height:25px;line-height:25px;text-align:center;border:1px solid #ccc;">
-                                        {{$grid->driverTeam?->driver?->number}}
+                                        {{$grid->driverTeam->number}}
                                     </div>
                                 </div>
                                 <div class="col-2">
@@ -247,7 +247,7 @@
                                 </div>
                                 <div class="col-1">
                                     <div style="width:25px;height:25px;line-height:25px;text-align:center;border:1px solid #ccc;">
-                                        {{$race->driverTeam?->driver?->number}}
+                                        {{$race->driverTeam->number}}
                                     </div>
                                 </div>
                                 <div class="col-2">
@@ -335,7 +335,7 @@
                                 </div>
                                 <div class="col-1">
                                     <div style="width:25px;height:25px;line-height:25px;text-align:center;border:1px solid #ccc;">
-                                        {{$sprint->driverTeam?->driver?->number}}
+                                        {{$sprint->driverTeam->number}}
                                     </div>
                                 </div>
                                 <div class="col-2">

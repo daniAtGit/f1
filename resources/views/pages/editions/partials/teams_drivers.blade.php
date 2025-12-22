@@ -23,6 +23,9 @@
                         @endforeach
                     </select>
                 </div>
+                <div class="col-1">
+                    <input type="number" name="number" class="form-control" placeholder="Number" min="1">
+                </div>
 
                 <div class="col-3">
                     <button type="submit" class="btn btn-outline-primary">
@@ -43,6 +46,7 @@
         <table class="table table-hover table-striped table-bordered border" id="tabellaTeamsDrivers">
             <thead>
                 <th>Team</th>
+                <th title="Number">N.</th>
                 <th>Driver</th>
                 <th></th>
             </thead>
@@ -52,9 +56,26 @@
                         <td>
                             <badge class="badge" style="background:{{$driverTeam->team->color}};width:100%;text-align:left;"><i class="fa fa-car-side"></i> {{$driverTeam->team->name}}</badge>
                         </td>
+                        <td>
+                            <div style="width:25px;height:25px;line-height:25px;text-align:center;border:1px solid #ccc;">
+                                {{$driverTeam->number}}
+                            </div>
+                        </td>
                         <td>{{$driverTeam->driver->name}}</td>
                         <td>
-{{--                            @dump($driverTeam->grid)--}}
+                            <form method="post" action="{{route('editions.driver.team.delete')}}">
+                                @csrf
+                                <input type="hidden" name="edition_id" value="{{$edition->id}}">
+                                <input type="hidden" name="driver_team_id" value="{{$driverTeam->id}}">
+
+                                @if($driverTeam->gridCircuits->count() || $driverTeam->sprintCircuits->count() || $driverTeam->raceCircuits->count())
+                                    <i class="fa-solid fa-trash text-secondary"></i>
+                                @else
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                @endif
+                            </form>
                         </td>
                     </tr>
                 @endforeach

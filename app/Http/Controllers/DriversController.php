@@ -12,7 +12,7 @@ class DriversController extends Controller
 {
     public function index(): View
     {
-        $drivers=Driver::all()->load('country');
+        $drivers=Driver::all()->load('country','driverTeams');
         return view('pages.drivers.index', compact('drivers'));
     }
 
@@ -26,7 +26,7 @@ class DriversController extends Controller
     {
         Driver::create([
             'name' => $request->name,
-            'number' => $request->number,
+            //'number' => $request->number,
             'birth_year' => $request->birth_year,
             'country_id' => $request->country,
             'wikipedia' => $request->wikipedia
@@ -50,7 +50,7 @@ class DriversController extends Controller
     {
         $driver->update([
             'name' => $request->name,
-            'number' => $request->number,
+            //'number' => $request->number,
             'birth_year' => $request->birth_year,
             'country_id' => $request->country,
             'wikipedia' => $request->wikipedia

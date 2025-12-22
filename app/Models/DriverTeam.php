@@ -14,7 +14,8 @@ class DriverTeam extends Model
     protected $fillable = [
         'edition_id',
         'driver_id',
-        'team_id'
+        'team_id',
+        'number'
     ];
 
     public $timestamps = false;
@@ -38,4 +39,8 @@ class DriverTeam extends Model
     {
         return $this->hasMany(SprintCircuit::class);
     }
-}
+
+    public function raceCircuits()
+    {
+        return $this->hasMany(RaceCircuit::class);
+    }}

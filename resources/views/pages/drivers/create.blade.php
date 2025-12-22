@@ -30,10 +30,10 @@
                             <input type="text" name="name" class="form-control" required>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="number" class="form-label">Number<span class="text-danger">*</span></label>
-                            <input type="number" name="number" class="form-control" required>
-                        </div>
+{{--                        <div class="mb-3">--}}
+{{--                            <label for="number" class="form-label">Number<span class="text-danger">*</span></label>--}}
+{{--                            <input type="number" name="number" class="form-control" required>--}}
+{{--                        </div>--}}
 
                         <div class="mb-3">
                             <label for="birth_year" class="form-label">Birth year</label>

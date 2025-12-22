@@ -85,7 +85,8 @@ class EditionsController extends Controller
         DriverTeam::create([
             'edition_id' => $request->edition_id,
             'driver_id' => $request->driver_id,
-            'team_id' => $request->team_id
+            'team_id' => $request->team_id,
+            'number' => $request->number
         ]);
 
         $edition = Edition::find($request->edition_id);
@@ -93,6 +94,19 @@ class EditionsController extends Controller
             'edition' => $edition,
             'tab' => 'teams_drivers'
         ]);
+    }
+
+    public function driverTeamDelete(Request $request): RedirectResponse
+    {
+        $driverTeam = DriverTeam::find($request->driver_team_id);
+        $driverTeam->delete();
+
+        $edition = Edition::find($request->edition_id);
+        return redirect()->route('editions.edit', [
+            'edition' => $edition,
+            'tab' => 'teams_drivers'
+        ]);
+
     }
 
     public function circuitCreate(Request $request): RedirectResponse

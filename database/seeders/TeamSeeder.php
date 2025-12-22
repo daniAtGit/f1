@@ -77,7 +77,7 @@ class TeamSeeder extends Seeder
         ]);
 
         Team::create([
-            'name' => 'Sauber',
+            'name' => 'Kick Sauber',
             'color' => '#06e10c',
             'country_id' => Country::where('name', 'Swiss')->first()->id,
             'wikipedia' => 'https://it.wikipedia.org/wiki/Sauber_F1_Team'

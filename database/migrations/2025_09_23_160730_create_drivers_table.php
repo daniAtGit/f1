@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('drivers', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name');
-            $table->string('number');
             $table->string('birth_year')->nullable();
             $table->string('country_id')->nullable();
             $table->string('wikipedia')->nullable();
