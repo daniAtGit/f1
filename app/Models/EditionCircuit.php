@@ -25,9 +25,24 @@ class EditionCircuit extends Model
         'date' => 'date'
     ];
 
+    public function edition()
+    {
+        return $this->belongsTo(Edition::class);
+    }
+
     public function circuit()
     {
         return $this->belongsTo(Circuit::class);
+    }
+
+    public function videos()
+    {
+        return $this->hasMany(Video::class, 'edition_circuit_id','id');
+    }
+
+    public function sprint()
+    {
+        return $this->hasMany(SprintCircuit::class, 'edition_circuit_id','id');
     }
 
     public function grid()
@@ -35,10 +50,8 @@ class EditionCircuit extends Model
         return $this->hasMany(GridCircuit::class, 'edition_circuit_id','id');
     }
 
-    protected function grid3(): Attribute
+    public function race()
     {
-        return Attribute::make(
-            get: fn () => $this->grid()->get()->sortBy('position')->take(3),
-        );
+        return $this->hasMany(RaceCircuit::class, 'edition_circuit_id','id');
     }
 }

@@ -1,31 +1,23 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Editions
-        </h2>
+        <div class="row">
+            <div class="col-10">
+                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                    Editions
+                </h2>
+            </div>
+            <div class="col-2 text-end">
+                <a href="{{route('editions.create')}}">
+                    <button type="button" class="btn btn-sm btn-outline-primary">
+                        <i class="fa-solid fa-circle-plus"></i> New
+                    </button>
+                </a>
+            </div>
+        </div>
     </x-slot>
 
     <div class="container-fluid border">
-        <div class="card mt-4">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-6">
-
-                    </div>
-                    <div class="col-6 text-end">
-                        <a href="{{route('editions.create')}}">
-                            <button type="button" class="btn btn-sm btn-outline-primary">
-                                <i class="fa-solid fa-circle-plus"></i> New
-                            </button>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <br>
-
-        <div class="card mb-4">
+        <div class="card my-4">
             <div class="row mt-3">
                 <div class="col-1"></div>
 
@@ -35,6 +27,8 @@
                             <tr>
                                 <th class="bg-light">Edition</th>
                                 <th class="bg-light">Year</th>
+                                <th class="bg-light">Leading team</th>
+                                <th class="bg-light">Leading driver</th>
                                 <th class="bg-light">Wiki</th>
                                 <th class="bg-light"></th>
                             </tr>
@@ -44,6 +38,8 @@
                                 <tr>
                                     <td>{{$edition->edition}}</td>
                                     <td>{{$edition->year}}</td>
+                                    <td></td>
+                                    <td></td>
                                     <td>
                                         @if($edition->wikipedia)
                                             <a href="{{$edition->wikipedia}}" target="_blank" title="Wikipedia"><i class="fa-brands fa-wikipedia-w px-1"></i></a>
@@ -117,8 +113,14 @@
                             'orderable': false
                         },
                         {
+                            "targets": 4,
+                            "width": "20px",
+                            "className": 'dt-center',
+                            'orderable': false
+                        },
+                        {
                             "targets": -1,
-                            "width": "120px",
+                            "width": "100px",
                             "className": 'dt-center',
                             'orderable': false
                         },

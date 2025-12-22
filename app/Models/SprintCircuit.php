@@ -15,10 +15,18 @@ class SprintCircuit extends Model
         'position',
         'driver_team_id',
         'circuit_id',
-        'fast_lap'
+        'edition_circuit_id',
+        'time'
     ];
+
+    public $timestamps = false;
 
     protected $casts = [
         //
     ];
+
+    public function driverTeam()
+    {
+        return $this->belongsTo(DriverTeam::class);
+    }
 }

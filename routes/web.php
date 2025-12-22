@@ -23,7 +23,7 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('drivers', DriversController::class)->parameters(['drivers'=>'driver']);
     Route::resource('teams', TeamsController::class)->parameters(['teams'=>'team']);
-    Route::resource('circuits', CircuitsController::class)->except('show')->parameters(['circuits'=>'circuit']);
+    Route::resource('circuits', CircuitsController::class)->parameters(['circuits'=>'circuit']);
 
     Route::resource('editions', EditionsController::class)->except('show')->parameters(['editions'=>'edition']);
     Route::post('editions-driver-team-create', [EditionsController::class, 'driverTeamCreate'])->name('editions.driver.team.create');
@@ -32,7 +32,19 @@ Route::middleware('auth')->group(function () {
     Route::get('editions/{editionId}/circuit/{circuitId}/delete', [EditionsController::class, 'circuitDestroy'])->name('editions.circuit.delete');
     Route::post('editions-circuit-update', [EditionsController::class, 'circuitUpdate'])->name('editions.circuit.update');
 
+    Route::post('editions-circuit-show', [EditionsController::class, 'showEditioCircuit'])->name('editions.circuit.show');
 
+    Route::post('editions-circuit-link-delete', [EditionsController::class, 'circuitLinkDelete'])->name('editions.circuit.link.delete');
+    Route::post('editions-circuit-link-title-update', [EditionsController::class, 'circuitLinkTitleUpdate'])->name('editions.circuit.link.title.update');
+
+    Route::post('editions-circuit-sprint-create', [EditionsController::class, 'sprintCircuitCreate'])->name('editions.circuit.sprint.create');
+    Route::post('editions-circuit-sprint-delete', [EditionsController::class, 'sprintCircuitDestroy'])->name('editions.circuit.sprint.delete');
+
+    Route::post('editions-circuit-grid-create', [EditionsController::class, 'gridCircuitCreate'])->name('editions.circuit.grid.create');
+    Route::post('editions-circuit-grid-delete', [EditionsController::class, 'gridCircuitDestroy'])->name('editions.circuit.grid.delete');
+
+    Route::post('editions-circuit-race-create', [EditionsController::class, 'raceCircuitCreate'])->name('editions.circuit.race.create');
+    Route::post('editions-circuit-race-delete', [EditionsController::class, 'raceCircuitDestroy'])->name('editions.circuit.race.delete');
 
     Route::resource('countries', CountriesController::class)->except('create','show','edit')->parameters(['countries'=>'country']);
 });

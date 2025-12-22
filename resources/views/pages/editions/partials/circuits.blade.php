@@ -24,7 +24,7 @@
                     </select>
                 </div>
                 <div class="col-2">
-                    <input type="date" class="form-control">
+                    <input type="date" name="date" class="form-control">
                 </div>
                 <div class="col-5">
                     <button type="submit" class="btn btn-outline-primary">
@@ -50,8 +50,10 @@
                     <th>Country</th>
                     <th>City</th>
                     <th>Circuit</th>
-                    <th>Grid</th>
-                    <th>Race Result</th>
+                    <th>Sprint result</th>
+                    <th>Starting grid</th>
+                    <th>Race result</th>
+                    <th>Video</th>
                     <th></th>
                 </tr>
             </thead>
@@ -64,21 +66,42 @@
                         <td>{{$editionCircuit->circuit->city}}</td>
                         <td>{{$editionCircuit->circuit->name}}</td>
                         <td>
-                            @foreach($editionCircuit->grid3 as $grid)
-                               {{$grid->position}}. {{$grid->driverTeam->driver->name}}
+                            @foreach($editionCircuit->sprint->sortBy('position')->take(3) as $sprintCircuit)
+                                {{$sprintCircuit->position}}. {{$sprintCircuit->driverTeam->driver->name}} {{$sprintCircuit->driverTeam->driver->number}} - {{$sprintCircuit->time}}
+                                <br>
                             @endforeach
                         </td>
-                        <td></td>
                         <td>
-                            <button class="offcanvasModal" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom">
-                                <i class="fa fa-eye text-primary"></i>
+                            @foreach($editionCircuit->grid->sortBy('position')->take(3) as $gridCircuit)
+                                {{$gridCircuit->position}}. {{$gridCircuit->driverTeam->driver->name}} {{$gridCircuit->driverTeam->driver->number}} - {{$gridCircuit->time}}
+                                <br>
+                            @endforeach
+                        </td>
+                        <td>
+                            @foreach($editionCircuit->race->sortBy('position')->take(3) as $raceCircuit)
+                                {{$raceCircuit->position}}. {{$raceCircuit->driverTeam->driver->name}} {{$raceCircuit->driverTeam->driver->number}} - {{$raceCircuit->time}}
+                                <br>
+                            @endforeach
+                        </td>
+                        <td>
+                            @foreach($editionCircuit->videos as $i => $video)
+                                <a href="{{$video->url}}" target="_target" title="{{$video->title}}">
+                                    <i class="fa fa-video text-info"></i>
+                                </a>
+                                |
+                            @endforeach
+                        </td>
+                        <td>
+                            <button class="offcanvasModal" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom" id="{{$editionCircuit->id}}">
+                                <i class="fa fa-eye text-info"></i>
                             </button>
                             |
                             <a href="{{route('editions.circuit.edit', [$edition->id, $editionCircuit->id])}}">
                                 <i class="fa fa-edit text-primary"></i>
                             </a>
                             |
-                            @if($editionCircuit->grid->count())
+
+                            @if($editionCircuit->sprint->count() ||$editionCircuit->grid->count() || $editionCircuit->race->count())
                                 <i class="fa-solid fa-trash text-secondary" title="Action not possible"></i>
                             @else
                                 <a href="{{route('editions.circuit.delete', [$edition->id, $editionCircuit->id])}}">

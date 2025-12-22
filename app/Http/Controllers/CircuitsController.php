@@ -34,6 +34,11 @@ class CircuitsController extends Controller
         return redirect()->route('circuits.index');
     }
 
+    public function show(Circuit $circuit): View
+    {
+        dd($circuit);
+    }
+
     public function edit(Circuit $circuit): View
     {
         $countries = Country::all()->sortBy('name');

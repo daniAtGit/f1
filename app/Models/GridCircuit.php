@@ -14,8 +14,12 @@ class GridCircuit extends Model
     protected $fillable = [
         'position',
         'driver_team_id',
+        'circuit_id',
+        'edition_circuit_id',
         'time'
     ];
+
+    public $timestamps = false;
 
     protected $casts = [
         //

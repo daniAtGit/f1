@@ -28,4 +28,9 @@ class Driver extends Model
     {
         return $this->belongsTo(Country::class);
     }
+
+    public function driverTeams()
+    {
+        return $this->hasMany(DriverTeam::class);
+    }
 }

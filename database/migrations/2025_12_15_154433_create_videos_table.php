@@ -11,15 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('grid_circuit', function (Blueprint $table) {
+        Schema::create('videos', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('position');
-            $table->uuid('driver_team_id');
-            $table->uuid('circuit_id');
-            $table->uuid('edition_circuit_id');
-            $table->string('time')->nullable();
+            $table->text('title')->nullable();
+            $table->text('url')->nullable();
+            $table->string('edition_circuit_id')->nullable();
+            $table->timestamps();
 
-            $table->foreign('driver_team_id')->references('id')->on('driver_team')->onDelete('cascade');
             $table->foreign('edition_circuit_id')->references('id')->on('edition_circuit')->onDelete('cascade');
         });
     }
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('grid_circuit');
+        Schema::dropIfExists('videos');
     }
 };

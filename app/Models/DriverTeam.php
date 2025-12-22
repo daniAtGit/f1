@@ -28,4 +28,14 @@ class DriverTeam extends Model
     {
         return $this->belongsTo(Driver::class, 'driver_id','id');
     }
+
+    public function gridCircuits()
+    {
+        return $this->hasMany(GridCircuit::class);
+    }
+
+    public function sprintCircuits()
+    {
+        return $this->hasMany(SprintCircuit::class);
+    }
 }

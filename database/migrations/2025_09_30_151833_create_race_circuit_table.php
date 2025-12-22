@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('result_circuit', function (Blueprint $table) {
+        Schema::create('race_circuit', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('position');
             $table->uuid('driver_team_id');
             $table->uuid('circuit_id');
-            $table->string('fast_lap')->nullable();
+            $table->uuid('edition_circuit_id');
+            $table->string('time')->nullable();
 
             $table->foreign('driver_team_id')->references('id')->on('driver_team')->onDelete('cascade');
             $table->foreign('circuit_id')->references('id')->on('circuits')->onDelete('cascade');
+            $table->foreign('edition_circuit_id')->references('id')->on('edition_circuit')->onDelete('cascade');
         });
     }
 
@@ -28,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('result_circuit');
+        Schema::dropIfExists('race_circuit');
     }
 };

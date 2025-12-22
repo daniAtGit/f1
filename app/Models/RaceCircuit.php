@@ -5,20 +5,28 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
-class ResultCircuit extends Model
+class RaceCircuit extends Model
 {
     use HasUuids;
 
-    protected $table="result_circuit";
+    protected $table="race_circuit";
 
     protected $fillable = [
         'position',
         'driver_team_id',
         'circuit_id',
-        'fast_lap'
+        'edition_circuit_id',
+        'time'
     ];
+
+    public $timestamps = false;
 
     protected $casts = [
         //
     ];
+
+    public function driverTeam()
+    {
+        return $this->belongsTo(DriverTeam::class);
+    }
 }

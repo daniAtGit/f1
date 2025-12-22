@@ -1,31 +1,23 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            Edit team
-        </h2>
+        <div class="row">
+            <div class="col-8">
+                <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+                    Edit team
+                </h2>
+            </div>
+            <div class="col-4 text-end">
+                <a href="{{route('teams.index')}}">
+                    <button type="button" class="btn btn-sm btn-outline-secondary">
+                        <i class="fa-solid fa-arrow-left"></i> Back
+                    </button>
+                </a>
+            </div>
+        </div>
     </x-slot>
 
     <div class="container-fluid border">
-        <div class="card mt-4">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-6">
-
-                    </div>
-                    <div class="col-6 text-end">
-                        <a href="{{route('teams.index')}}">
-                            <button type="button" class="btn btn-sm btn-outline-secondary">
-                                <i class="fa-solid fa-arrow-left"></i> Back
-                            </button>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <br>
-
-        <div class="card mb-4">
+        <div class="card my-4">
             <div class="row mt-3">
                 <div class="col-1"></div>
 
