@@ -30,4 +30,19 @@ class Edition extends Model
     {
         return $this->hasMany(EditionCircuit::class, 'edition_id','id');
     }
+
+    public function driverTeams()
+    {
+        return $this->hasMany(DriverTeam::class, 'driver_team_id','id');
+    }
+
+    public function rankingTeams()
+    {
+        return $this->hasMany(RankingTeam::class, 'edition_id','id');
+    }
+
+    public function rankingDrivers()
+    {
+        return $this->hasMany(RankingDriver::class, 'edition_id','id');
+    }
 }

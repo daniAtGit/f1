@@ -17,13 +17,19 @@ class CountriesController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        Country::create(['name' => $request->name]);
+        Country::create([
+            'name' => $request->name,
+            'acronym' => $request->acronym
+        ]);
         return to_route('countries.index');
     }
 
     public function update(Request $request, Country $country): RedirectResponse
     {
-        $country->update(['name' => $request->name]);
+        $country->update([
+            'name' => $request->name,
+            'acronym' => $request->acronym
+        ]);
         return to_route('countries.index');
     }
 

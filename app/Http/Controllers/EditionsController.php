@@ -9,6 +9,8 @@ use App\Models\Edition;
 use App\Models\EditionCircuit;
 use App\Models\GridCircuit;
 use App\Models\RaceCircuit;
+use App\Models\RankingDriver;
+use App\Models\RankingTeam;
 use App\Models\SprintCircuit;
 use App\Models\Team;
 use App\Models\Video;
@@ -20,7 +22,7 @@ class EditionsController extends Controller
 {
     public function index(): View
     {
-        $editions=Edition::all();
+        $editions = Edition::all();
         return view('pages.editions.index', compact('editions'));
     }
 
@@ -38,6 +40,20 @@ class EditionsController extends Controller
         ]);
 
         return redirect()->route('editions.edit', ['edition' => $edition]);
+    }
+
+    public function show(Request $request)
+    {
+        $edition = Edition::find($request->editionId);
+
+        $standingDrivers = $edition->rankingDrivers->load('driver','driver.country','team');
+        $standingTeams = $edition->rankingTeams->load('team');
+
+        return [
+            'title' => 'Edition '.$edition->edition.' - '.$edition->year,
+            'standingDrivers' => $standingDrivers,
+            'standingTeams' => $standingTeams
+        ];
     }
 
     public function edit(Edition $edition): View
@@ -60,7 +76,14 @@ class EditionsController extends Controller
         $drivers = Driver::all()->sortBy('name');
         $teams = Team::all()->sortBy('name');
         $circuits = Circuit::all()->load('country')->sortBy('country.name');
-        return view('pages.editions.edit', compact('edition', 'drivers', 'teams', 'circuits'));
+
+        $rankingTeams = RankingTeam::where('edition_id', $edition->id)->get()->load('team');
+        $rankingDrivers = RankingDriver::where('edition_id', $edition->id)->get()->load('team','driver','driver.country');
+        $rankingDriversAdd =  DriverTeam::where('edition_id', $edition->id)->get()->load('team','driver','rankingDrivers');
+
+        //dd($rankingDrivers, $rankingDriversAdd);
+
+        return view('pages.editions.edit', compact('edition', 'drivers', 'teams', 'circuits','rankingTeams','rankingDrivers','rankingDriversAdd'));
     }
 
     public function update(Request $request, Edition $edition): RedirectResponse
@@ -86,6 +109,7 @@ class EditionsController extends Controller
             'edition_id' => $request->edition_id,
             'driver_id' => $request->driver_id,
             'team_id' => $request->team_id,
+            'car_id' => $request->car_id,
             'number' => $request->number
         ]);
 
@@ -94,6 +118,21 @@ class EditionsController extends Controller
             'edition' => $edition,
             'tab' => 'teams_drivers'
         ]);
+    }
+
+    public function driverTeamCars(Request $request): mixed
+    {
+        $team = Team::find($request->team_id);
+        $cars = [];
+        foreach ($team->cars->sortByDesc('edition.year') as $i => $car) {
+            $id = $car->id;
+            $name = $car->name." | ".$car->edition->edition."-".$car->edition->year;
+            $cars[$i] = [
+                'id' => $id,
+                'name' => $name
+            ];
+        }
+        return $cars;
     }
 
     public function driverTeamDelete(Request $request): RedirectResponse
@@ -260,7 +299,7 @@ class EditionsController extends Controller
         return redirect()->route('editions.circuit.edit', [$editionCircuit->edition_id,$editionCircuit->id]);
     }
 
-    public function showEditioCircuit(Request $request)
+    public function showEditionCircuit(Request $request)
     {
         $editionCircuitId = $request->editionCircuitId;
         $editionCircuit = EditionCircuit::find($editionCircuitId);
@@ -284,5 +323,92 @@ class EditionsController extends Controller
             'raceResults' => $raceResults,
             'sprints' => $sprints,
         ];
+    }
+
+    public function rankingTeamsCreate(Request $request)
+    {
+        $edition = Edition::find($request->edition_id);
+
+        foreach($edition->driversTeams->unique('team_id') as $driverTeam){
+            RankingTeam::create([
+                'points' => 0,
+                'team_id' => $driverTeam->team_id,
+                'edition_id' => $edition->id,
+            ]);
+        };
+
+        return redirect()->route('editions.edit', [
+            'edition' => $edition,
+            'tab' => 'teams_ranking'
+        ]);
+    }
+
+    public function rankingTeamUpdate(Request $request)
+    {
+        $rankingTeam = RankingTeam::find($request->ranking_team_id);
+        $rankingTeam->update([
+            'points' => $request->pts,
+        ]);
+        return redirect()->route('editions.edit', [
+            'edition' => $rankingTeam->edition_id,
+            'tab' => 'teams_ranking'
+        ]);
+    }
+
+    public function rankingDriversCreate(Request $request)
+    {
+        $edition = Edition::find($request->edition_id);
+        foreach($edition->driversTeams as $driverTeam){
+            RankingDriver::create([
+                'points' => 0,
+                'edition_id' => $edition->id,
+                'team_id' => $driverTeam->team_id,
+                'driver_id' => $driverTeam->driver_id,
+            ]);
+        };
+        return redirect()->route('editions.edit', [
+            'edition' => $edition,
+            'tab' => 'drivers_ranking'
+        ]);
+    }
+
+    public function rankingDriversAdd(Request $request)
+    {
+        RankingDriver::create([
+            'points' => 0,
+            'edition_id' => $request->edition_id_add,
+            'team_id' => $request->team_id_add,
+            'driver_id' => $request->driver_id_add,
+        ]);
+        $edition = Edition::find($request->edition_id_add);
+        return redirect()->route('editions.edit', [
+            'edition' => $edition,
+            'tab' => 'drivers_ranking'
+        ]);
+    }
+
+    public function rankingDriverUpdate(Request $request)
+    {
+        $rankingDriver = RankingDriver::find($request->ranking_driver_id);
+        $edition = Edition::find($rankingDriver->edition_id);
+        $rankingDriver->update([
+            'points' => $request->pts,
+        ]);
+        return redirect()->route('editions.edit', [
+            'edition' => $edition,
+            'tab' => 'drivers_ranking'
+        ]);
+    }
+
+    public function rankingDriverDelete(Request $request)
+    {
+        $rankingDriver = RankingDriver::find($request->ranking_driver_id);
+        $edition = Edition::find($rankingDriver->edition_id);
+        $rankingDriver->delete();
+
+        return redirect()->route('editions.edit', [
+            'edition' => $edition,
+            'tab' => 'drivers_ranking'
+        ]);
     }
 }

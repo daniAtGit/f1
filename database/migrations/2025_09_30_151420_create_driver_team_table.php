@@ -16,11 +16,13 @@ return new class extends Migration
             $table->uuid('edition_id');
             $table->uuid('driver_id');
             $table->uuid('team_id');
+            $table->uuid('car_id')->nullable();
             $table->text('number')->nullable();
 
             $table->foreign('edition_id')->references('id')->on('editions')->onDelete('cascade');
             $table->foreign('driver_id')->references('id')->on('drivers')->onDelete('cascade');
             $table->foreign('team_id')->references('id')->on('teams')->onDelete('cascade');
+            $table->foreign('car_id')->references('id')->on('cars')->onDelete('set null');
         });
     }
 

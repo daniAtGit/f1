@@ -17,7 +17,13 @@ class RankingTeam extends Model
         'edition_id'
     ];
 
+    public $timestamps = false;
+
     protected $casts = [
         //
     ];
+
+    public function team(){
+        return $this->belongsTo(Team::class);
+    }
 }

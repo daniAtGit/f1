@@ -13,10 +13,26 @@ class RankingDriver extends Model
 
     protected $fillable = [
         'points',
-        'driver_team_id'
+        'edition_id',
+        'team_id',
+        'driver_id'
     ];
+
+    public $timestamps = false;
 
     protected $casts = [
         //
     ];
+
+    public function edition(){
+        return $this->belongsTo(Edition::class);
+    }
+
+    public function team(){
+        return $this->belongsTo(Team::class);
+    }
+
+    public function driver(){
+        return $this->belongsTo(Driver::class);
+    }
 }

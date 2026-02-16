@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CarsController;
 use App\Http\Controllers\CircuitsController;
 use App\Http\Controllers\CountriesController;
 use App\Http\Controllers\DriversController;
@@ -23,17 +24,29 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('drivers', DriversController::class)->parameters(['drivers'=>'driver']);
     Route::resource('teams', TeamsController::class)->parameters(['teams'=>'team']);
+    Route::resource('cars', CarsController::class)->except('show')->parameters(['cars'=>'car']);
     Route::resource('circuits', CircuitsController::class)->parameters(['circuits'=>'circuit']);
 
     Route::resource('editions', EditionsController::class)->except('show')->parameters(['editions'=>'edition']);
+    Route::post('editions-show', [EditionsController::class, 'show'])->name('editions.show');
+
     Route::post('editions-driver-team-create', [EditionsController::class, 'driverTeamCreate'])->name('editions.driver.team.create');
+    Route::post('editions-driver-team-cars', [EditionsController::class, 'driverTeamCars'])->name('editions.driver.team.cars');
     Route::post('editions-driver-team-delete', [EditionsController::class, 'driverTeamDelete'])->name('editions.driver.team.delete');
     Route::post('editions-circuit-create', [EditionsController::class, 'circuitCreate'])->name('editions.circuit.create');
     Route::get('editions/{editionId}/circuit/{circuitId}/edit', [EditionsController::class, 'circuitEdit'])->name('editions.circuit.edit');
     Route::get('editions/{editionId}/circuit/{circuitId}/delete', [EditionsController::class, 'circuitDestroy'])->name('editions.circuit.delete');
     Route::post('editions-circuit-update', [EditionsController::class, 'circuitUpdate'])->name('editions.circuit.update');
 
-    Route::post('editions-circuit-show', [EditionsController::class, 'showEditioCircuit'])->name('editions.circuit.show');
+    Route::post('editions-ranking-team-create', [EditionsController::class, 'rankingTeamsCreate'])->name('editions.ranking.teams.create');
+    Route::post('editions-ranking-team-update', [EditionsController::class, 'rankingTeamUpdate'])->name('editions.ranking.team.update');
+
+    Route::post('editions-ranking-driver-create', [EditionsController::class, 'rankingDriversCreate'])->name('editions.ranking.drivers.create');
+    Route::post('editions-ranking-driver-add', [EditionsController::class, 'rankingDriversAdd'])->name('editions.ranking.drivers.add');
+    Route::post('editions-ranking-driver-update', [EditionsController::class, 'rankingDriverUpdate'])->name('editions.ranking.driver.update');
+    Route::post('editions-ranking-driver-delete', [EditionsController::class, 'rankingDriverDelete'])->name('editions.ranking.driver.delete');
+
+    Route::post('editions-circuit-show', [EditionsController::class, 'showEditionCircuit'])->name('editions.circuit.show');
 
     Route::post('editions-circuit-link-delete', [EditionsController::class, 'circuitLinkDelete'])->name('editions.circuit.link.delete');
     Route::post('editions-circuit-link-title-update', [EditionsController::class, 'circuitLinkTitleUpdate'])->name('editions.circuit.link.title.update');

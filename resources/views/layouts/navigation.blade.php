@@ -44,6 +44,10 @@
                                 <i class="fa fa-users-between-lines"></i> Teams
                             </x-dropdown-link>
 
+                            <x-dropdown-link :href="route('cars.index')" :active="request()->routeIs('cars.*')" wire:navigate>
+                                <i class="fa fa-car-side"></i> Cars
+                            </x-dropdown-link>
+
                             <x-dropdown-link :href="route('circuits.index')" :active="request()->routeIs('circuits.*')" wire:navigate>
                                 <i class="fa fa-ring"></i> Circuits
                             </x-dropdown-link>

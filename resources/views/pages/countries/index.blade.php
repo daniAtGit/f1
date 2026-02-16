@@ -1,17 +1,18 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="row">
-            <div class="col-8">
+            <div class="col-7">
                 <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
                     Countries
                 </h2>
             </div>
-            <div class="col-4 text-end">
+            <div class="col-5 text-end">
                 <form method="post" action="{{route('countries.store')}}">
                     @csrf
 
                     <div class="input-group">
-                        <input type="text" name="name" class="form-control" placeholder="New" aria-label="Tipo" aria-describedby="button-addon2" required>
+                        <input type="text" name="name" class="form-control" placeholder="Country" aria-label="Tipo" aria-describedby="button-addon2" required>
+                        <input type="text" name="acronym" style="width:80px;" placeholder="Acronym" aria-label="Tipo" aria-describedby="button-addon2" required>
                         <button class="btn btn-primary" type="submit" id="button-addon2"><i class="fa-solid fa-circle-plus"></i></button>
                     </div>
                 </form>
@@ -29,6 +30,7 @@
                         <thead>
                             <tr>
                                 <th class="bg-light">Name</th>
+                                <th class="bg-light">Acronym</th>
                                 <th class="bg-light">Drivers</th>
                                 <th class="bg-light">Teams</th>
                                 <th class="bg-light">Circuits</th>
@@ -39,6 +41,7 @@
                             @foreach($countries as $i => $country)
                                 <tr>
                                     <td>{{$country->name}}</td>
+                                    <td>{{$country->acronym}}</td>
                                     <td>{{$country->drivers->count()}}</td>
                                     <td>{{$country->teams->count()}}</td>
                                     <td>{{$country->circuits->count()}}</td>
@@ -104,7 +107,12 @@
                             @csrf
                             @method('PATCH')
                             <div class="modal-body">
-                                <input type="text" name="name" value="{{$country->name}}" class="form-control">
+                                <label for="name">Name</label>
+                                <input type="text" name="name" id="name" value="{{$country->name}}" class="form-control" required>
+                                <br>
+
+                                <label for="acronym">Acronym</label>
+                                <input type="text" name="acronym" id="acronym" value="{{$country->acronym}}" class="form-control" required>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-sm btn-light" data-bs-dismiss="modal">Close</button>
@@ -129,7 +137,7 @@
                     "pagingType":"full_numbers",
                     "columnDefs": [
                         {
-                            "targets": [1,2,3],
+                            "targets": [1,2,3,4],
                             "width": "60px",
                             "className": 'dt-center'
                         },

@@ -9,25 +9,31 @@ class DriverTeam extends Model
 {
     use HasUuids;
 
-    protected $table="driver_team";
+    protected $table = "driver_team";
 
     protected $fillable = [
         'edition_id',
         'driver_id',
         'team_id',
+        'car_id',
         'number'
     ];
 
     public $timestamps = false;
 
-    public function team()
-    {
-        return $this->belongsTo(Team::class, 'team_id','id');
-    }
-
     public function driver()
     {
-        return $this->belongsTo(Driver::class, 'driver_id','id');
+        return $this->belongsTo(Driver::class, 'driver_id', 'id');
+    }
+
+    public function team()
+    {
+        return $this->belongsTo(Team::class, 'team_id', 'id');
+    }
+
+    public function car()
+    {
+        return $this->belongsTo(Car::class, 'car_id', 'id');
     }
 
     public function gridCircuits()
@@ -43,4 +49,10 @@ class DriverTeam extends Model
     public function raceCircuits()
     {
         return $this->hasMany(RaceCircuit::class);
-    }}
+    }
+
+    public function rankingDrivers()
+    {
+        return $this->hasMany(RankingDriver::class, 'edition_id', 'id');
+    }
+}

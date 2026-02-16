@@ -14,9 +14,13 @@ return new class extends Migration
         Schema::create('ranking_driver', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('points');
-            $table->uuid('driver_team_id');
+            $table->uuid('edition_id');
+            $table->uuid('team_id');
+            $table->uuid('driver_id');
 
-            $table->foreign('driver_team_id')->references('id')->on('driver_team')->onDelete('cascade');
+            $table->foreign('edition_id')->references('id')->on('editions')->onDelete('cascade');
+            $table->foreign('team_id')->references('id')->on('teams')->onDelete('cascade');
+            $table->foreign('driver_id')->references('id')->on('drivers')->onDelete('cascade');
         });
     }
 

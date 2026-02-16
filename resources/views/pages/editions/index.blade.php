@@ -48,6 +48,10 @@
                                         @endif
                                     </td>
                                     <td>
+                                        <button  type="button" class="btn btn-sm btn-outline-info offcanvasModal" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom" id="{{$edition->id}}">
+                                            <i class="fa fa-eye"></i>
+                                        </button>
+
                                         <a href="{{route('editions.edit',$edition)}}" class="btn btn-sm btn-outline-primary">
                                             <i class="fa-solid fa-edit"></i>
                                         </a>
@@ -67,6 +71,69 @@
         </div>
     </div>
 
+    <div class="offcanvas offcanvas-bottom" tabindex="-1" id="offcanvasBottom" aria-labelledby="offcanvasBottomLabel">
+        <div class="offcanvas-header">
+            <span class="offcanvas-title h3" id="offcanvasTitle"></span>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body small">
+            <ul class="nav nav-tabs" id="info" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#grid" type="button" role="tab" aria-controls="grid" aria-selected="false" title="Drivers standing">
+                        <i class="fa-solid fa-gamepad"></i>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#race" type="button" role="tab" aria-controls="result" aria-selected="false" title="Teams standing">
+                        <i class="fa-solid fa-users-between-lines"></i>
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content mt-3" id="infoContent">
+                <div class="tab-pane fade show active" id="grid" role="tabpanel" aria-labelledby="grid">
+                    <span class="h3">Drivers standing</span>
+                    <div class="row mb-1 my-3">
+{{--                        <div class="col-2 d-flex align-items-center gap-2">--}}
+{{--                            <div style="width:30px;text-align:center;" title="Position">P</div>--}}
+{{--                            <div style="width:30px;text-align:center;" title="Number">N</div>--}}
+{{--                            <span>Team</span>--}}
+{{--                        </div>--}}
+{{--                        <div class="col-7">Driver</div>--}}
+{{--                        <div class="col-2 text-end">Time</div>--}}
+                    </div>
+                    <div class="my-3" id="driversStandingList">
+                        @include('pages.editions.partials.drivers_standing')
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="race" role="tabpanel" aria-labelledby="result">
+                    <span class="h3">Teams standing</span>
+                    <div class="row mb-1 my-3">
+{{--                        <div class="col-2 d-flex align-items-center gap-2">--}}
+{{--                            <div style="width:30px;text-align:center;" title="Position">P</div>--}}
+{{--                            <div style="width:30px;text-align:center;" title="Number">N</div>--}}
+{{--                            <span>Team</span>--}}
+{{--                        </div>--}}
+{{--                        <div class="col-7">Driver</div>--}}
+{{--                        <div class="col-2 text-end">Time</div>--}}
+                    </div>
+                    <div class="my-3"  id="teamsStandingList">
+                        @include('pages.editions.partials.teams_standing')
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @section('style')
+        <style>
+            #offcanvasBottom {
+                height: 90vh !important; /* metà schermo */
+                border-top-left-radius: 1rem;
+                border-top-right-radius: 1rem;
+            }
+        </style>
+    @stop
 
     @section('modal')
         <!-- Modal Delete -->
@@ -127,6 +194,79 @@
                     ],
                     "order": [[0, 'desc']]
                 });
+            });
+
+            $('.offcanvasModal').on('click', function(){
+                $.post(
+                    "{{route('editions.show')}}",
+                    {
+                        _token: '{{csrf_token()}}',
+                        editionId: this.id
+                    },
+                    function (data) {
+                        $('#offcanvasTitle').text(data.title);
+                        console.log(data);
+                        $('#standingDriversList').html('');
+                        $('#standingTeamsList').html('');
+
+                        // DRIVERS
+                        let drivers = Object.values(data.standingDrivers);
+                        drivers.sort((a, b) => Number(b.points) - Number(a.points));
+                        let standingDriversHtml = '';
+                        let i = 1;
+                        drivers.forEach(function (driver) {
+                            standingDriversHtml += `
+                                    <div class="row mb-1 pb-1" style="border-bottom:1px solid #eee;">
+                                        <div class="col-11 d-flex align-items-center gap-2">
+                                            <div class="col-1">
+                                                <div style="width:30px;height:30px;line-height:30px;text-align:center;border:1px solid #ccc;" class="h5">
+                                                    ${i}
+                                                </div>
+                                            </div>
+                                            <div class="col-5 h5">${driver.driver.name}</div>
+                                            <div class="col-5 h5">${driver.driver.country.acronym}</div>
+                                            <div class="col-5 h5">${driver.team.name}</div>
+                                        </div>
+                                        <div class="col-1 d-flex align-items-center gap-2">
+                                            <div style="width:80px;height:30px;line-height:30px;text-align:center;" class="h5">
+                                                ${driver.points}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            i++;
+                        });
+                        $('#standingDriversList').html(standingDriversHtml);
+
+
+                        // TEAM
+                        let teams = Object.values(data.standingTeams);
+                        teams.sort((a, b) => Number(b.points) - Number(a.points));
+                        let standingTeamsHtml = '';
+                        let t = 1;
+                        teams.forEach(function (team) {
+                            standingTeamsHtml += `
+                                    <div class="row mb-1 pb-1" style="border-bottom:1px solid #eee;">
+                                        <div class="col-11 d-flex align-items-center gap-2">
+                                            <div class="col-1">
+                                                <div style="width:30px;height:30px;line-height:30px;text-align:center;border:1px solid #ccc;" class="h5">
+                                                    ${t}
+                                                </div>
+                                            </div>
+                                            <div class="col-11 h5">${team.team.name}</div>
+                                        </div>
+                                        <div class="col-1 d-flex align-items-center gap-2">
+                                            <div style="width:80px;height:30px;line-height:30px;text-align:center;" class="h5">
+                                                ${team.points}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            t++;
+                        });
+                        $('#standingTeamsList').html(standingTeamsHtml);
+                    },
+                );
             });
         </script>
     @stop

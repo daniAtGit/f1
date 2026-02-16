@@ -7,17 +7,23 @@
             <input type="hidden" name="edition_id" value="{{$edition->id}}">
 
             <div class="row">
-                <div class="col-3">
+                <div class="col-2">
                     <select name="team_id" id="team_id" class="form-control" required>
-                        <option value="" disabled selected>Teams</option>
+                        <option value="" disabled selected>Team</option>
                         @foreach($teams as $team)
                             <option value="{{$team->id}}">{{$team->name}}</option>
                         @endforeach
                     </select>
                 </div>
                 <div class="col-3">
+                    <select name="car_id" id="car_id" class="form-control">
+                        <option value="" disabled selected>Car</option>
+
+                    </select>
+                </div>
+                <div class="col-3">
                     <select name="driver_id" id="driver_id" class="form-control" required>
-                        <option value="" disabled selected>Drivers</option>
+                        <option value="" disabled selected>Driver</option>
                         @foreach($drivers as $driver)
                             <option value="{{$driver->id}}">{{$driver->name}}</option>
                         @endforeach

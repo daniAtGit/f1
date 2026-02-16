@@ -13,32 +13,32 @@ class CountrySeeder extends Seeder
      */
     public function run(): void
     {
-        Country::create(['name' => 'Argentina']);
-        Country::create(['name' => 'Australia']);
-        Country::create(['name' => 'Austria']);
-        Country::create(['name' => 'Azerbaijan']);
-        Country::create(['name' => 'Barhain']);
-        Country::create(['name' => 'Belgium']);
-        Country::create(['name' => 'Brazil']);
-        Country::create(['name' => 'Canada']);
-        Country::create(['name' => 'China']);
-        Country::create(['name' => 'Hungary']);
-        Country::create(['name' => 'France']);
-        Country::create(['name' => 'Germany']);
-        Country::create(['name' => 'Italy']);
-        Country::create(['name' => 'Japan']);
-        Country::create(['name' => 'Mexico']);
-        Country::create(['name' => 'Monaco']);
-        Country::create(['name' => 'Netherlands']);
-        Country::create(['name' => 'New Zealand']);
-        Country::create(['name' => 'Qatar']);
-        Country::create(['name' => 'Saudi Arabia']);
-        Country::create(['name' => 'Singapore']);
-        Country::create(['name' => 'Spain']);
-        Country::create(['name' => 'Swiss']);
-        Country::create(['name' => 'Thailand']);
-        Country::create(['name' => 'United Arab Emirates']);
-        Country::create(['name' => 'United Kingdom']);
-        Country::create(['name' => 'USA']);
+        Country::create(['name' => 'Argentina','acronym'=>'ARG']);
+        Country::create(['name' => 'Australia','acronym'=>'AUS']);
+        Country::create(['name' => 'Austria','acronym'=>'AUT']);
+        Country::create(['name' => 'Azerbaijan','acronym'=>'AZE']);
+        Country::create(['name' => 'Barhain','acronym'=>'BHR']);
+        Country::create(['name' => 'Belgium','acronym'=>'BEL']);
+        Country::create(['name' => 'Brazil','acronym'=>'BRA']);
+        Country::create(['name' => 'Canada','acronym'=>'CAN']);
+        Country::create(['name' => 'China','acronym'=>'CHN']);
+        Country::create(['name' => 'Hungary','acronym'=>'HUN']);
+        Country::create(['name' => 'France','acronym'=>'FRA']);
+        Country::create(['name' => 'Germany','acronym'=>'DEU']);
+        Country::create(['name' => 'Italy','acronym'=>'ITA']);
+        Country::create(['name' => 'Japan','acronym'=>'JPN']);
+        Country::create(['name' => 'Mexico','acronym'=>'MEX']);
+        Country::create(['name' => 'Monaco','acronym'=>'MCO']);
+        Country::create(['name' => 'Netherlands','acronym'=>'NED']);
+        Country::create(['name' => 'New Zealand','acronym'=>'NZL']);
+        Country::create(['name' => 'Qatar','acronym'=>'QAT']);
+        Country::create(['name' => 'Saudi Arabia','acronym'=>'SAU']);
+        Country::create(['name' => 'Singapore','acronym'=>'SGP']);
+        Country::create(['name' => 'Spain','acronym'=>'ESP']);
+        Country::create(['name' => 'Swiss','acronym'=>'CHE']);
+        Country::create(['name' => 'Thailand','acronym'=>'THA']);
+        Country::create(['name' => 'United Arab Emirates','acronym'=>'ARE']);
+        Country::create(['name' => 'United Kingdom','acronym'=>'GBR']);
+        Country::create(['name' => 'USA','acronym'=>'USA']);
     }
 }
