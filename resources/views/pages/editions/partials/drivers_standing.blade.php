@@ -4,7 +4,7 @@
             <div class="col-11 d-flex align-items-center gap-2">
                 <div class="col-1" title="Position">Pos</div>
                 <div class="col-5">Driver</div>
-                <div class="col-5">Country</div>
+                <div class="col-1">Country</div>
                 <div class="col-5">Team</div>
             </div>
             <div class="col-1 d-flex align-items-center gap-2">

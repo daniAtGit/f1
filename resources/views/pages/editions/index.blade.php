@@ -224,7 +224,7 @@
                                                 </div>
                                             </div>
                                             <div class="col-5 h5">${driver.driver.name}</div>
-                                            <div class="col-5 h5">${driver.driver.country.acronym}</div>
+                                            <div class="col-1 h5">${driver.driver.country.acronym}</div>
                                             <div class="col-5 h5">${driver.team.name}</div>
                                         </div>
                                         <div class="col-1 d-flex align-items-center gap-2">

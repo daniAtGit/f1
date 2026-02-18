@@ -124,7 +124,15 @@ class EditionsController extends Controller
     {
         $team = Team::find($request->team_id);
         $cars = [];
-        foreach ($team->cars->sortByDesc('edition.year') as $i => $car) {
+        $orderedCars = $team->cars()
+            ->with('edition')
+            ->get()
+            ->sortByDesc(function ($car) {
+                return $car->edition?->year ?? 0;
+            })
+            ->values();
+
+        foreach ($orderedCars as $i => $car) {
             $id = $car->id;
             $name = $car->name." | ".$car->edition->edition."-".$car->edition->year;
             $cars[$i] = [
