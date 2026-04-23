@@ -8,10 +8,196 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ __("You're logged in!") }}
+                <div class="p-3 text-gray-900">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="small">PREV</div>
+                            @if($prevRace)
+                                <div class="small mt-1">
+                                    @if($prevRace->date)
+                                        <p class="small">{{$prevRace->date->format('d/m/Y')}}</p>
+                                    @endif
+                                    <b>Round {{$prevRace->round}}</b>
+                                    <br>
+                                    <span class="small d-inline-flex flex-column flex-sm-row align-items-center gap-1 text-center">
+                                        @if($prevRace->circuit?->country?->flag_icon_url)
+                                            <img
+                                                src="{{$prevRace->circuit->country->flag_icon_url}}"
+                                                alt="{{$prevRace->circuit?->country?->name}} flag"
+                                                style="width:20px;height:14px;object-fit:cover;border:1px solid #eee;"
+                                                loading="lazy"
+                                            >
+                                        @endif
+                                        <span>{{$prevRace->circuit->name}}</span>
+                                    </span>
+                                </div>
+                            @else
+                                <div class="small mt-1 text-muted">Nessuna gara disponibile</div>
+                            @endif
+                        </div>
+
+                        <div class="col-4 text-center" style="border:2px solid #ddd;padding:12px;box-shadow:0 10px 14px -12px rgba(0,0,0,.55);">
+                            <div class="small">CURRENT</div>
+                            @if($currentRace)
+                                <div class="small mt-1">
+                                    @if($currentRace->date)
+                                        {{$currentRace->date->format('d/m/Y')}}
+                                    @endif
+                                    <p style="font-size:22px;"><b>Round {{$currentRace->round}}</b></p>
+                                    <span class="d-inline-flex flex-column flex-sm-row align-items-center gap-1 text-center">
+                                        @if($currentRace->circuit?->country?->flag_icon_url)
+                                            <img
+                                                src="{{$currentRace->circuit->country->flag_icon_url}}"
+                                                alt="{{$currentRace->circuit?->country?->name}} flag"
+                                                style="width:20px;height:14px;object-fit:cover;border:1px solid #eee;"
+                                                loading="lazy"
+                                            >
+                                        @endif
+                                        <span>{{$currentRace->circuit->name}}</span>
+                                    </span>
+                                </div>
+                            @else
+                                <div class="small mt-1 text-muted">Nessuna gara disponibile</div>
+                            @endif
+                        </div>
+
+                        <div class="col-4 text-end">
+                            <div class="small">NEXT</div>
+                            @if($nextRace)
+                                <div class="small mt-1">
+                                    @if($nextRace->date)
+                                        <p class="small">{{$nextRace->date->format('d/m/Y')}}</p>
+                                    @endif
+                                    <b>Round {{$nextRace->round}}</b>
+                                    <br>
+                                    <span class="small d-inline-flex flex-column flex-sm-row align-items-center gap-1 text-center">
+                                        @if($nextRace->circuit?->country?->flag_icon_url)
+                                            <img
+                                                src="{{$nextRace->circuit->country->flag_icon_url}}"
+                                                alt="{{$nextRace->circuit?->country?->name}} flag"
+                                                style="width:20px;height:14px;object-fit:cover;border:1px solid #eee;"
+                                                loading="lazy"
+                                            >
+                                        @endif
+                                        <span>{{$nextRace->circuit->name}}</span>
+                                    </span>
+                                </div>
+                            @else
+                                <div class="small mt-1 text-muted">Nessuna gara disponibile</div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-2">
+            <div class="overflow-hidden">
+                <div class="d-flex justify-content-end">
+                    <div class="input-group w-auto">
+                        <span class="bg-white input-group-text" id="basic-addon1">Edition</span>
+                        <select class="form-select" name="changeEdition" id="changeEdition" aria-label="changeEdition" aria-describedby="basic-addon1">
+                            @foreach($editions as $editionOption)
+                                <option value="{{$editionOption->id}}" @selected($editionOption->id === $edition?->id)>{{$editionOption->edition}} - {{$editionOption->year}}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-2">
+            <div class="row g-3">
+                <div class="col-12 col-lg-6">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg h-100">
+                        <div class="p-3 text-gray-900">
+                            DRIVER
+
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <div class="row mb-1 my-3">
+                                        <div class="col-12 d-flex align-items-center gap-2">
+                                            <div class="col-1" title="Position">Pos</div>
+                                            <div class="col-1" title="Position">N.</div>
+                                            <div class="col-5">Driver</div>
+                                            <div class="col-4">Team</div>
+                                            <div class="col-1">Pts</div>
+                                        </div>
+                                    </div>
+                                    <div class="my-3">
+                                        @foreach($standingDrivers as $i => $standingDriver)
+                                            <div class="row mb-1 pb-1" style="border-bottom:1px solid #eee;">
+                                                <div class="col-12 d-flex align-items-center gap-2">
+                                                    <div class="col-1">
+                                                        <div style="width:30px;height:30px;line-height:30px;text-align:center;border:1px solid #ccc;" class="h5">
+                                                            {{$i+1}}
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-1">
+                                                        <div style="width:30px;height:30px;line-height:30px;text-align:center;border:1px solid #ccc;" class="h5">
+                                                            {{
+                                                                $standingDriver->driver->driverTeams
+                                                                    ->firstWhere('team_id', $standingDriver->team_id)
+                                                                    ?->number
+                                                            }}
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-5 h5">{{$standingDriver->driver->name}}</div>
+                                                    <div class="col-4 h5">{{$standingDriver->team->name}}</div>
+                                                    <div class="col-1 h5">{{$standingDriver->points}}</div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg h-100">
+                        <div class="p-3 text-gray-900">
+                            TEAM
+
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <div class="row mb-1 my-3">
+                                        <div class="col-12 d-flex align-items-center gap-2">
+                                            <div class="col-1" title="Position">Pos</div>
+                                            <div class="col-10">Team</div>
+                                            <div class="col-1">Pts</div>
+                                        </div>
+                                    </div>
+                                    <div class="my-3">
+                                        @foreach($standingTeams as $i => $standingTeam)
+                                            <div class="row mb-1 pb-1" style="border-bottom:1px solid #eee;">
+                                                <div class="col-12 d-flex align-items-center gap-2">
+                                                    <div class="col-1">
+                                                        <div style="width:30px;height:30px;line-height:30px;text-align:center;border:1px solid #ccc;" class="h5">
+                                                            {{$i+1}}
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-10 h5">{{$standingTeam->team->name}}</div>
+                                                    <div class="col-1 h5">{{$standingTeam->points}}</div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        document.getElementById('changeEdition')?.addEventListener('change', function (event) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('edition', event.target.value);
+            window.location.href = url.toString();
+        });
+    </script>
 </x-app-layout>
