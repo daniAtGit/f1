@@ -176,7 +176,7 @@
 
     <script>
         document.getElementById('changeEdition')?.addEventListener('change', function (event) {
-            const url = @json(route('edition.single', ['edition' => '__EDITION__']));
+            const url = @json(route('dashboard', ['edition' => '__EDITION__']));
             window.location.href = url.replace('__EDITION__', event.target.value);
         });
     </script>
