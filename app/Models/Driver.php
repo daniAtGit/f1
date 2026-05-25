@@ -32,4 +32,34 @@ class Driver extends Model
     {
         return $this->hasMany(DriverTeam::class);
     }
+
+    public function gridCircuits()
+    {
+        return $this->hasManyThrough(
+            GridCircuit::class,
+            DriverTeam::class,
+            'driver_id',
+            'driver_team_id'
+        );
+    }
+
+    public function RaceCircuits()
+    {
+        return $this->hasManyThrough(
+            RaceCircuit::class,
+            DriverTeam::class,
+            'driver_id',
+            'driver_team_id'
+        );
+    }
+
+    public function SprintCircuits()
+    {
+        return $this->hasManyThrough(
+            SprintCircuit::class,
+            DriverTeam::class,
+            'driver_id',
+            'driver_team_id'
+        );
+    }
 }

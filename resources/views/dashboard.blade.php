@@ -30,6 +30,13 @@
                                         @endif
                                         <span>{{$prevRace->circuit->name}}</span>
                                     </span>
+                                    <br>
+                                    @foreach($prevRace->videos as $video)
+                                        <a href="{{$video->url}}" target="_target" title="{{$video->title}}">
+                                            <i class="fa fa-video text-info"></i>
+                                        </a>
+                                        |
+                                    @endforeach
                                 </div>
                             @else
                                 <div class="small mt-1 text-muted">Nessuna gara disponibile</div>
@@ -55,6 +62,13 @@
                                         @endif
                                         <span>{{$currentRace->circuit->name}}</span>
                                     </span>
+                                    <br>
+                                    @foreach($currentRace->videos as $video)
+                                        <a href="{{$video->url}}" target="_target" title="{{$video->title}}">
+                                            <i class="fa fa-video text-info"></i>
+                                        </a>
+                                        |
+                                    @endforeach
                                 </div>
                             @else
                                 <div class="small mt-1 text-muted">Nessuna gara disponibile</div>
@@ -95,7 +109,8 @@
             <div class="overflow-hidden">
                 <div class="d-flex justify-content-end">
                     <div class="input-group w-auto">
-                        <span class="bg-white input-group-text" id="basic-addon1">Edition</span>
+{{--                        <span class="bg-white input-group-text" id="basic-addon1">Edition</span>--}}
+                        <a class="bg-white input-group-text text-decoration-none" id="basic-addon1" href="{{ route('edition.single', ['edition' => $edition?->id]) }}">Edition</a>
                         <select class="form-select" name="changeEdition" id="changeEdition" aria-label="changeEdition" aria-describedby="basic-addon1">
                             @foreach($editions as $editionOption)
                                 <option value="{{$editionOption->id}}" @selected($editionOption->id === $edition?->id)>{{$editionOption->edition}} - {{$editionOption->year}}</option>
@@ -125,29 +140,7 @@
                                         </div>
                                     </div>
                                     <div class="my-3">
-                                        @foreach($standingDrivers as $i => $standingDriver)
-                                            <div class="row mb-1 pb-1" style="border-bottom:1px solid #eee;">
-                                                <div class="col-12 d-flex align-items-center gap-2">
-                                                    <div class="col-1">
-                                                        <div style="width:30px;height:30px;line-height:30px;text-align:center;border:1px solid #ccc;" class="h5">
-                                                            {{$i+1}}
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-1">
-                                                        <div style="width:30px;height:30px;line-height:30px;text-align:center;border:1px solid #ccc;" class="h5">
-                                                            {{
-                                                                $standingDriver->driver->driverTeams
-                                                                    ->firstWhere('team_id', $standingDriver->team_id)
-                                                                    ?->number
-                                                            }}
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-5 h5">{{$standingDriver->driver->name}}</div>
-                                                    <div class="col-4 h5">{{$standingDriver->team->name}}</div>
-                                                    <div class="col-1 h5">{{$standingDriver->points}}</div>
-                                                </div>
-                                            </div>
-                                        @endforeach
+                                        @include('pages.partials.standingDrivers')
                                     </div>
                                 </div>
                             </div>
@@ -170,19 +163,7 @@
                                         </div>
                                     </div>
                                     <div class="my-3">
-                                        @foreach($standingTeams as $i => $standingTeam)
-                                            <div class="row mb-1 pb-1" style="border-bottom:1px solid #eee;">
-                                                <div class="col-12 d-flex align-items-center gap-2">
-                                                    <div class="col-1">
-                                                        <div style="width:30px;height:30px;line-height:30px;text-align:center;border:1px solid #ccc;" class="h5">
-                                                            {{$i+1}}
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-10 h5">{{$standingTeam->team->name}}</div>
-                                                    <div class="col-1 h5">{{$standingTeam->points}}</div>
-                                                </div>
-                                            </div>
-                                        @endforeach
+                                        @include('pages.partials.standingTeams')
                                     </div>
                                 </div>
                             </div>
@@ -195,9 +176,8 @@
 
     <script>
         document.getElementById('changeEdition')?.addEventListener('change', function (event) {
-            const url = new URL(window.location.href);
-            url.searchParams.set('edition', event.target.value);
-            window.location.href = url.toString();
+            const url = @json(route('edition.single', ['edition' => '__EDITION__']));
+            window.location.href = url.replace('__EDITION__', event.target.value);
         });
     </script>
 </x-app-layout>

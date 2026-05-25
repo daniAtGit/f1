@@ -50,9 +50,9 @@
                     <th>Country</th>
                     <th>City</th>
                     <th>Circuit</th>
-                    <th>Starting grid</th>
-                    <th>Race result</th>
-                    <th>Sprint result</th>
+                    <th style="width:200px">Starting grid</th>
+                    <th style="width:200px">Race result</th>
+                    <th style="width:200px">Sprint result</th>
                     <th>Video</th>
                     <th></th>
                 </tr>
@@ -67,19 +67,19 @@
                         <td>{{$editionCircuit->circuit->name}}</td>
                         <td>
                             @foreach($editionCircuit->grid->sortBy('position')->take(3) as $gridCircuit)
-                                {{$gridCircuit->position}}. {{$gridCircuit->driverTeam->driver->name}} {{$gridCircuit->driverTeam->number}} - {{$gridCircuit->time}}
+                                {{$gridCircuit->position}}. {{$gridCircuit->driverTeam->driver->name}}
                                 <br>
                             @endforeach
                         </td>
                         <td>
                             @foreach($editionCircuit->race->sortBy('position')->take(3) as $raceCircuit)
-                                {{$raceCircuit->position}}. {{$raceCircuit->driverTeam->driver->name}} {{$raceCircuit->driverTeam->number}} - {{$raceCircuit->time}}
+                                {{$raceCircuit->position}}. {{$raceCircuit->driverTeam->driver->name}}
                                 <br>
                             @endforeach
                         </td>
                         <td>
                             @foreach($editionCircuit->sprint->sortBy('position')->take(3) as $sprintCircuit)
-                                {{$sprintCircuit->position}}. {{$sprintCircuit->driverTeam->driver->name}} {{$sprintCircuit->driverTeam->number}} - {{$sprintCircuit->time}}
+                                {{$sprintCircuit->position}}. {{$sprintCircuit->driverTeam->driver->name}}
                                 <br>
                             @endforeach
                         </td>

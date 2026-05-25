@@ -29,4 +29,9 @@ class RaceCircuit extends Model
     {
         return $this->belongsTo(DriverTeam::class);
     }
+
+    public function editionCircuit()
+    {
+        return $this->belongsTo(EditionCircuit::class);
+    }
 }

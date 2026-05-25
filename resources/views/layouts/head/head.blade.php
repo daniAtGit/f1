@@ -5,8 +5,8 @@
 <title>{{ config('app.name', 'Laravel') }}</title>
 
 <!-- Favicon -->
-{{--<link rel="apple-touch-icon" sizes="76x76" href="{{asset('images/sanremo.png')}}">--}}
-{{--<link rel="icon" type="image/png" href="{{asset('images/sanremo.png')}}">--}}
+<link rel="apple-touch-icon" sizes="76x76" href="{{asset('storage/images/logo.png')}}">
+<link rel="icon" type="image/png" href="{{asset('storage/images/logo.png')}}">
 
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.bunny.net">
@@ -22,7 +22,9 @@
 <!-- FontAwesome dani -->
 <script src="https://kit.fontawesome.com/c93d9f2851.js" crossorigin="anonymous"></script>
 
-    <!-- Scripts -->
+@laravelPWA
+
+<!-- Scripts -->
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 
 @yield('styleSrc')
