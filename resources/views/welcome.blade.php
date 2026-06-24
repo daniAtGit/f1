@@ -42,7 +42,7 @@
                                                     loading="lazy"
                                                 >
                                             @endif
-                                            <span>{{$prevRace->circuit->name}}</span>
+                                            <span><a href="{{route('circuit.single', $prevRace->circuit)}}">{{$prevRace->circuit->name}}</a></span>
                                         </span>
                                         <br>
                                         @foreach($prevRace->videos as $video)
@@ -74,7 +74,7 @@
                                                     loading="lazy"
                                                 >
                                             @endif
-                                            <span>{{$currentRace->circuit->name}}</span>
+                                            <span><a href="{{route('circuit.single', $currentRace->circuit)}}">{{$currentRace->circuit->name}}</a></span>
                                         </span>
                                         <br>
                                         @foreach($currentRace->videos as $video)
@@ -107,7 +107,7 @@
                                                     loading="lazy"
                                                 >
                                             @endif
-                                            <span>{{$nextRace->circuit->name}}</span>
+                                            <span><a href="{{route('circuit.single', $nextRace->circuit)}}">{{$nextRace->circuit->name}}</a></span>
                                         </span>
                                     </div>
                                 @else
@@ -171,8 +171,8 @@
                                         <div class="row mb-1 my-3">
                                             <div class="col-12 d-flex align-items-center gap-2">
                                                 <div class="col-1" title="Position">Pos</div>
-                                                <div class="col-10">Team</div>
-                                                <div class="col-1">Pts</div>
+                                                <div class="col-9">Team</div>
+                                                <div class="col-2">Pts</div>
                                             </div>
                                         </div>
                                         <div class="my-3">

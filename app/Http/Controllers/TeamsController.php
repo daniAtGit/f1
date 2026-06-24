@@ -34,11 +34,6 @@ class TeamsController extends Controller
         return redirect()->route('teams.index');
     }
 
-    public function show(Team $team): View
-    {
-        dd($team);
-    }
-
     public function edit(Team $team): View
     {
         $countries=Country::all()->sortBy('name');

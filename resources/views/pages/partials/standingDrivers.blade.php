@@ -21,10 +21,7 @@
             </div>
             <div class="col-5 h5"><a href="{{route('driver.single', $standingDriver->driver)}}">{{$standingDriver->driver->name}}</a></div>
             <div class="col-3 overflow-x-hidden">
-{{--                <badge class="badge" style="background:{{$standingDriver->team->color}};"><i class="fa fa-car-side"></i></badge>--}}
-{{--                {{$standingDriver->team->name}}--}}
                 <badge class="badge" style="background:{{$standingDriver->team->color}};">{{$standingDriver->team->name}}</badge>
-
             </div>
             <div class="col-2 h5">{{$standingDriver->points}}</div>
         </div>

@@ -44,6 +44,9 @@
                                         {{$car->edition->edition}} - {{$car->edition->year}}
                                     </td>
                                     <td>
+                                        <a href="https://www.google.com/search?q={{$car->team->name}}+{{$car->name}}" class="btn btn-sm btn-outline-info" target="_blank">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </a>
                                         <a href="{{route('cars.edit',$car)}}" class="btn btn-sm btn-outline-primary">
                                             <i class="fa-solid fa-edit"></i>
                                         </a>

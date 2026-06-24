@@ -28,7 +28,20 @@
                         <div class="p-3 text-gray-900">
                             <div class="row">
                                 <div class="col-10">
-                                    foto
+                                    @php
+                                        $driverImageUrl = $driver->getImgDriverFromGoogle('racing driver');
+                                    @endphp
+                                    @if($driverImageUrl)
+                                        <img
+                                            src="{{ $driverImageUrl }}"
+                                            alt="{{ $driver->name }}"
+                                            class="img-fluid"
+                                            style="max-height:180px;object-fit:contain;"
+                                            loading="lazy"
+                                        >
+                                    @else
+                                        <div class="text-muted fst-italic">Foto non disponibile</div>
+                                    @endif
                                 </div>
                                 <div class="col-1">
                                     <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
@@ -85,11 +98,11 @@
                 </div>
 
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-2">
-                    <div class="overflow-hidden">
-                        <div class="d-flex justify-content-end">
-                            <div class="input-group w-auto">
-                                <span class="bg-white input-group-text" id="basic-addon1">Edition</span>
-                                <select class="form-select" name="changeEdition" id="changeEdition" aria-label="changeEdition" aria-describedby="basic-addon1">
+                <div class="overflow-hidden">
+                    <div class="d-flex justify-content-end">
+                        <div class="input-group w-auto">
+                                <span class="bg-white input-group-text text-decoration-none">Edition</span>
+                                <select class="form-select" name="changeEdition" id="changeEdition" aria-label="changeEdition" aria-describedby="editionLink">
                                     @foreach($editions as $editionOption)
                                         <option value="{{$editionOption->id}}" @selected($editionOption->id === $edition?->id)>{{$editionOption->edition}} - {{$editionOption->year}}</option>
                                     @endforeach
@@ -106,13 +119,19 @@
                                 <div class="p-3 text-gray-900">
                                     @forelse($resultsByYear as $year => $circuits)
                                         <div class="mb-4">
-                                            <div class="fw-bold mb-2">{{ $year }}</div>
+                                            <div class="fw-bold mb-2">
+                                                {{ $year }}
+                                                @if($editionPosition !== null)
+                                                    <span class="text-muted fw-normal ms-2">Pos. {{ $editionPosition }}</span>
+                                                @endif
+                                                <span class="text-muted fw-normal ms-2">Pts. {{ $editionPoints }}</span>
+                                            </div>
 
                                             @foreach($circuits as $circuit)
                                                 <div class="border-bottom pb-2 mb-2">
                                                     <div class="small text-muted">
                                                         Round {{ $circuit['round'] }}
-                                                        - {{ $circuit['countryName'] }} {{ $circuit['city'] }} {{ $circuit['circuitName'] }}
+                                                        - <a href="{{route('circuit.single', $circuit['circuitId'])}}">{{ $circuit['countryName'] }} {{ $circuit['city'] }} {{ $circuit['circuitName'] }}</a>
                                                     </div>
 
                                                     @foreach($circuit['sessions'] as $session)
@@ -147,8 +166,9 @@
 
         <script>
             document.getElementById('changeEdition')?.addEventListener('change', function (event) {
-                const url = @json(route('edition.single', ['edition' => '__EDITION__']));
-                window.location.href = url.replace('__EDITION__', event.target.value);
+                const url = new URL(window.location.href);
+                url.searchParams.set('edition', event.target.value);
+                window.location.href = url.toString();
             });
         </script>
 

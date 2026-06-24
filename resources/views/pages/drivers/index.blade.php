@@ -48,7 +48,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{route('drivers.show',$driver)}}" class="btn btn-sm btn-outline-info">
+                                        <a href="{{route('driver.single', $driver)}}" class="btn btn-sm btn-outline-info">
                                             <i class="fa-solid fa-eye"></i>
                                         </a>
                                         <a href="{{route('drivers.edit',$driver)}}" class="btn btn-sm btn-outline-primary">

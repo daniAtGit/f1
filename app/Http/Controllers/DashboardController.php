@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Circuit;
 use App\Models\Driver;
 use App\Models\Edition;
 use App\Models\EditionCircuit;
@@ -143,7 +144,6 @@ class DashboardController extends Controller
         $editionPosition = $latestDriverRanking
             ? $latestRankingDrivers->search(fn ($rankingDriver) => $rankingDriver->id === $latestDriverRanking->id) + 1
             : null;
-
         if ($edition) {
             $results = $results->filter(fn (array $item) => $item['result']->editionCircuit?->edition?->id === $edition->id);
         }
@@ -159,6 +159,7 @@ class DashboardController extends Controller
                         $editionCircuit = $firstResult->editionCircuit;
 
                         return [
+                            'circuitId' => $editionCircuit?->circuit?->id,
                             'circuitName' => $editionCircuit?->circuit?->name,
                             'countryName' => $editionCircuit?->circuit?->country?->name,
                             'city' => $editionCircuit?->circuit?->city,
@@ -268,17 +269,17 @@ class DashboardController extends Controller
                 ]),
         ])->flatten(1);
 
-        $latestRankingTeams = $latestEdition
-            ? $latestEdition->rankingTeams()
+        $selectedRankingTeams = $edition
+            ? $edition->rankingTeams()
                 ->orderByRaw('CAST(points AS UNSIGNED) DESC')
                 ->get()
             : collect();
 
-        $latestTeamRanking = $latestRankingTeams->firstWhere('team_id', $team->id);
+        $selectedTeamRanking = $selectedRankingTeams->firstWhere('team_id', $team->id);
 
-        $editionPoints = (int) ($latestTeamRanking?->points ?? 0);
-        $editionPosition = $latestTeamRanking
-            ? $latestRankingTeams->search(fn ($rankingTeam) => $rankingTeam->id === $latestTeamRanking->id) + 1
+        $editionPoints = (int) ($selectedTeamRanking?->points ?? 0);
+        $editionPosition = $selectedTeamRanking
+            ? $selectedRankingTeams->search(fn ($rankingTeam) => $rankingTeam->id === $selectedTeamRanking->id) + 1
             : null;
 
         if ($edition) {
@@ -296,6 +297,7 @@ class DashboardController extends Controller
                         $editionCircuit = $firstResult->editionCircuit;
 
                         return [
+                            'circuitId' => $editionCircuit?->circuit?->id,
                             'circuitName' => $editionCircuit?->circuit?->name,
                             'countryName' => $editionCircuit?->circuit?->country?->name,
                             'city' => $editionCircuit?->circuit?->city,
@@ -368,6 +370,7 @@ class DashboardController extends Controller
             ->values()
             ->map(function (EditionCircuit $editionCircuit) {
                 return [
+                    'id' => $editionCircuit->circuit->id,
                     'round' => $editionCircuit->round,
                     'date' => $editionCircuit->date?->format('d/m/Y'),
                     'country' => $editionCircuit?->circuit?->country,
@@ -419,4 +422,40 @@ class DashboardController extends Controller
 
         return view('edition', compact('editions', 'edition', 'editionCircuits'));
     }
+
+    public function circuit(Circuit $circuit): View
+    {
+        $standingDrivers = GridCircuit::query()
+            ->where('circuit_id', $circuit->id)
+            ->where('position', 1)
+            ->with('driverTeam.driver')
+            ->get()
+            ->groupBy(fn (GridCircuit $result) => $result->driverTeam?->driver?->id)
+            ->map(function ($results) {
+                $firstResult = $results->first();
+
+                return [
+                    'driver' => $firstResult->driverTeam->driver,
+                    'firstPlaces' => $results->count(),
+                ];
+            })
+            ->sort(function (array $a, array $b) {
+                if ($a['firstPlaces'] !== $b['firstPlaces']) {
+                    return $b['firstPlaces'] <=> $a['firstPlaces'];
+                }
+
+                return $a['driver']->name <=> $b['driver']->name;
+            })
+            ->values()
+            ->map(function (array $item, int $index) {
+                return [
+                    'position' => $index + 1,
+                    'driver' => $item['driver'],
+                    'firstPlaces' => $item['firstPlaces'],
+                ];
+            });
+
+        return view('circuit', compact('circuit', 'standingDrivers'));
+    }
+
 }

@@ -14,6 +14,7 @@ Route::get('/', [DashboardController::class, 'welcome'])->name('welcome');
 Route::get('driver/{driver}', [DashboardController::class, 'driver'])->name('driver.single');
 Route::get('team/{team}', [DashboardController::class, 'team'])->name('team.single');
 Route::get('edition/{edition}', [DashboardController::class, 'edition'])->name('edition.single');
+Route::get('circuit/{circuit}', [DashboardController::class, 'circuit'])->name('circuit.single');
 
 //Route::get('/dashboard', [DashboardController::class, 'index'])
 //    ->middleware(['auth', 'verified'])
@@ -26,10 +27,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::resource('drivers', DriversController::class)->parameters(['drivers'=>'driver']);
-    Route::resource('teams', TeamsController::class)->parameters(['teams'=>'team']);
+    Route::resource('drivers', DriversController::class)->except('show')->parameters(['drivers'=>'driver']);
+    Route::resource('teams', TeamsController::class)->except('show')->parameters(['teams'=>'team']);
     Route::resource('cars', CarsController::class)->except('show')->parameters(['cars'=>'car']);
-    Route::resource('circuits', CircuitsController::class)->parameters(['circuits'=>'circuit']);
+    Route::resource('circuits', CircuitsController::class)->except('show')->parameters(['circuits'=>'circuit']);
 
     Route::resource('editions', EditionsController::class)->except('show')->parameters(['editions'=>'edition']);
     Route::post('editions-show', [EditionsController::class, 'show'])->name('editions.show');

@@ -46,7 +46,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{route('teams.show',$team)}}" class="btn btn-sm btn-outline-info">
+                                        <a href="{{route('team.single', $team)}}" class="btn btn-sm btn-outline-info">
                                             <i class="fa-solid fa-eye"></i>
                                         </a>
 

@@ -10,8 +10,12 @@
                     @endif
                 </div>
             </div>
-            <div class="col-10 h5"><a href="{{route('team.single', $standingTeam->team)}}">{{$standingTeam->team->name}}</a></div>
-            <div class="col-1 h5">{{$standingTeam->points}}</div>
+            <div class="col-9 h4">
+                <a href="{{route('team.single', $standingTeam->team)}}">
+                    <badge class="badge" style="background:{{$standingTeam->team->color}};">{{$standingTeam->team->name}}</badge>
+                </a>
+            </div>
+            <div class="col-2 h5">{{$standingTeam->points}}</div>
         </div>
     </div>
 @endforeach

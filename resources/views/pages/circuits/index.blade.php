@@ -46,7 +46,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{route('circuits.show',$circuit)}}" class="btn btn-sm btn-outline-info">
+                                        <a href="{{route('circuit.single', $circuit)}}" class="btn btn-sm btn-outline-info">
                                             <i class="fa-solid fa-eye"></i>
                                         </a>
 

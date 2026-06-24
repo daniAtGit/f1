@@ -28,7 +28,7 @@
                                                 loading="lazy"
                                             >
                                         @endif
-                                        <span>{{$prevRace->circuit->name}}</span>
+                                        <span><a href="{{route('circuit.single', $prevRace->circuit)}}">{{$prevRace->circuit->name}}</a></span>
                                     </span>
                                     <br>
                                     @foreach($prevRace->videos as $video)
@@ -60,7 +60,7 @@
                                                 loading="lazy"
                                             >
                                         @endif
-                                        <span>{{$currentRace->circuit->name}}</span>
+                                        <span><a href="{{route('circuit.single', $currentRace->circuit)}}">{{$currentRace->circuit->name}}</a></span>
                                     </span>
                                     <br>
                                     @foreach($currentRace->videos as $video)
@@ -93,7 +93,7 @@
                                                 loading="lazy"
                                             >
                                         @endif
-                                        <span>{{$nextRace->circuit->name}}</span>
+                                        <span><a href="{{route('circuit.single', $nextRace->circuit)}}">{{$nextRace->circuit->name}}</a></span>
                                     </span>
                                 </div>
                             @else

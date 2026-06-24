@@ -35,11 +35,6 @@ class DriversController extends Controller
         return redirect()->route('drivers.index');
     }
 
-    public function show(Driver $driver): View
-    {
-        dd($driver);
-    }
-
     public function edit(Driver $driver): View
     {
         $countries=Country::all()->sortBy('name');

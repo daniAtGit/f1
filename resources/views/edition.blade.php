@@ -61,7 +61,7 @@
                                                             loading="lazy"
                                                         >
                                                     @endif
-                                                    <span>{{ $circuit['countryName'] }} {{ $circuit['city'] }} {{ $circuit['circuitName'] }}</span>
+                                                    <span><a href="{{route('circuit.single', $circuit['id'])}}">{{ $circuit['countryName'] }} | {{ $circuit['city'] }} | {{ $circuit['circuitName'] }}</a></span>
                                                 </span>
                                             </div>
 
@@ -73,9 +73,10 @@
                                                             <div class="d-flex align-items-center gap-2">
                                                                 <span style="width:30px;height:30px;line-height:30px;padding:0 3px;text-align:center;border:1px solid #ccc;flex:0 0 auto;">{!! $result['position'] == 1 ? '<i class="fa-solid fa-trophy text-warning"></i>' : $result['position'] !!}</span>
                                                                 <div class="small">
-                                                                    {{ $result['driverName'] }} | <b>{{ $result['number'] }}</b>
-                                                                    <br>
-                                                                    <span class="badge" style="background:{{ $result['teamColor'] }};">{{ $result['teamName'] }}</span>
+                                                                    {{ $result['driverName'] }}
+{{--                                                                    | <b>{{ $result['number'] }}</b>--}}
+{{--                                                                    <br>--}}
+{{--                                                                    <span class="badge" style="background:{{ $result['teamColor'] }};">{{ $result['teamName'] }}</span>--}}
                                                                 </div>
                                                             </div>
                                                         @empty
@@ -91,9 +92,10 @@
                                                             <div class="d-flex align-items-center gap-2">
                                                                 <span style="width:30px;height:30px;line-height:30px;padding:0 3px;text-align:center;border:1px solid #ccc;flex:0 0 auto;">{!! $result['position'] == 1 ? '<i class="fa-solid fa-trophy text-warning"></i>' : $result['position'] !!}</span>
                                                                 <div class="small">
-                                                                    {{ $result['driverName'] }} | <b>{{ $result['number'] }}</b>
-                                                                    <br>
-                                                                    <span class="badge" style="background:{{ $result['teamColor'] }};">{{ $result['teamName'] }}</span>
+                                                                    {{ $result['driverName'] }}
+{{--                                                                    | <b>{{ $result['number'] }}</b>--}}
+{{--                                                                    <br>--}}
+{{--                                                                    <span class="badge" style="background:{{ $result['teamColor'] }};">{{ $result['teamName'] }}</span>--}}
                                                                 </div>
                                                             </div>
                                                         @empty
@@ -110,9 +112,10 @@
                                                                 <div class="d-flex align-items-center gap-2">
                                                                     <span style="width:30px;height:30px;line-height:30px;padding:0 3px;text-align:center;border:1px solid #ccc;flex:0 0 auto;">{!! $result['position'] == 1 ? '<i class="fa-solid fa-trophy text-warning"></i>' : $result['position'] !!}</span>
                                                                     <div class="small">
-                                                                        {{ $result['driverName'] }} | <b>{{ $result['number'] }}</b>
-                                                                        <br>
-                                                                        <span class="badge" style="background:{{ $result['teamColor'] }};">{{ $result['teamName'] }}</span>
+                                                                        {{ $result['driverName'] }}
+{{--                                                                        | <b>{{ $result['number'] }}</b>--}}
+{{--                                                                        <br>--}}
+{{--                                                                        <span class="badge" style="background:{{ $result['teamColor'] }};">{{ $result['teamName'] }}</span>--}}
                                                                     </div>
                                                                 </div>
                                                             @endforeach
