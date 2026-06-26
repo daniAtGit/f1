@@ -38,8 +38,22 @@
                                 <tr>
                                     <td>{{$edition->edition}}</td>
                                     <td>{{$edition->year}}</td>
-                                    <td></td>
-                                    <td></td>
+                                    <td>
+                                        @foreach($edition->rankingTeams->sortByDesc('points')->take(3) as $rankingTeam)
+                                            <b>{{$rankingTeam->points}}</b> | {{$rankingTeam->team->name}}
+                                            @if(!$loop->last)
+                                                <br>
+                                            @endif
+                                        @endforeach
+                                    </td>
+                                    <td>
+                                        @foreach($edition->rankingDrivers->sortByDesc('points')->take(3) as $rankingDriver)
+                                            <b>{{$rankingDriver->points}}</b> | {{$rankingDriver->driver->name}}
+                                            @if(!$loop->last)
+                                                <br>
+                                            @endif
+                                        @endforeach
+                                    </td>
                                     <td>
                                         @if($edition->wikipedia)
                                             <a href="{{$edition->wikipedia}}" target="_blank" title="Wikipedia"><i class="fa-brands fa-wikipedia-w px-1"></i></a>

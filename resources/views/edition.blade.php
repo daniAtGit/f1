@@ -70,8 +70,8 @@
                                                     <div class="small fw-bold mb-2"><i class="fa-solid fa-grip-vertical"></i> Grid</div>
                                                     <div class="d-grid gap-2">
                                                         @forelse($circuit['gridResults'] as $result)
-                                                            <div class="d-flex align-items-center gap-2">
-                                                                <span style="width:30px;height:30px;line-height:30px;padding:0 3px;text-align:center;border:1px solid #ccc;flex:0 0 auto;">{!! $result['position'] == 1 ? '<i class="fa-solid fa-trophy text-warning"></i>' : $result['position'] !!}</span>
+                                                            <div class="d-flex align-items-center gap-2 {{ $loop->iteration > 3 ? 'result-extra d-none' : '' }}">
+                                                                <span style="width:30px;height:30px;line-height:30px;padding:0 3px;text-align:center;border:1px solid #ccc;flex:0 0 auto;">{!! $result['position'] == 1 ? '<i class="fa-solid fa-gauge text-success"></i>' : $result['position'] !!}</span>
                                                                 <div class="small">
                                                                     {{ $result['driverName'] }}
 {{--                                                                    | <b>{{ $result['number'] }}</b>--}}
@@ -82,6 +82,11 @@
                                                         @empty
                                                             <div class="text-muted small">Nessun dato disponibile.</div>
                                                         @endforelse
+                                                        @if($circuit['gridResults']->count() > 3)
+                                                            <button type="button" class="btn btn-sm btn-outline-secondary result-toggle" data-show-label="Mostra tutto" data-hide-label="Mostra meno">
+                                                                Mostra tutto
+                                                            </button>
+                                                        @endif
                                                     </div>
                                                 </div>
 
@@ -89,7 +94,7 @@
                                                     <div class="small fw-bold mb-2"><i class="fa-solid fa-flag-checkered"></i> Race</div>
                                                     <div class="d-grid gap-2">
                                                         @forelse($circuit['raceResults'] as $result)
-                                                            <div class="d-flex align-items-center gap-2">
+                                                            <div class="d-flex align-items-center gap-2 {{ $loop->iteration > 3 ? 'result-extra d-none' : '' }}">
                                                                 <span style="width:30px;height:30px;line-height:30px;padding:0 3px;text-align:center;border:1px solid #ccc;flex:0 0 auto;">{!! $result['position'] == 1 ? '<i class="fa-solid fa-trophy text-warning"></i>' : $result['position'] !!}</span>
                                                                 <div class="small">
                                                                     {{ $result['driverName'] }}
@@ -101,6 +106,11 @@
                                                         @empty
                                                             <div class="text-muted small">Nessun dato disponibile.</div>
                                                         @endforelse
+                                                        @if($circuit['raceResults']->count() > 3)
+                                                            <button type="button" class="btn btn-sm btn-outline-secondary result-toggle" data-show-label="Mostra tutto" data-hide-label="Mostra meno">
+                                                                Mostra tutto
+                                                            </button>
+                                                        @endif
                                                     </div>
                                                 </div>
 
@@ -109,7 +119,7 @@
                                                     @if($circuit['sprintResults']->isNotEmpty())
                                                         <div class="d-grid gap-2">
                                                             @foreach($circuit['sprintResults'] as $result)
-                                                                <div class="d-flex align-items-center gap-2">
+                                                                <div class="d-flex align-items-center gap-2 {{ $loop->iteration > 3 ? 'result-extra d-none' : '' }}">
                                                                     <span style="width:30px;height:30px;line-height:30px;padding:0 3px;text-align:center;border:1px solid #ccc;flex:0 0 auto;">{!! $result['position'] == 1 ? '<i class="fa-solid fa-trophy text-warning"></i>' : $result['position'] !!}</span>
                                                                     <div class="small">
                                                                         {{ $result['driverName'] }}
@@ -119,6 +129,11 @@
                                                                     </div>
                                                                 </div>
                                                             @endforeach
+                                                            @if($circuit['sprintResults']->count() > 3)
+                                                                <button type="button" class="btn btn-sm btn-outline-secondary result-toggle" data-show-label="Mostra tutto" data-hide-label="Mostra meno">
+                                                                    Mostra tutto
+                                                                </button>
+                                                            @endif
                                                         </div>
                                                     @else
                                                         <div class="text-muted small">Nessun dato disponibile.</div>
@@ -130,7 +145,7 @@
                                                     <div class="d-grid gap-2">
                                                         @forelse($circuit['videos'] as $video)
                                                             <a href="{{ $video['url'] }}" target="_blank" rel="noopener" class="border p-1 small text-decoration-none d-inline-flex align-items-center gap-2">
-                                                                <i class="fa fa-video text-info"></i>
+                                                                <i class="fa fa-youtube text-danger"></i>
                                                                 <span>{{ $video['title'] ?: 'Video' }}</span>
                                                             </a>
                                                         @empty
@@ -156,6 +171,20 @@
             document.getElementById('changeEdition')?.addEventListener('change', function (event) {
                 const url = @json(route('edition.single', ['edition' => '__EDITION__']));
                 window.location.href = url.replace('__EDITION__', event.target.value);
+            });
+
+            document.querySelectorAll('.result-toggle').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const container = button.closest('.d-grid');
+                    const isExpanded = button.dataset.expanded === 'true';
+
+                    container.querySelectorAll('.result-extra').forEach(function (result) {
+                        result.classList.toggle('d-none', isExpanded);
+                    });
+
+                    button.dataset.expanded = isExpanded ? 'false' : 'true';
+                    button.textContent = isExpanded ? button.dataset.showLabel : button.dataset.hideLabel;
+                });
             });
         </script>
 

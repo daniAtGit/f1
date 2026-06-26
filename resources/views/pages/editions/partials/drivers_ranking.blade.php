@@ -46,22 +46,22 @@
     <div class="col-1"></div>
 
     <div class="col-10">
-        <table class="table table-hover table-striped table-bordered border" id="tabellaRankingDrivers">
+        <table class="table table-hover table-striped table-bordered border">
             <thead>
-                <th>Pos.</th>
-                <th>Pts</th>
+                <th class="text-center">Pos.</th>
+                <th class="text-center">Pts</th>
                 <th>Driver</th>
                 <th>Country</th>
                 <th>Team</th>
-                <th></th>
+                <th style="width:100px;"></th>
             </thead>
             <tbody>
-                @foreach($rankingDrivers as $p => $driver)
+                @foreach($rankingDrivers->sortByDesc('points') as $driver)
                     <tr>
-                        <td>
-                            {{$p+1}}
+                        <td class="text-center">
+                            {{ $loop->iteration }}
                         </td>
-                        <td>{{$driver->points}}</td>
+                        <td class="text-center">{{$driver->points}}</td>
                         <td>{{$driver->driver->name}}</td>
                         <td>{{$driver->driver->country->name}}</td>
                         <td>

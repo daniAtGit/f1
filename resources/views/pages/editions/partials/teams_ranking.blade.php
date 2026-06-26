@@ -25,18 +25,18 @@
     <div class="col-10">
         <table class="table table-hover table-striped table-bordered border" id="tabellaRankingTeams">
             <thead>
-                <th>Pos.</th>
-                <th>Pts</th>
+                <th class="text-center">Pos.</th>
+                <th class="text-center">Pts</th>
                 <th>Team</th>
-                <th></th>
+                <th style="width:100px;"></th>
             </thead>
             <tbody>
-                @foreach($rankingTeams as $p => $team)
+                @foreach($rankingTeams->sortByDesc(('points')) as $team)
                     <tr>
-                        <td>
-                            {{$p+1}}
+                        <td class="text-center">
+                            {{ $loop->iteration }}
                         </td>
-                        <td>{{$team->points}}</td>
+                        <td class="text-center">{{$team->points}}</td>
                         <td>
                             <div style="display:flex;gap:8px;">
                                 <badge class="badge" style="background:{{$team->team->color}};width:100px;display:flex;align-items:center;justify-content:flex-start;padding-left:8px;">

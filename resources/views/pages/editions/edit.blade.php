@@ -292,7 +292,7 @@
                 $('#tabellaTeamsDrivers').dataTable({
                     "responsive": true,
                     "autoWidth": false,
-                    "bSort":true,
+                    "bSort":false,
                     "pageLength": 50,
                     "paging": true,
                     "bPaginate":true,
@@ -342,64 +342,6 @@
                         }
                     ],
                     "order": [[0, 'asc']]
-                });
-
-                $('#tabellaRankingTeams').dataTable({
-                    "responsive": true,
-                    "autoWidth": false,
-                    "bSort":true,
-                    "pageLength": 50,
-                    "paging": true,
-                    "bPaginate":true,
-                    "pagingType":"full_numbers",
-                    "columnDefs": [
-                        {
-                            "targets": 0,
-                            "width": "30px",
-                            "className": 'dt-center',
-                        },
-                        {
-                            "targets": 1,
-                            "width": "50px",
-                            "className": 'dt-center',
-                        },
-                        {
-                            "targets": -1,
-                            "width": "60px",
-                            "className": 'dt-center',
-                            'orderable': false
-                        },
-                    ],
-                    "order": [[1, 'desc']]
-                });
-
-                $('#tabellaRankingDrivers').dataTable({
-                    "responsive": true,
-                    "autoWidth": false,
-                    "bSort":true,
-                    "pageLength": 50,
-                    "paging": true,
-                    "bPaginate":true,
-                    "pagingType":"full_numbers",
-                    "columnDefs": [
-                        {
-                            "targets": 0,
-                            "width": "30px",
-                            "className": 'dt-center',
-                        },
-                        {
-                            "targets": 1,
-                            "width": "50px",
-                            "className": 'dt-center',
-                        },
-                        {
-                            "targets": -1,
-                            "width": "90px",
-                            "className": 'dt-center',
-                            'orderable': false
-                        },
-                    ],
-                    "order": [[1, 'desc']]
                 });
 
                 document.getElementById('modalRankingTeams')

@@ -13,7 +13,10 @@ class CarsController extends Controller
 {
     public function index(): View
     {
-        $cars = Car::all();
+        $cars = Car::with('team', 'edition')
+            ->orderBy('name')
+            ->get();
+
         return view('pages.cars.index', compact('cars'));
     }
 

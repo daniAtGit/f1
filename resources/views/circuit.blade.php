@@ -26,38 +26,43 @@
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-3 text-gray-900">
-                            <div class="mb-2">
-                                @php
-                                    $circuitImageUrl = $circuit->getImgCircuitFromGoogle('formula one circuit');
-                                @endphp
-                                @if($circuitImageUrl)
-                                    <img
-                                        src="{{ $circuitImageUrl }}"
-                                        alt="{{ $circuit->name }}"
-                                        class="img-fluid"
-                                        style="max-height:180px;object-fit:contain;"
-                                        loading="lazy"
-                                    >
-                                @else
-                                    <div class="text-muted fst-italic">Foto non disponibile</div>
-                                @endif
-                            </div>
-                            <div class="row">
-                                <div class="col-11 d-flex align-items-center gap-2 flex-wrap">
-                                    @if($circuit->country->flag_icon_url)
+                            @php
+                                $circuitImageUrl = $circuit->getImgCircuitFromGoogle('formula one circuit');
+                            @endphp
+
+                            <div class="row g-3 align-items-center">
+                                <div class="col-12 col-lg-8">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        @if($circuit->country->flag_icon_url)
+                                            <img
+                                                src="{{ $circuit->country->flag_icon_url }}"
+                                                alt="{{ $circuit->country->name }} flag"
+                                                style="width:24px;height:16px;object-fit:cover;border:1px solid #eee;"
+                                                loading="lazy"
+                                            >
+                                        @endif
+                                        <span class="text-muted">{{ $circuit->country->name }} | {{ $circuit->city }}</span>
+                                    </div>
+
+                                    <div class="h1 mb-3">{{ $circuit->name }}</div>
+
+                                    <a href="https://www.google.com/search?q=wikipedia+{{$circuit->name}}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fa-brands fa-wikipedia-w"></i> Wikipedia
+                                    </a>
+                                </div>
+
+                                <div class="col-12 col-lg-4 text-lg-end">
+                                    @if($circuitImageUrl)
                                         <img
-                                            src="{{ $circuit->country->flag_icon_url }}"
-                                            alt="{{ $circuit->country->name }} flag"
-                                            style="width:20px;height:14px;object-fit:cover;border:1px solid #eee;"
+                                            src="{{ $circuitImageUrl }}"
+                                            alt="{{ $circuit->name }}"
+                                            class="img-fluid rounded border"
+                                            style="max-height:220px;object-fit:contain;background:#fff;"
                                             loading="lazy"
                                         >
+                                    @else
+                                        <div class="text-muted fst-italic">Foto non disponibile</div>
                                     @endif
-                                    <span>{{ $circuit->country->name }} | {{ $circuit->city }} | {{ $circuit->name }}</span>
-                                </div>
-                                <div class="col-1 text-end">
-                                    <a href="https://www.google.com/search?q=wikipedia+{{$circuit->name}}" target="_blank">
-                                        <i class="fa-brands fa-wikipedia-w"></i>
-                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -67,25 +72,31 @@
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-3 text-gray-900">
-                            @forelse($standingDrivers as $standingDriver)
-                                <div class="row mb-1 pb-1" style="border-bottom:1px solid #eee;">
-                                    <div class="col-12 d-flex align-items-center gap-2">
-                                        <div class="col-1">
-                                            <div style="width:30px;height:30px;line-height:30px;text-align:center;border:1px solid #ccc;" class="h5">
-                                                {{ $standingDriver['position'] }}
-                                            </div>
-                                        </div>
-                                        <div class="col-9 h5">
-                                            {{ $standingDriver['driver']->name }}
-                                        </div>
-                                        <div class="col-2 h5 text-end">
-                                            {{ $standingDriver['firstPlaces'] }}
-                                        </div>
-                                    </div>
+                            <div class="row g-3">
+                                <div class="col-12 col-lg-4">
+                                    @include('partials.circuit_driver_standings', [
+                                        'title' => 'Pole',
+                                        'icon' => 'fa-solid fa-gauge',
+                                        'standings' => $poleDrivers,
+                                    ])
                                 </div>
-                            @empty
-                                <div class="text-muted">Nessun dato disponibile.</div>
-                            @endforelse
+
+                                <div class="col-12 col-lg-4">
+                                    @include('partials.circuit_driver_standings', [
+                                        'title' => 'Race',
+                                        'icon' => 'fa-solid fa-flag-checkered',
+                                        'standings' => $raceDrivers,
+                                    ])
+                                </div>
+
+                                <div class="col-12 col-lg-4">
+                                    @include('partials.circuit_driver_standings', [
+                                        'title' => 'Sprint',
+                                        'icon' => 'fa-regular fa-flag',
+                                        'standings' => $sprintDrivers,
+                                    ])
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

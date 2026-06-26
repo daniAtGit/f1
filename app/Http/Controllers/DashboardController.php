@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Circuit;
 use App\Models\Driver;
+use App\Models\DriverTeam;
 use App\Models\Edition;
 use App\Models\EditionCircuit;
 use App\Models\GridCircuit;
@@ -174,6 +175,7 @@ class DashboardController extends Controller
                                         ->map(fn (array $item) => [
                                             'number' => $item['result']->driverTeam->number,
                                             'driverName' => $item['result']->driverTeam->driver->name,
+                                            'teamId' => $item['result']->driverTeam->team->id,
                                             'teamName' => $item['result']->driverTeam->team->name,
                                             'teamColor' => $item['result']->driverTeam->team->color,
                                             'position' => $item['result']->position,
@@ -188,6 +190,7 @@ class DashboardController extends Controller
                                         ->map(fn (array $item) => [
                                             'number' => $item['result']->driverTeam->number,
                                             'driverName' => $item['result']->driverTeam->driver->name,
+                                            'teamId' => $item['result']->driverTeam->team->id,
                                             'teamName' => $item['result']->driverTeam->team->name,
                                             'teamColor' => $item['result']->driverTeam->team->color,
                                             'position' => $item['result']->position,
@@ -202,6 +205,7 @@ class DashboardController extends Controller
                                         ->map(fn (array $item) => [
                                             'number' => $item['result']->driverTeam->number,
                                             'driverName' => $item['result']->driverTeam->driver->name,
+                                            'teamId' => $item['result']->driverTeam->team->id,
                                             'teamName' => $item['result']->driverTeam->team->name,
                                             'teamColor' => $item['result']->driverTeam->team->color,
                                             'position' => $item['result']->position,
@@ -311,6 +315,7 @@ class DashboardController extends Controller
                                         ->sortBy(fn (array $item) => $item['result']->position)
                                         ->map(fn (array $item) => [
                                             'number' => $item['result']->driverTeam->number,
+                                            'driverId' => $item['result']->driverTeam->driver->id,
                                             'driverName' => $item['result']->driverTeam->driver->name,
                                             'position' => $item['result']->position,
                                         ])
@@ -323,6 +328,7 @@ class DashboardController extends Controller
                                         ->sortBy(fn (array $item) => $item['result']->position)
                                         ->map(fn (array $item) => [
                                             'number' => $item['result']->driverTeam->number,
+                                            'driverId' => $item['result']->driverTeam->driver->id,
                                             'driverName' => $item['result']->driverTeam->driver->name,
                                             'position' => $item['result']->position,
                                         ])
@@ -335,6 +341,7 @@ class DashboardController extends Controller
                                         ->sortBy(fn (array $item) => $item['result']->position)
                                         ->map(fn (array $item) => [
                                             'number' => $item['result']->driverTeam->number,
+                                            'driverId' => $item['result']->driverTeam->driver->id,
                                             'driverName' => $item['result']->driverTeam->driver->name,
                                             'position' => $item['result']->position,
                                         ])
@@ -379,7 +386,6 @@ class DashboardController extends Controller
                     'city' => $editionCircuit?->circuit?->city,
                     'gridResults' => $editionCircuit->grid
                         ->sortBy(fn (GridCircuit $result) => $result->position)
-                        ->take(3)
                         ->map(fn (GridCircuit $result) => [
                             'number' => $result->driverTeam->number,
                             'driverName' => $result->driverTeam->driver->name,
@@ -390,7 +396,6 @@ class DashboardController extends Controller
                         ->values(),
                     'raceResults' => $editionCircuit->race
                         ->sortBy(fn (RaceCircuit $result) => $result->position)
-                        ->take(3)
                         ->map(fn (RaceCircuit $result) => [
                             'number' => $result->driverTeam->number,
                             'driverName' => $result->driverTeam->driver->name,
@@ -401,7 +406,6 @@ class DashboardController extends Controller
                         ->values(),
                     'sprintResults' => $editionCircuit->sprint
                         ->sortBy(fn (SprintCircuit $result) => $result->position)
-                        ->take(3)
                         ->map(fn (SprintCircuit $result) => [
                             'number' => $result->driverTeam->number,
                             'driverName' => $result->driverTeam->driver->name,
@@ -425,12 +429,44 @@ class DashboardController extends Controller
 
     public function circuit(Circuit $circuit): View
     {
-        $standingDrivers = GridCircuit::query()
+        $circuit->load('country');
+
+        $poleResults = $this->circuitFirstPlaceResults(GridCircuit::class, $circuit);
+        $raceResults = $this->circuitFirstPlaceResults(RaceCircuit::class, $circuit);
+        $sprintResults = $this->circuitFirstPlaceResults(SprintCircuit::class, $circuit);
+        $driverTeamsById = DriverTeam::with('driver.country')
+            ->whereIn('id', $poleResults
+                ->merge($raceResults)
+                ->merge($sprintResults)
+                ->pluck('driver_team_id')
+                ->unique()
+                ->values())
+            ->get()
+            ->keyBy('id');
+
+        $poleDrivers = $this->circuitFirstPlaceStandings($poleResults, $driverTeamsById);
+        $raceDrivers = $this->circuitFirstPlaceStandings($raceResults, $driverTeamsById);
+        $sprintDrivers = $this->circuitFirstPlaceStandings($sprintResults, $driverTeamsById);
+
+        return view('circuit', compact('circuit', 'poleDrivers', 'raceDrivers', 'sprintDrivers'));
+    }
+
+    private function circuitFirstPlaceResults(string $resultModel, Circuit $circuit)
+    {
+        return $resultModel::query()
             ->where('circuit_id', $circuit->id)
             ->where('position', 1)
-            ->with('driverTeam.driver')
-            ->get()
-            ->groupBy(fn (GridCircuit $result) => $result->driverTeam?->driver?->id)
+            ->get();
+    }
+
+    private function circuitFirstPlaceStandings($results, $driverTeamsById)
+    {
+        return $results
+            ->each(fn ($result) => $result->setRelation(
+                'driverTeam',
+                $driverTeamsById->get($result->driver_team_id)
+            ))
+            ->groupBy(fn ($result) => $result->driverTeam?->driver?->id)
             ->map(function ($results) {
                 $firstResult = $results->first();
 
@@ -454,8 +490,6 @@ class DashboardController extends Controller
                     'firstPlaces' => $item['firstPlaces'],
                 ];
             });
-
-        return view('circuit', compact('circuit', 'standingDrivers'));
     }
 
 }

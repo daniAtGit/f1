@@ -53,15 +53,23 @@ class Team extends Model
             return $fromTitle;
         }
 
-        $terms = array_filter([
-            trim($this->name.' '.($cosa ?? '').' '.($anno ?? '')),
-            $this->name.' formula one team',
-            $this->name.' f1 team',
-            $this->name,
-        ]);
+        $teamName = $this->normalizedTeamName();
+        $terms = array_unique(array_filter([
+            $teamName.' formula one team',
+            $teamName.' f1 team',
+            trim($teamName.' '.($cosa ?? '').' '.($anno ?? '')),
+            $teamName,
+        ]));
 
         foreach ($terms as $term) {
             $url = $this->getImageFromWikipediaSearch($term);
+            if (!empty($url)) {
+                return $url;
+            }
+        }
+
+        foreach ($terms as $term) {
+            $url = $this->getImageFromWikimediaCommonsSearch($term);
             if (!empty($url)) {
                 return $url;
             }
@@ -74,6 +82,10 @@ class Team extends Model
     {
         $title = $this->extractWikipediaTitleFromUrl();
         if (empty($title)) {
+            return null;
+        }
+
+        if (!$this->titleMatchesTeamName($title) || $this->teamTitlePriority($title) > 0) {
             return null;
         }
 
@@ -125,7 +137,11 @@ class Team extends Model
                 return null;
             }
 
-            $pages = collect($response->json('query.pages', []));
+            $pages = collect($response->json('query.pages', []))
+                ->filter(fn ($page) => $this->titleMatchesTeamName(data_get($page, 'title')))
+                ->filter(fn ($page) => $this->teamTitlePriority(data_get($page, 'title')) === 0)
+                ->sortBy('index');
+
             foreach ($pages as $page) {
                 $url = data_get($page, 'original.source') ?? data_get($page, 'thumbnail.source');
                 if (!empty($url)) {
@@ -137,6 +153,88 @@ class Team extends Model
         }
 
         return null;
+    }
+
+    private function getImageFromWikimediaCommonsSearch(string $search): ?string
+    {
+        try {
+            $response = $this->wikiHttp()->get('https://commons.wikimedia.org/w/api.php', [
+                'action' => 'query',
+                'format' => 'json',
+                'generator' => 'search',
+                'gsrsearch' => $search,
+                'gsrnamespace' => 6,
+                'gsrlimit' => 10,
+                'prop' => 'imageinfo',
+                'iiprop' => 'url|mime',
+            ]);
+
+            if (!$response->ok()) {
+                return null;
+            }
+
+            $pages = collect($response->json('query.pages', []))
+                ->filter(fn ($page) => $this->titleMatchesTeamName(data_get($page, 'title')))
+                ->filter(fn ($page) => str_starts_with(data_get($page, 'imageinfo.0.mime', ''), 'image/'))
+                ->sortBy([
+                    fn ($page) => $this->teamTitlePriority(data_get($page, 'title')),
+                    fn ($page) => data_get($page, 'index', PHP_INT_MAX),
+                ]);
+
+            foreach ($pages as $page) {
+                $url = data_get($page, 'imageinfo.0.url');
+                if (!empty($url)) {
+                    return $url;
+                }
+            }
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        return null;
+    }
+
+    private function titleMatchesTeamName(?string $title): bool
+    {
+        if (empty($title) || empty($this->name)) {
+            return false;
+        }
+
+        $teamName = $this->normalizedTeamName();
+        if (empty($teamName)) {
+            return false;
+        }
+
+        return str_contains($this->normalizeTeamTitle($title), $teamName);
+    }
+
+    private function teamTitlePriority(?string $title): int
+    {
+        $normalizedTitle = $this->normalizeTeamTitle($title ?? '');
+
+        if ($normalizedTitle === $this->normalizedTeamName()) {
+            return 0;
+        }
+
+        foreach (['formula one', 'team', 'racing', 'scuderia', 'constructor', 'grand prix'] as $teamKeyword) {
+            if (str_contains($normalizedTitle, $teamKeyword)) {
+                return 0;
+            }
+        }
+
+        return 1;
+    }
+
+    private function normalizedTeamName(): string
+    {
+        $name = $this->normalizeTeamTitle($this->name);
+
+        return trim(preg_replace('/\b(f1|formula one|formula 1|team)\b/i', '', $name));
+    }
+
+    private function normalizeTeamTitle(string $value): string
+    {
+        return trim(preg_replace('/\s+/', ' ', mb_strtolower($value)));
     }
 
     private function extractWikipediaTitleFromUrl(): ?string

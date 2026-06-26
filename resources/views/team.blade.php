@@ -27,7 +27,7 @@
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-3 text-gray-900">
                             <div class="row">
-                                <div class="col-10">
+                                <div class="col-9">
                                     @php
                                         $teamImageUrl = $team->getImgTeamFromGoogle('formula one team');
                                     @endphp
@@ -57,6 +57,7 @@
                                     </p>
                                     <span style="font-size:30px">{{ $editionPoints }}</span>
                                 </div>
+                                <div class="col-1"></div>
                             </div>
                         </div>
                     </div>
@@ -112,7 +113,7 @@
                                                                 |
 
                                                                 <span style="width:30px;height:30px;line-height:30px;padding:0 3px;text-align:center;border:1px solid #ccc;">{{ $result['number'] }}</span>
-                                                                Pos. <b>{{ $result['position'] }}</b> {{ $result['driverName'] }}
+                                                                    Pos. <b>{{ $result['position'] }}</b> <a href="{{route('driver.single', $result['driverId'])}}">{{ $result['driverName'] }}</a>
                                                                 <br>
                                                             @endforeach
                                                         </div>

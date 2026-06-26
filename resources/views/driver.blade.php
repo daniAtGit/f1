@@ -27,7 +27,7 @@
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-3 text-gray-900">
                             <div class="row">
-                                <div class="col-10">
+                                <div class="col-9">
                                     @php
                                         $driverImageUrl = $driver->getImgDriverFromGoogle('racing driver');
                                     @endphp
@@ -57,6 +57,7 @@
                                     </p>
                                     <span style="font-size:30px">{{ $editionPoints }}</span>
                                 </div>
+                                <div class="col-1"></div>
                             </div>
                         </div>
                     </div>
@@ -145,7 +146,7 @@
                                                             @endif
                                                             |
                                                             @foreach($session['results'] as $result)
-                                                                <span style="width:30px;height:30px;line-height:30px;padding:0 3px;text-align:center;border:1px solid #ccc;">{{ $result['number'] }}</span> Pos. <b>{{ $result['position'] }}</b> <badge class="badge" style="background:{{$result['teamColor']}};">{{ $result['teamName'] }}</badge>
+                                                                <span style="width:30px;height:30px;line-height:30px;padding:0 3px;text-align:center;border:1px solid #ccc;">{{ $result['number'] }}</span> Pos. <b>{{ $result['position'] }}</b> <a href="{{route('team.single', $result['teamId'])}}"><badge class="badge" style="background:{{$result['teamColor']}};">{{ $result['teamName'] }}</badge></a>
                                                                 <br>
                                                             @endforeach
                                                         </div>

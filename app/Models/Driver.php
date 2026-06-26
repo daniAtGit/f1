@@ -86,6 +86,7 @@ class Driver extends Model
             trim($this->name.' '.($cosa ?? '').' '.($anno ?? '')),
             $this->name.' racing driver',
             $this->name.' formula one',
+            $this->name.' f1',
             $this->name,
         ]);
 
@@ -154,7 +155,10 @@ class Driver extends Model
                 return null;
             }
 
-            $pages = collect($response->json('query.pages', []));
+            $pages = collect($response->json('query.pages', []))
+                ->sortBy('index')
+                ->filter(fn ($page) => $this->titleContainsDriverName(data_get($page, 'title')));
+
             foreach ($pages as $page) {
                 $url = data_get($page, 'original.source') ?? data_get($page, 'thumbnail.source');
                 if (!empty($url)) {
@@ -166,6 +170,18 @@ class Driver extends Model
         }
 
         return null;
+    }
+
+    private function titleContainsDriverName(?string $title): bool
+    {
+        if (empty($title) || empty($this->name)) {
+            return false;
+        }
+
+        return str_contains(
+            mb_strtolower($title),
+            mb_strtolower($this->name)
+        );
     }
 
     private function extractWikipediaTitleFromUrl(): ?string

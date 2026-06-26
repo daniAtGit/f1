@@ -86,7 +86,7 @@
                         <td>
                             @foreach($editionCircuit->videos as $i => $video)
                                 <a href="{{$video->url}}" target="_target" title="{{$video->title}}">
-                                    <i class="fa fa-video text-info"></i>
+                                    <i class="fa fa-youtube text-danger"></i>
                                 </a>
                                 |
                             @endforeach

@@ -53,7 +53,7 @@
                                 </button>
 
                                 <button type="button" class="btn btn-outline-info" title="Add video" id="addVideo">
-                                    <i class="fa-solid fa-video"></i> Add
+                                    <i class="fa fa-youtube"></i> Add
                                 </button>
                             </div>
                         </div>
@@ -119,7 +119,7 @@
                                 <div class="col-2">
                                     <select name="position" class="form-control" required>
                                         <option value="" disabled selected>Pos.</option>
-                                        @for($i=1;$i<=$editionCircuit->edition->driversTeams->count();$i++)
+                                        @for($i=1;$i<=$driverTeams->count();$i++)
                                             <option value="{{$i}}">{{$i}}</option>
                                         @endfor
                                     </select>
@@ -127,7 +127,7 @@
                                 <div class="col-5">
                                     <select name="driverTeam_id" class="form-control" required>
                                         <option value="" disabled selected>Driver</option>
-                                        @foreach($editionCircuit->edition->driversTeams as $driverTeam)
+                                        @foreach($driverTeams as $driverTeam)
                                             <option value="{{$driverTeam->id}}">{{$driverTeam->driver->name}} - {{$driverTeam->team->name}}</option>
                                         @endforeach
                                     </select>
@@ -206,7 +206,7 @@
                                 <div class="col-2">
                                     <select name="position" class="form-control" required>
                                         <option value="" disabled selected>Pos.</option>
-                                        @for($i=1;$i<=$editionCircuit->edition->driversTeams->count();$i++)
+                                        @for($i=1;$i<=$driverTeams->count();$i++)
                                             <option value="{{$i}}">{{$i}}</option>
                                         @endfor
                                     </select>
@@ -214,7 +214,7 @@
                                 <div class="col-5">
                                     <select name="driverTeam_id" class="form-control" required>
                                         <option value="" disabled selected>Driver</option>
-                                        @foreach($editionCircuit->edition->driversTeams as $driverTeam)
+                                        @foreach($driverTeams as $driverTeam)
                                             <option value="{{$driverTeam->id}}">{{$driverTeam->driver->name}} - {{$driverTeam->team->name}}</option>
                                         @endforeach
                                     </select>
@@ -294,7 +294,7 @@
                                 <div class="col-2">
                                     <select name="position" class="form-control" required>
                                         <option value="" disabled selected>Pos.</option>
-                                        @for($i=1;$i<=$editionCircuit->edition->driversTeams->count();$i++)
+                                        @for($i=1;$i<=$driverTeams->count();$i++)
                                             <option value="{{$i}}">{{$i}}</option>
                                         @endfor
                                     </select>
@@ -302,7 +302,7 @@
                                 <div class="col-5">
                                     <select name="driverTeam_id" class="form-control" required>
                                         <option value="" disabled selected>Driver</option>
-                                        @foreach($editionCircuit->edition->driversTeams as $driverTeam)
+                                        @foreach($driverTeams as $driverTeam)
                                             <option value="{{$driverTeam->id}}">{{$driverTeam->driver->name}} - {{$driverTeam->team->name}}</option>
                                         @endforeach
                                     </select>
@@ -431,7 +431,7 @@
                 $('#addVideo').click(function() {
                     $('#divAddVideo').show();
                     $("<div class='input-group mb-3'>" +
-                        "<span class='input-group-text'><i class='fa fa-video'></i></span>" +
+                        "<span class='input-group-text'><i class='fa fa-youtube text-danger'></i></span>" +
                         "<input type='url' class='form-control' name='altri[]'>" +
                     "</div>").appendTo('.altri');
                 });

@@ -22,7 +22,11 @@ class EditionsController extends Controller
 {
     public function index(): View
     {
-        $editions = Edition::all();
+        $editions = Edition::with([
+            'rankingDrivers.driver',
+            'rankingTeams.team',
+        ])->get();
+
         return view('pages.editions.index', compact('editions'));
     }
 
@@ -61,25 +65,45 @@ class EditionsController extends Controller
         $edition = $edition->load(
             'driversTeams',
             'driversTeams.driver',
+            'driversTeams.driver.country',
             'driversTeams.team',
             'circuits',
+            'circuits.circuit.country',
             'circuits.videos',
             'circuits.sprint',
-            'circuits.sprint.driverTeam',
-            'circuits.sprint.driverTeam.driver',
             'circuits.grid',
-            'circuits.grid.driverTeam',
-            'circuits.grid.driverTeam.driver',
             'circuits.race',
-            'circuits.race.driverTeam',
-            'circuits.race.driverTeam.driver');
+        );
+
+        $driverTeamsById = $edition->driversTeams->keyBy('id');
+        $driversById = $edition->driversTeams->pluck('driver')->keyBy('id');
+        $teamsById = $edition->driversTeams->pluck('team')->keyBy('id');
+
+        $edition->circuits->each(function ($editionCircuit) use ($driverTeamsById) {
+            foreach (['grid', 'race', 'sprint'] as $relation) {
+                $editionCircuit->{$relation}->each(fn ($result) => $result->setRelation(
+                    'driverTeam',
+                    $driverTeamsById->get($result->driver_team_id)
+                ));
+            }
+        });
+
         $drivers = Driver::all()->sortBy('name');
         $teams = Team::all()->sortBy('name');
         $circuits = Circuit::all()->load('country')->sortBy('country.name');
 
-        $rankingTeams = RankingTeam::where('edition_id', $edition->id)->get()->load('team');
-        $rankingDrivers = RankingDriver::where('edition_id', $edition->id)->get()->load('team','driver','driver.country');
-        $rankingDriversAdd =  DriverTeam::where('edition_id', $edition->id)->get()->load('team','driver','rankingDrivers');
+        $rankingTeams = RankingTeam::where('edition_id', $edition->id)->get();
+        $rankingTeams->each(fn ($rankingTeam) => $rankingTeam->setRelation(
+            'team',
+            $teamsById->get($rankingTeam->team_id)
+        ));
+
+        $rankingDrivers = RankingDriver::where('edition_id', $edition->id)->get();
+        $rankingDrivers->each(function ($rankingDriver) use ($driversById, $teamsById) {
+            $rankingDriver->setRelation('driver', $driversById->get($rankingDriver->driver_id));
+            $rankingDriver->setRelation('team', $teamsById->get($rankingDriver->team_id));
+        });
+        $rankingDriversAdd = $edition->driversTeams;
 
         //dd($rankingDrivers, $rankingDriversAdd);
 
@@ -174,22 +198,46 @@ class EditionsController extends Controller
 
     public function circuitEdit($editionId, $editionCircuitId): View
     {
-        $editionCircuit = EditionCircuit::find($editionCircuitId)->load('edition','edition.driversTeams','edition.driversTeams.driver');
-        $circuits = Circuit::all()->load('country')->sortBy('country.name');
+        $editionCircuit = EditionCircuit::with([
+            'circuit',
+            'edition.driversTeams.driver',
+            'edition.driversTeams.team',
+            'videos',
+        ])
+            ->where('edition_id', $editionId)
+            ->findOrFail($editionCircuitId);
 
-        $sprints = SprintCircuit::whereHas('driverTeam', function ($q) use ($editionId, $editionCircuitId) {
-            $q->where('edition_id', $editionId)->where('edition_circuit_id', $editionCircuitId);
-        })->get()->sortBy('position')->load('driverTeam','driverTeam.driver','driverTeam.team');
+        $circuits = Circuit::with('country')->get()->sortBy([
+            fn ($circuit) => $circuit->country->name,
+            fn ($circuit) => $circuit->city,
+            fn ($circuit) => $circuit->name,
+        ]);
+        $driverTeams = $editionCircuit->edition->driversTeams
+            ->sortBy(fn ($driverTeam) => $driverTeam->driver->name)
+            ->values();
 
-        $grids = GridCircuit::whereHas('driverTeam', function ($q) use ($editionId, $editionCircuitId) {
-            $q->where('edition_id', $editionId)->where('edition_circuit_id', $editionCircuitId);
-        })->get()->sortBy('position')->load('driverTeam','driverTeam.driver','driverTeam.team');
+        $driverTeamsById = $driverTeams->keyBy('id');
+        $setDriverTeamRelation = fn ($result) => $result->setRelation(
+            'driverTeam',
+            $driverTeamsById->get($result->driver_team_id)
+        );
 
-        $races = RaceCircuit::whereHas('driverTeam', function ($q) use ($editionId, $editionCircuitId) {
-            $q->where('edition_id', $editionId)->where('edition_circuit_id', $editionCircuitId);
-        })->get()->sortBy('position')->load('driverTeam','driverTeam.driver','driverTeam.team');
+        $sprints = SprintCircuit::where('edition_circuit_id', $editionCircuitId)
+            ->orderBy('position')
+            ->get();
+        $sprints->each($setDriverTeamRelation);
 
-        return view('pages.editions.partials.circuits-edit', compact('editionCircuit','circuits','sprints','grids','races'));
+        $grids = GridCircuit::where('edition_circuit_id', $editionCircuitId)
+            ->orderBy('position')
+            ->get();
+        $grids->each($setDriverTeamRelation);
+
+        $races = RaceCircuit::where('edition_circuit_id', $editionCircuitId)
+            ->orderBy('position')
+            ->get();
+        $races->each($setDriverTeamRelation);
+
+        return view('pages.editions.partials.circuits-edit', compact('editionCircuit','circuits','driverTeams','sprints','grids','races'));
     }
 
     public function circuitUpdate(Request $request): RedirectResponse

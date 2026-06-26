@@ -47,7 +47,7 @@
                                         <br>
                                         @foreach($prevRace->videos as $video)
                                             <a href="{{$video->url}}" target="_target" title="{{$video->title}}">
-                                                <i class="fa fa-video text-info"></i>
+                                                <i class="fa fa-youtube text-danger"></i>
                                             </a>
                                             |
                                         @endforeach
@@ -79,7 +79,7 @@
                                         <br>
                                         @foreach($currentRace->videos as $video)
                                             <a href="{{$video->url}}" target="_target" title="{{$video->title}}">
-                                                <i class="fa fa-video text-info"></i>
+                                                <i class="fa fa-youtube text-danger"></i>
                                             </a>
                                             |
                                         @endforeach
