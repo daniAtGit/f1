@@ -6,6 +6,7 @@ use App\Http\Controllers\CircuitsController;
 use App\Http\Controllers\CountriesController;
 use App\Http\Controllers\DriversController;
 use App\Http\Controllers\EditionsController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TeamsController;
 use Illuminate\Support\Facades\Route;
@@ -66,6 +67,10 @@ Route::middleware('auth')->group(function () {
     Route::post('editions-circuit-race-delete', [EditionsController::class, 'raceCircuitDestroy'])->name('editions.circuit.race.delete');
 
     Route::resource('countries', CountriesController::class)->except('create','show','edit')->parameters(['countries'=>'country']);
+
+    Route::get('import/editions/{edition}/circuits', [ImportController::class, 'circuits'])->name('import.editions.circuits');
+    Route::get('import', [ImportController::class, 'index'])->name('import.index');
+    Route::post('import/store', [ImportController::class, 'store'])->name('import.store');
 });
 
 require __DIR__.'/auth.php';

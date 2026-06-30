@@ -58,6 +58,12 @@
                         </x-slot>
                     </x-dropdown>
                 </div>
+
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('import.index')" :active="request()->routeIs('import.*')">
+                        Import
+                    </x-nav-link>
+                </div>
             </div>
 
             <!-- Settings Dropdown -->

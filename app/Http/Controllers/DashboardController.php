@@ -38,7 +38,7 @@ class DashboardController extends Controller
         $prevRace = EditionCircuit::query()
             ->with('circuit.country')
             //->whereHas('race')
-            ->whereDate('date', '<=', today())
+            ->whereDate('date', '<', today())
             ->orderByDesc('date')
             ->orderByDesc('round')
             ->first()

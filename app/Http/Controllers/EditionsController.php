@@ -223,17 +223,20 @@ class EditionsController extends Controller
         );
 
         $sprints = SprintCircuit::where('edition_circuit_id', $editionCircuitId)
-            ->orderBy('position')
+            ->orderByRaw('position + 0')
+            ->orderBy('id')
             ->get();
         $sprints->each($setDriverTeamRelation);
 
         $grids = GridCircuit::where('edition_circuit_id', $editionCircuitId)
-            ->orderBy('position')
+            ->orderByRaw('position + 0')
+            ->orderBy('id')
             ->get();
         $grids->each($setDriverTeamRelation);
 
         $races = RaceCircuit::where('edition_circuit_id', $editionCircuitId)
-            ->orderBy('position')
+            ->orderByRaw('position + 0')
+            ->orderBy('id')
             ->get();
         $races->each($setDriverTeamRelation);
 
