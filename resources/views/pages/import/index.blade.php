@@ -26,7 +26,7 @@
                             <select name="edition" id="edition" class="form-control" required>
                                 <option value="" disabled selected>Select edition</option>
                                 @foreach($editions as $edition)
-                                    <option value="{{$edition->id}}" @selected(old('edition') === $edition->id)>{{$edition->edition}} - {{$edition->year}}</option>
+                                    <option value="{{$edition->id}}" @selected((string) old('edition', request('edition')) === (string) $edition->id)>{{$edition->edition}} - {{$edition->year}}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -42,9 +42,9 @@
                             <label for="type" class="form-label">Type<span class="text-danger">*</span></label>
                             <select name="type" id="type" class="form-control" required>
                                 <option value="" disabled selected>Select type</option>
-                                <option value="grid">Grid</option>
-                                <option value="race">Race</option>
-                                <option value="sprint">Sprint</option>
+                                <option value="grid" @selected(old('type', request('type')) === 'grid')>Grid</option>
+                                <option value="race" @selected(old('type', request('type')) === 'race')>Race</option>
+                                <option value="sprint" @selected(old('type', request('type')) === 'sprint')>Sprint</option>
                             </select>
                         </div>
 
@@ -127,7 +127,7 @@
                 circuitSelect.disabled = true;
             }
 
-            const selectedCircuit = @json(old('circuit'));
+            const selectedCircuit = @json(old('circuit', request('circuit')));
 
             function loadCircuits(editionId) {
                 if (!editionId) {
@@ -153,7 +153,7 @@
 
                         circuits.forEach(circuit => {
                             const option = new Option(circuit.name, circuit.id);
-                            option.selected = circuit.id === selectedCircuit;
+                            option.selected = String(circuit.id) === String(selectedCircuit);
                             circuitSelect.add(option);
                         });
 

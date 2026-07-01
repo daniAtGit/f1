@@ -82,8 +82,8 @@
                             <span class='input-group-text'><i class='fa fa-link'></i></span>
                             <span class='input-group-text'>{{$video->title}}</span>
                             <a href="{{$video->url}}" target="_target">
-                                <button class="btn btn-info">
-                                    <i class='fa fa-eye'></i>
+                                <button class="btn btn-light" style="border:1px solid #ddd;border-radius:0;">
+                                    <i class='fa fa-youtube text-danger'></i>
                                 </button>
                             </a>
                             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalEdit{{$i}}">
@@ -105,8 +105,13 @@
 {{--Grid--}}
                 <div class="col-4">
                     <div class="card p-3">
-                        <div>
-                            <i class="fa-solid fa-grip-vertical"></i> Starting grid
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fa-solid fa-grip-vertical"></i> Starting grid
+                            </div>
+                            <a href="{{route('import.index', ['edition' => $editionCircuit->edition_id, 'circuit' => $editionCircuit->id, 'type' => 'grid'])}}" class="btn btn-sm btn-outline-success">
+                                <i class="fa fa-file-import" title="Import"></i>
+                            </a>
                         </div>
                         <br>
 
@@ -192,8 +197,13 @@
 {{--Race--}}
                 <div class="col-4">
                     <div class="card p-3">
-                        <div>
-                            <i class="fa-solid fa-flag-checkered"></i> Race result
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fa-solid fa-flag-checkered"></i> Race result
+                            </div>
+                            <a href="{{route('import.index', ['edition' => $editionCircuit->edition_id, 'circuit' => $editionCircuit->id, 'type' => 'race'])}}" class="btn btn-sm btn-outline-success">
+                                <i class="fa fa-file-import" title="Import"></i>
+                            </a>
                         </div>
                         <br>
 
@@ -280,8 +290,13 @@
 
                 <div class="col-4">
                     <div class="card p-3">
-                        <div>
-                            <i class="fa-regular fa-flag"></i> Sprint result
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <i class="fa-regular fa-flag"></i> Sprint result
+                            </div>
+                            <a href="{{route('import.index', ['edition' => $editionCircuit->edition_id, 'circuit' => $editionCircuit->id, 'type' => 'sprint'])}}" class="btn btn-sm btn-outline-success">
+                                <i class="fa fa-file-import" title="Import"></i>
+                            </a>
                         </div>
                         <br>
 
