@@ -28,9 +28,6 @@
                         <div class="p-3 text-gray-900">
                             <div class="row">
                                 <div class="col-9">
-                                    @php
-                                        $driverImageUrl = $driver->getImgDriverFromGoogle('racing driver');
-                                    @endphp
                                     @if($driverImageUrl)
                                         <img
                                             src="{{ $driverImageUrl }}"
@@ -58,6 +55,90 @@
                                     <span style="font-size:30px">{{ $editionPoints }}</span>
                                 </div>
                                 <div class="col-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                @php
+                    $history = collect($driverStandingsHistory ?? []);
+                    $chartWidth = 360;
+                    $chartHeight = 150;
+                    $paddingLeft = 20;
+                    $paddingRight = 12;
+                    $paddingTop = 12;
+                    $paddingBottom = 24;
+                    $plotWidth = $chartWidth - $paddingLeft - $paddingRight;
+                    $plotHeight = $chartHeight - $paddingTop - $paddingBottom;
+                    $maxPosition = max((int) $history->max('position'), 1);
+                    $countHistory = $history->count();
+                    $yTicks = $maxPosition <= 6
+                        ? range(1, $maxPosition)
+                        : array_values(array_unique([1, (int) ceil($maxPosition / 2), $maxPosition]));
+
+                    $chartPoints = $history->values()->map(function ($item, $index) use ($countHistory, $paddingLeft, $paddingTop, $plotWidth, $plotHeight, $maxPosition) {
+                        $x = $countHistory > 1
+                            ? $paddingLeft + ($plotWidth * $index / ($countHistory - 1))
+                            : $paddingLeft + ($plotWidth / 2);
+                        $y = $paddingTop + (($item['position'] - 1) * $plotHeight / max($maxPosition - 1, 1));
+
+                        return [
+                            'x' => round($x, 2),
+                            'y' => round($y, 2),
+                            'year' => $item['year'],
+                            'position' => $item['position'],
+                            'points' => $item['points'],
+                        ];
+                    });
+                @endphp
+
+                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-3 text-gray-900">
+                            <p class="mb-2" style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                <i class="fa fa-chart-line"></i> Placement over the Years
+                            </p>
+
+                            <div class="d-flex justify-content-center">
+                            @if($chartPoints->isNotEmpty())
+                                <svg viewBox="0 0 {{ $chartWidth }} {{ $chartHeight }}" role="img" aria-label="Storico classifica finale del pilota" style="width:80%;max-width:80%;max-height:170px;">
+                                    <line x1="{{ $paddingLeft }}" y1="{{ $paddingTop }}" x2="{{ $paddingLeft }}" y2="{{ $paddingTop + $plotHeight }}" stroke="#d7d7d7" stroke-width="1" />
+                                    <line x1="{{ $paddingLeft }}" y1="{{ $paddingTop + $plotHeight }}" x2="{{ $paddingLeft + $plotWidth }}" y2="{{ $paddingTop + $plotHeight }}" stroke="#d7d7d7" stroke-width="1" />
+
+                                    @foreach($yTicks as $tick)
+                                        @php
+                                            $tickY = $paddingTop + (($tick - 1) * $plotHeight / max($maxPosition - 1, 1));
+                                        @endphp
+                                        <line x1="{{ $paddingLeft }}" y1="{{ $tickY }}" x2="{{ $paddingLeft + $plotWidth }}" y2="{{ $tickY }}" stroke="#f1f1f1" stroke-width="1" />
+                                        <text x="{{ $paddingLeft - 4 }}" y="{{ $tickY + 4 }}" text-anchor="end" font-size="9" fill="#777">{{ $tick }}</text>
+                                    @endforeach
+
+                                    <polyline
+                                        fill="none"
+                                        stroke="#0d6efd"
+                                        stroke-width="2.5"
+                                        points="{{ $chartPoints->map(fn ($point) => $point['x'].','.$point['y'])->implode(' ') }}"
+                                    />
+
+                                    @foreach($chartPoints as $point)
+                                        <circle cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="4" fill="#0d6efd" />
+                                        @php
+                                            $isTopLabel = $point['y'] <= ($paddingTop + 12);
+                                            $labelY = $isTopLabel ? $point['y'] + 20 : $point['y'] - 10;
+                                        @endphp
+                                        <text
+                                            x="{{ $point['x'] }}"
+                                            y="{{ $labelY }}"
+                                            text-anchor="middle"
+                                            font-size="10"
+                                            fill="#0f172a"
+                                        >P{{ $point['position'] }}</text>
+                                        <text x="{{ $point['x'] }}" y="{{ $paddingTop + $plotHeight + 15 }}" text-anchor="middle" font-size="10" fill="#777">{{ $point['year'] }}</text>
+                                    @endforeach
+                                </svg>
+                            @else
+                                <div class="text-muted small">Nessuna classifica finale disponibile.</div>
+                            @endif
                             </div>
                         </div>
                     </div>
@@ -113,6 +194,106 @@
                     </div>
                 </div>
 
+                @php
+                    $editionRaceChart = collect($editionRacePlacements ?? []);
+                    $raceChartWidth = 720;
+                    $raceChartHeight = 210;
+                    $racePaddingLeft = 24;
+                    $racePaddingRight = 16;
+                    $racePaddingTop = 16;
+                    $racePaddingBottom = 48;
+                    $racePlotWidth = $raceChartWidth - $racePaddingLeft - $racePaddingRight;
+                    $racePlotHeight = $raceChartHeight - $racePaddingTop - $racePaddingBottom;
+                    $raceMaxPosition = max((int) $editionRaceChart->max('position'), 1);
+                    $raceCount = $editionRaceChart->count();
+                    $raceYTicks = $raceMaxPosition <= 8
+                        ? range(1, $raceMaxPosition)
+                        : array_values(array_unique([1, (int) ceil($raceMaxPosition / 2), $raceMaxPosition]));
+
+                    $raceChartPoints = $editionRaceChart->values()->map(function ($item, $index) use ($raceCount, $racePaddingLeft, $racePaddingTop, $racePlotWidth, $racePlotHeight, $raceMaxPosition) {
+                        $x = $raceCount > 1
+                            ? $racePaddingLeft + ($racePlotWidth * $index / ($raceCount - 1))
+                            : $racePaddingLeft + ($racePlotWidth / 2);
+                        $y = $racePaddingTop + (($item['position'] - 1) * $racePlotHeight / max($raceMaxPosition - 1, 1));
+
+                        return [
+                            'x' => round($x, 2),
+                            'y' => round($y, 2),
+                            'position' => $item['position'],
+                            'flagIconUrl' => $item['flagIconUrl'],
+                            'circuitName' => $item['circuitName'],
+                            'countryName' => $item['countryName'],
+                            'round' => $item['round'],
+                        ];
+                    });
+                @endphp
+
+                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-2">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-3 text-gray-900">
+                            <p class="mb-2" style="font-style:italic;color:#c1c1c1;font-size:10px;">Race placements</p>
+
+                            @if($raceChartPoints->isNotEmpty())
+                                <div class="d-flex justify-content-center">
+                                    <svg viewBox="0 0 {{ $raceChartWidth }} {{ $raceChartHeight }}" role="img" aria-label="Piazzamenti gara del pilota nell'edizione selezionata" style="width:80%;max-width:80%;max-height:230px;">
+                                        <line x1="{{ $racePaddingLeft }}" y1="{{ $racePaddingTop }}" x2="{{ $racePaddingLeft }}" y2="{{ $racePaddingTop + $racePlotHeight }}" stroke="#d7d7d7" stroke-width="1" />
+                                        <line x1="{{ $racePaddingLeft }}" y1="{{ $racePaddingTop + $racePlotHeight }}" x2="{{ $racePaddingLeft + $racePlotWidth }}" y2="{{ $racePaddingTop + $racePlotHeight }}" stroke="#d7d7d7" stroke-width="1" />
+
+                                        @foreach($raceYTicks as $tick)
+                                            @php
+                                                $tickY = $racePaddingTop + (($tick - 1) * $racePlotHeight / max($raceMaxPosition - 1, 1));
+                                            @endphp
+                                            <line x1="{{ $racePaddingLeft }}" y1="{{ $tickY }}" x2="{{ $racePaddingLeft + $racePlotWidth }}" y2="{{ $tickY }}" stroke="#f1f1f1" stroke-width="1" />
+                                            <text x="{{ $racePaddingLeft - 4 }}" y="{{ $tickY + 4 }}" text-anchor="end" font-size="9" fill="#777">{{ $tick }}</text>
+                                        @endforeach
+
+                                        <polyline
+                                            fill="none"
+                                            stroke="{{ $editionRaceLineColor }}"
+                                            stroke-width="2.5"
+                                            points="{{ $raceChartPoints->map(fn ($point) => $point['x'].','.$point['y'])->implode(' ') }}"
+                                        />
+
+                                        @foreach($raceChartPoints as $point)
+                                            @php
+                                                $raceLabelY = $point['y'] <= ($racePaddingTop + 12) ? $point['y'] + 18 : $point['y'] - 10;
+                                            @endphp
+                                            <circle cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="4" fill="{{ $editionRaceLineColor }}" />
+                                            <text x="{{ $point['x'] }}" y="{{ $raceLabelY }}" text-anchor="middle" font-size="10" fill="#0f172a">P{{ $point['position'] }}</text>
+
+                                            @if($point['flagIconUrl'])
+                                                <image
+                                                    href="{{ $point['flagIconUrl'] }}"
+                                                    x="{{ $point['x'] - 8 }}"
+                                                    y="{{ $racePaddingTop + $racePlotHeight + 12 }}"
+                                                    width="16"
+                                                    height="12"
+                                                    preserveAspectRatio="none"
+                                                >
+                                                    <title>{{ $point['circuitName'] }} - {{ $point['countryName'] }}</title>
+                                                </image>
+                                            @else
+                                                <text x="{{ $point['x'] }}" y="{{ $racePaddingTop + $racePlotHeight + 22 }}" text-anchor="middle" font-size="9" fill="#777">R{{ $point['round'] }}</text>
+                                            @endif
+                                        @endforeach
+                                    </svg>
+                                </div>
+                            @else
+                                <div class="text-muted small">Nessun risultato gara disponibile per questa edizione.</div>
+                            @endif
+
+                            <div class="d-flex justify-content-end mt-3">
+                                <a
+                                    href="{{ route('driver.stats', ['driver' => $driver->id, 'edition' => $edition?->id]) }}"
+                                    class="btn btn-sm btn-outline-dark"
+                                >
+                                    Compare
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-2">
                     <div class="row g-3">
                         <div class="col-12 col-lg-12">
@@ -132,7 +313,15 @@
                                                 <div class="border-bottom pb-2 mb-2">
                                                     <div class="small text-muted">
                                                         Round {{ $circuit['round'] }}
-                                                        - <a href="{{route('circuit.single', $circuit['circuitId'])}}">{{ $circuit['countryName'] }} {{ $circuit['city'] }} {{ $circuit['circuitName'] }}</a>
+                                                        @if($circuit['countryFlagIconUrl'])
+                                                            <img
+                                                                src="{{ $circuit['countryFlagIconUrl'] }}"
+                                                                alt="{{ $circuit['countryName'] }} flag"
+                                                                title="{{ $circuit['countryName'] }}"
+                                                                style="display:inline-block;width:16px;height:12px;object-fit:cover;margin:0 4px 2px 6px;"
+                                                            >
+                                                        @endif
+                                                        <a href="{{route('circuit.single', $circuit['circuitId'])}}">{{ $circuit['countryName'] }} {{ $circuit['city'] }} {{ $circuit['circuitName'] }}</a>
                                                     </div>
 
                                                     @foreach($circuit['sessions'] as $session)
