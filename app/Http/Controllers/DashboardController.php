@@ -310,6 +310,13 @@ class DashboardController extends Controller
             ->values();
 
         $availableDrivers = Driver::query()
+            ->when(
+                $edition,
+                fn ($query) => $query->whereHas(
+                    'driverTeams',
+                    fn ($driverTeamQuery) => $driverTeamQuery->where('edition_id', $edition->id)
+                )
+            )
             ->orderBy('name')
             ->get(['id', 'name']);
 
