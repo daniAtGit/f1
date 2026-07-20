@@ -54,25 +54,18 @@ class ImportController extends Controller
         ]);
 
         $gridData = json_decode($request->grid_data, true);
-
         $driversTeams = DriverTeam::query()
-            ->with('team')
             ->where('edition_id', $request->edition)
             ->get();
-
         $editionCircuit = EditionCircuit::findOrFail($request->circuit);
 
         $pos=1;
         foreach ($gridData as $row) {
-            $number = $row[1] ?? null;
-            $teamName = mb_strtolower($row[2] ?? '');
+            $number = trim((string) ($row[1] ?? ''));
 
-            $driverTeam = $driversTeams->first(function (DriverTeam $driverTeam) use ($number, $teamName) {
-                return (string) $driverTeam->number === (string) $number
-                    && str_contains(
-                        mb_strtolower($driverTeam->team?->name ?? ''),
-                        $teamName
-                    );
+            // Team names vary between sources; race number is unique within an edition.
+            $driverTeam = $driversTeams->first(function (DriverTeam $driverTeam) use ($number) {
+                return $number !== '' && (string) $driverTeam->number === $number;
             });
 
             if($driverTeam) {
