@@ -146,10 +146,11 @@
                                         <div class="row mb-1 my-3">
                                             <div class="col-12 d-flex align-items-center gap-2">
                                                 <div class="col-1" title="Position">Pos</div>
-                                                <div class="col-1" title="Number">N.</div>
-                                                <div class="col-5">Driver</div>
-                                                <div class="col-3">Team</div>
-                                                <div class="col-2">Pts</div>
+                                                <div class="col-1" title="Position">N.</div>
+                                                <div class="col-4">Driver</div>
+                                                <div class="col-4">Team</div>
+                                                <div class="col-1">Pts</div>
+                                                <div class="col-1" style="margin-left:-7px;">Gap</div>
                                             </div>
                                         </div>
                                         <div class="my-3">
@@ -172,7 +173,8 @@
                                             <div class="col-12 d-flex align-items-center gap-2">
                                                 <div class="col-1" title="Position">Pos</div>
                                                 <div class="col-9">Team</div>
-                                                <div class="col-2">Pts</div>
+                                                <div class="col-1">Pts</div>
+                                                <div class="col-1"></div>
                                             </div>
                                         </div>
                                         <div class="my-3">

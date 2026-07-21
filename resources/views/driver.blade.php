@@ -231,7 +231,9 @@
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-2">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-3 text-gray-900">
-                            <p class="mb-2" style="font-style:italic;color:#c1c1c1;font-size:10px;">Race placements</p>
+                            <p class="mb-2" style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                <i class="fa fa-chart-line"></i> Race placements
+                            </p>
 
                             @if($raceChartPoints->isNotEmpty())
                                 <div class="d-flex justify-content-center">

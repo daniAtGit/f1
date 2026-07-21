@@ -71,7 +71,7 @@
                                                     <div class="d-grid gap-2">
                                                         @forelse($circuit['gridResults'] as $result)
                                                             <div class="d-flex align-items-center gap-2 {{ $loop->iteration > 3 ? 'result-extra d-none' : '' }}">
-                                                                <span style="width:30px;height:30px;line-height:30px;padding:0 3px;text-align:center;border:1px solid #ccc;flex:0 0 auto;">{!! $result['position'] == 1 ? '<i class="fa-solid fa-gauge text-success"></i>' : $result['position'] !!}</span>
+                                                                <span style="width:30px;height:30px;line-height:30px;padding:0 3px;text-align:center;border:1px solid #ccc;flex:0 0 auto;">{!! $result['position'] == 1 ? '<i class="fa-solid fa-gauge text-secondary"></i>' : $result['position'] !!}</span>
                                                                 <div class="small">
                                                                     {{ $result['driverName'] }}
 {{--                                                                    | <b>{{ $result['number'] }}</b>--}}
@@ -115,8 +115,9 @@
                                                 </div>
 
                                                 <div class="col-12 col-lg-3">
-                                                    <div class="small fw-bold mb-2"><i class="fa-regular fa-flag"></i> Sprint</div>
                                                     @if($circuit['sprintResults']->isNotEmpty())
+
+                                                        <div class="small fw-bold mb-2"><i class="fa-regular fa-flag"></i> Sprint</div>
                                                         <div class="d-grid gap-2">
                                                             @foreach($circuit['sprintResults'] as $result)
                                                                 <div class="d-flex align-items-center gap-2 {{ $loop->iteration > 3 ? 'result-extra d-none' : '' }}">
@@ -135,8 +136,6 @@
                                                                 </button>
                                                             @endif
                                                         </div>
-                                                    @else
-                                                        <div class="text-muted small">Nessun dato disponibile.</div>
                                                     @endif
                                                 </div>
 

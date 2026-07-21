@@ -19,11 +19,17 @@
                     }}
                 </div>
             </div>
-            <div class="col-5 h5"><a href="{{route('driver.single', $standingDriver->driver)}}">{{$standingDriver->driver->name}}</a></div>
-            <div class="col-3 overflow-x-hidden">
+            <div class="col-4 h5"><a href="{{route('driver.single', $standingDriver->driver)}}">{{$standingDriver->driver->name}}</a></div>
+            <div class="col-4 overflow-x-hidden">
                 <badge class="badge" style="background:{{$standingDriver->team->color}};">{{$standingDriver->team->name}}</badge>
             </div>
-            <div class="col-2 h5">{{$standingDriver->points}}</div>
+            <div class="col-1 h5">{{$standingDriver->points}}</div>
+            <div class="col-1 small" style="margin-left:-7px;">
+                @php($pointsDifference = $standingDrivers->first()->points - $standingDriver->points)
+                @if($i > 0 && $pointsDifference <= 200)
+                    -{{$pointsDifference}}
+                @endif
+            </div>
         </div>
     </div>
 @endforeach

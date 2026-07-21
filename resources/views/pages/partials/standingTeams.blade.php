@@ -15,7 +15,8 @@
                     <badge class="badge" style="background:{{$standingTeam->team->color}};">{{$standingTeam->team->name}}</badge>
                 </a>
             </div>
-            <div class="col-2 h5">{{$standingTeam->points}}</div>
+            <div class="col-1 h5">{{$standingTeam->points}}</div>
+            <div class="col-1"></div>
         </div>
     </div>
 @endforeach

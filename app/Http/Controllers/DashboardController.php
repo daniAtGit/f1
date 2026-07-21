@@ -100,12 +100,9 @@ class DashboardController extends Controller
 
         $driver->load([
             'driverTeams.team',
-            'gridCircuits.driverTeam.team',
-            'gridCircuits.editionCircuit.circuit.country',
-            'RaceCircuits.driverTeam.team',
-            'RaceCircuits.editionCircuit.circuit.country',
-            'SprintCircuits.driverTeam.team',
-            'SprintCircuits.editionCircuit.circuit.country',
+            'gridCircuits',
+            'RaceCircuits',
+            'SprintCircuits',
         ]);
 
         $driverImageUrl = $driver->getImgDriverFromGoogle('racing driver');
@@ -124,6 +121,20 @@ class DashboardController extends Controller
                 'result' => $result,
             ]),
         ])->flatten(1);
+
+        $driverTeams = $driver->driverTeams->keyBy('id');
+        $editionCircuits = EditionCircuit::query()
+            ->whereIn('id', $results->pluck('result.edition_circuit_id')->unique())
+            ->with('circuit.country')
+            ->get()
+            ->keyBy('id');
+
+        $results->each(function (array $item) use ($driverTeams, $editionCircuits) {
+            $result = $item['result'];
+
+            $result->setRelation('driverTeam', $driverTeams->get($result->driver_team_id));
+            $result->setRelation('editionCircuit', $editionCircuits->get($result->edition_circuit_id));
+        });
 
         $driverNumber = $edition
             ? $driver->driverTeams->firstWhere('edition_id', $edition->id)?->number
@@ -387,24 +398,27 @@ class DashboardController extends Controller
 
     public function team(Team $team): View
     {
-        $editions = Edition::all()->sortByDesc('year');
-        $latestEdition = Edition::query()->orderByDesc('year')->first();
-        $teamDriverTeamIds = \App\Models\DriverTeam::query()
-            ->where('team_id', $team->id)
-            ->pluck('id');
+        $editions = Edition::query()
+            ->with(['rankingTeams' => fn ($query) => $query->orderByRaw('CAST(points AS UNSIGNED) DESC')])
+            ->orderByDesc('year')
+            ->get();
 
         $selectedEditionId = request()->query('edition');
         $edition = $selectedEditionId ? Edition::query()->find($selectedEditionId) : null;
-        $edition ??= Edition::query()->orderByDesc('year')->first();
+        $edition ??= $editions->first();
+
+        $teamDriverTeams = DriverTeam::query()
+            ->where('team_id', $team->id)
+            ->when($edition, fn ($query) => $query->where('edition_id', $edition->id))
+            ->with('driver')
+            ->get()
+            ->keyBy('id');
+
+        $teamDriverTeamIds = $teamDriverTeams->keys();
 
         $results = collect([
             'grid' => GridCircuit::query()
                 ->whereIn('driver_team_id', $teamDriverTeamIds)
-                ->with([
-                    'driverTeam.driver',
-                    'editionCircuit.edition',
-                    'editionCircuit.circuit.country',
-                ])
                 ->get()
                 ->map(fn (GridCircuit $result) => [
                     'type' => 'grid',
@@ -412,11 +426,6 @@ class DashboardController extends Controller
                 ]),
             'race' => RaceCircuit::query()
                 ->whereIn('driver_team_id', $teamDriverTeamIds)
-                ->with([
-                    'driverTeam.driver',
-                    'editionCircuit.edition',
-                    'editionCircuit.circuit.country',
-                ])
                 ->get()
                 ->map(fn (RaceCircuit $result) => [
                     'type' => 'race',
@@ -424,11 +433,6 @@ class DashboardController extends Controller
                 ]),
             'sprint' => SprintCircuit::query()
                 ->whereIn('driver_team_id', $teamDriverTeamIds)
-                ->with([
-                    'driverTeam.driver',
-                    'editionCircuit.edition',
-                    'editionCircuit.circuit.country',
-                ])
                 ->get()
                 ->map(fn (SprintCircuit $result) => [
                     'type' => 'sprint',
@@ -436,11 +440,23 @@ class DashboardController extends Controller
                 ]),
         ])->flatten(1);
 
-        $selectedRankingTeams = $edition
-            ? $edition->rankingTeams()
-                ->orderByRaw('CAST(points AS UNSIGNED) DESC')
-                ->get()
-            : collect();
+        $editionCircuits = EditionCircuit::query()
+            ->whereIn('id', $results->pluck('result.edition_circuit_id')->unique())
+            ->with([
+                'edition',
+                'circuit.country',
+            ])
+            ->get()
+            ->keyBy('id');
+
+        $results->each(function (array $item) use ($teamDriverTeams, $editionCircuits) {
+            $result = $item['result'];
+
+            $result->setRelation('driverTeam', $teamDriverTeams->get($result->driver_team_id));
+            $result->setRelation('editionCircuit', $editionCircuits->get($result->edition_circuit_id));
+        });
+
+        $selectedRankingTeams = $edition?->rankingTeams ?? collect();
 
         $selectedTeamRanking = $selectedRankingTeams->firstWhere('team_id', $team->id);
 
@@ -449,9 +465,77 @@ class DashboardController extends Controller
             ? $selectedRankingTeams->search(fn ($rankingTeam) => $rankingTeam->id === $selectedTeamRanking->id) + 1
             : null;
 
+        $teamStandingsHistory = $editions
+            ->sortBy('year')
+            ->map(function (Edition $historyEdition) use ($team) {
+                $rankingTeam = $historyEdition->rankingTeams->firstWhere('team_id', $team->id);
+
+                if (!$rankingTeam) {
+                    return null;
+                }
+
+                return [
+                    'year' => (int) $historyEdition->year,
+                    'position' => $historyEdition->rankingTeams->search(
+                        fn ($editionRankingTeam) => $editionRankingTeam->id === $rankingTeam->id
+                    ) + 1,
+                    'points' => (int) $rankingTeam->points,
+                ];
+            })
+            ->filter()
+            ->values();
+
         if ($edition) {
             $results = $results->filter(fn (array $item) => $item['result']->editionCircuit?->edition?->id === $edition->id);
         }
+
+        $teamRaceResults = $results->where('type', 'race');
+
+        $teamRaceRounds = $teamRaceResults
+            ->map(fn (array $item) => $item['result']->editionCircuit)
+            ->filter()
+            ->unique('id')
+            ->sortBy('round')
+            ->values()
+            ->map(fn (EditionCircuit $editionCircuit) => [
+                'round' => (int) $editionCircuit->round,
+                'circuitName' => $editionCircuit->circuit?->name,
+                'countryName' => $editionCircuit->circuit?->country?->name,
+                'flagIconUrl' => $editionCircuit->circuit?->country?->flag_icon_url,
+            ]);
+
+        $teamRaceSeries = $teamRaceResults
+            ->groupBy(fn (array $item) => $item['result']->driverTeam?->driver?->id)
+            ->map(function ($driverResults, $driverId) {
+                $driver = $driverResults->first()['result']->driverTeam?->driver;
+
+                return [
+                    'driverId' => $driverId,
+                    'driverName' => $driver?->name,
+                    'placements' => $driverResults
+                        ->sortBy(fn (array $item) => $item['result']->editionCircuit?->round ?? PHP_INT_MAX)
+                        ->map(fn (array $item) => [
+                            'round' => (int) $item['result']->editionCircuit?->round,
+                            'position' => (int) $item['result']->position,
+                        ])
+                        ->values(),
+                ];
+            })
+            ->values()
+            ->map(function (array $series, int $index) use ($team) {
+                $series['lineColor'] = $team->color ?: '#0d6efd';
+                $series['strokeDasharray'] = collect(['', '10 6', '4 4', '12 4 3 4', '2 5'])
+                    ->get($index % 5, '');
+
+                return $series;
+            });
+
+        $teamRaceMaxPosition = max(
+            1,
+            (int) $teamRaceSeries
+                ->flatMap(fn (array $series) => $series['placements']->pluck('position'))
+                ->max()
+        );
 
         $resultsByYear = $results
             ->groupBy(fn (array $item) => $item['result']->editionCircuit?->edition?->year ?? 0)
@@ -517,7 +601,7 @@ class DashboardController extends Controller
                     ->values();
             });
 
-        return view('team', compact('team', 'editions', 'edition', 'editionPoints', 'editionPosition', 'resultsByYear'));
+        return view('team', compact('team', 'editions', 'edition', 'editionPoints', 'editionPosition', 'resultsByYear', 'teamStandingsHistory', 'teamRaceRounds', 'teamRaceSeries', 'teamRaceMaxPosition'));
     }
 
     public function edition(Edition $edition): View
