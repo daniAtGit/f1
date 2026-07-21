@@ -136,8 +136,8 @@
                                             <div class="col-1" title="Position">N.</div>
                                             <div class="col-4">Driver</div>
                                             <div class="col-4">Team</div>
-                                            <div class="col-1">Pts</div>
-                                            <div class="col-1" style="margin-left:-7px;">Gap</div>
+                                            <div class="col-1 text-end">Pts</div>
+                                            <div class="col-1"></div>
                                         </div>
                                     </div>
                                     <div class="my-3">

@@ -15,7 +15,13 @@
                     <badge class="badge" style="background:{{$standingTeam->team->color}};">{{$standingTeam->team->name}}</badge>
                 </a>
             </div>
-            <div class="col-1 h5">{{$standingTeam->points}}</div>
+            <div class="col-1 text-end">
+                <div class="h5 mb-0">{{$standingTeam->points}}</div>
+                @php($pointsDifference = $standingTeams->first()->points - $standingTeam->points)
+                @if($s > 0 && $pointsDifference <= 200)
+                    <div class="small" style="margin-top:-4px;">-{{$pointsDifference}}</div>
+                @endif
+            </div>
             <div class="col-1"></div>
         </div>
     </div>

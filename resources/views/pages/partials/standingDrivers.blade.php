@@ -23,11 +23,11 @@
             <div class="col-4 overflow-x-hidden">
                 <badge class="badge" style="background:{{$standingDriver->team->color}};">{{$standingDriver->team->name}}</badge>
             </div>
-            <div class="col-1 h5">{{$standingDriver->points}}</div>
-            <div class="col-1 small" style="margin-left:-7px;">
+            <div class="col-1 text-end">
+                <div class="h5">{{$standingDriver->points}}</div>
                 @php($pointsDifference = $standingDrivers->first()->points - $standingDriver->points)
                 @if($i > 0 && $pointsDifference <= 200)
-                    -{{$pointsDifference}}
+                    <div class="small">-{{$pointsDifference}}</div>
                 @endif
             </div>
         </div>
