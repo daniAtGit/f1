@@ -23,11 +23,23 @@
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
+                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <div class="d-flex justify-content-end mb-2">
+                        <div class="input-group w-auto">
+                            <span class="bg-white input-group-text text-decoration-none">Team</span>
+                            <select class="form-select" name="changeTeam" id="changeTeam" aria-label="changeTeam">
+                                @foreach($teams as $teamOption)
+                                    <option value="{{ $teamOption->id }}" @selected($teamOption->id === $team->id)>{{ $teamOption->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-3 text-gray-900">
                             <div class="row">
-                                <div class="col-9">
+                                <div class="col-8">
                                     @php
                                         $teamImageUrl = $team->getImgTeamFromGoogle('formula one team');
                                     @endphp
@@ -45,6 +57,13 @@
                                 </div>
                                 <div class="col-1">
                                     <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                        <i class="fa-solid fa-trophy" style="margin-left:2px;margin-right:1px;"></i>
+                                        Titles
+                                    </p>
+                                    <span style="font-size:30px">{{ $championshipCount }}</span>
+                                </div>
+                                <div class="col-1">
+                                    <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
                                         <i class="fa-solid fa-bars-staggered" style="margin-left:2px;margin-right:1px;"></i>
                                         Pos
                                     </p>
@@ -52,7 +71,7 @@
                                 </div>
                                 <div class="col-1">
                                     <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                        <i class="fa-solid fa-trophy" style="margin-left:2px;margin-right:1px;"></i>
+                                        <i class="fa-solid fa-cubes" style="margin-left:2px;margin-right:1px;"></i>
                                         Point
                                     </p>
                                     <span style="font-size:30px">{{ $editionPoints }}</span>
@@ -326,6 +345,19 @@
         </div>
 
     <script>
+        const teamUrlTemplate = @json(route('team.single', ['team' => '__TEAM__']));
+
+        document.getElementById('changeTeam')?.addEventListener('change', function (event) {
+            const url = new URL(teamUrlTemplate.replace('__TEAM__', event.target.value), window.location.origin);
+            const edition = new URL(window.location.href).searchParams.get('edition');
+
+            if (edition) {
+                url.searchParams.set('edition', edition);
+            }
+
+            window.location.href = url.toString();
+        });
+
         document.getElementById('changeEdition')?.addEventListener('change', function (event) {
             const url = new URL(window.location.href);
             url.searchParams.set('edition', event.target.value);

@@ -23,11 +23,23 @@
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
+                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                    <div class="d-flex justify-content-end mb-2">
+                        <div class="input-group w-auto">
+                            <span class="bg-white input-group-text text-decoration-none">Driver</span>
+                            <select class="form-select" name="changeDriver" id="changeDriver" aria-label="changeDriver">
+                                @foreach($drivers as $driverOption)
+                                    <option value="{{ $driverOption->id }}" @selected($driverOption->id === $driver->id)>{{ $driverOption->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </div>
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-3 text-gray-900">
                             <div class="row">
-                                <div class="col-9">
+                                <div class="col-8">
                                     @if($driverImageUrl)
                                         <img
                                             src="{{ $driverImageUrl }}"
@@ -49,10 +61,19 @@
                                 </div>
                                 <div class="col-1">
                                     <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                        <i class="fa-solid fa-trophy" style="margin-left:2px;margin-right:1px;"></i>
+                                        <i class="fa-solid fa-cubes" style="margin-left:2px;margin-right:1px;"></i>
                                         Point
                                     </p>
                                     <span style="font-size:30px">{{ $editionPoints }}</span>
+                                </div>
+                                <div class="col-1">
+                                    <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                        <i class="fa-solid fa-car-side" style="margin-left:2px;margin-right:1px;"></i>
+                                        num
+                                    </p>
+                                    <div style="width:50px;height:50px;line-height:50px;text-align:center;border:1px solid #ccc;font-size:40px;font-style:italic;padding-left:3px;padding-right:5px;">
+                                        {{ $driverNumber }}
+                                    </div>
                                 </div>
                                 <div class="col-1"></div>
                             </div>
@@ -148,26 +169,33 @@
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-3 text-gray-900">
                             <div class="row">
-                                <div class="col-3">
-                                    <div style="width:50px;height:50px;line-height:50px;text-align:center;border:1px solid #ccc;font-size:40px;font-style:italic;padding-left:3px;padding-right:5px;">
-                                        {{ $driverNumber }}
-                                    </div>
+                                <div class="col-4">
+{{--                                    <div style="width:50px;height:50px;line-height:50px;text-align:center;border:1px solid #ccc;font-size:40px;font-style:italic;padding-left:3px;padding-right:5px;">--}}
+{{--                                        {{ $driverNumber }}--}}
+{{--                                    </div>--}}
                                 </div>
-                                <div class="col-3">
+                                <div class="col-2">
+                                    <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                        <i class="fa-solid fa-trophy" style="margin-left:2px;margin-right:1px;"></i>
+                                        Titles
+                                    </p>
+                                    <span style="font-size:30px">{{ $championshipCount }}</span>
+                                </div>
+                                <div class="col-2">
                                     <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
                                         <i class="fa-solid fa-grip-vertical" style="margin-left:2px;margin-right:1px;"></i>
                                         Pole
                                     </p>
                                     <span style="font-size:30px">{{ $poleCount }}</span>
                                 </div>
-                                <div class="col-3">
+                                <div class="col-2">
                                     <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
                                         <i class="fa-solid fa-flag-checkered"></i>
                                         Race
                                     </p>
                                     <span style="font-size:30px">{{ $raceCount }}</span>
                                 </div>
-                                <div class="col-3">
+                                <div class="col-2">
                                     <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
                                         <i class="fa-regular fa-flag"></i>
                                         Sprint
@@ -357,6 +385,19 @@
         </div>
 
         <script>
+            const driverUrlTemplate = @json(route('driver.single', ['driver' => '__DRIVER__']));
+
+            document.getElementById('changeDriver')?.addEventListener('change', function (event) {
+                const url = new URL(driverUrlTemplate.replace('__DRIVER__', event.target.value), window.location.origin);
+                const edition = new URL(window.location.href).searchParams.get('edition');
+
+                if (edition) {
+                    url.searchParams.set('edition', edition);
+                }
+
+                window.location.href = url.toString();
+            });
+
             document.getElementById('changeEdition')?.addEventListener('change', function (event) {
                 const url = new URL(window.location.href);
                 url.searchParams.set('edition', event.target.value);

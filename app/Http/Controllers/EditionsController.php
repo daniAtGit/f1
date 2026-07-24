@@ -223,19 +223,22 @@ class EditionsController extends Controller
         );
 
         $sprints = SprintCircuit::where('edition_circuit_id', $editionCircuitId)
-            ->orderByRaw('position + 0')
+            ->orderByRaw("CASE WHEN position REGEXP '^[0-9]+$' THEN 0 ELSE 1 END")
+            ->orderByRaw('CAST(position AS UNSIGNED)')
             ->orderBy('id')
             ->get();
         $sprints->each($setDriverTeamRelation);
 
         $grids = GridCircuit::where('edition_circuit_id', $editionCircuitId)
-            ->orderByRaw('position + 0')
+            ->orderByRaw("CASE WHEN position REGEXP '^[0-9]+$' THEN 0 ELSE 1 END")
+            ->orderByRaw('CAST(position AS UNSIGNED)')
             ->orderBy('id')
             ->get();
         $grids->each($setDriverTeamRelation);
 
         $races = RaceCircuit::where('edition_circuit_id', $editionCircuitId)
-            ->orderByRaw('position + 0')
+            ->orderByRaw("CASE WHEN position REGEXP '^[0-9]+$' THEN 0 ELSE 1 END")
+            ->orderByRaw('CAST(position AS UNSIGNED)')
             ->orderBy('id')
             ->get();
         $races->each($setDriverTeamRelation);

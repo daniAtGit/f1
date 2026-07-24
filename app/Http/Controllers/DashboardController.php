@@ -87,8 +87,16 @@ class DashboardController extends Controller
 
     public function driver(Driver $driver): View
     {
+        $drivers = Driver::query()
+            ->orderBy('name')
+            ->get();
+
         $editions = Edition::query()
             ->with(['rankingDrivers' => fn ($query) => $query->orderByRaw('CAST(points AS UNSIGNED) DESC')])
+            ->withCount([
+                'circuits',
+                'circuits as completed_races_count' => fn ($query) => $query->has('race'),
+            ])
             ->orderByDesc('year')
             ->get();
         $selectedEditionId = request()->query('edition');
@@ -175,6 +183,14 @@ class DashboardController extends Controller
             })
             ->filter()
             ->values();
+
+        $championshipCount = $editions
+            ->filter(fn (Edition $historyEdition) =>
+                $historyEdition->circuits_count > 0
+                && $historyEdition->circuits_count === $historyEdition->completed_races_count
+                && (string) $historyEdition->rankingDrivers->first()?->driver_id === (string) $driver->id
+            )
+            ->count();
 
         if ($edition) {
             $results = $results->filter(fn (array $item) => $item['result']->editionCircuit?->edition_id === $edition->id);
@@ -283,7 +299,7 @@ class DashboardController extends Controller
                     ->values();
             });
 
-        return view('driver', compact('driver', 'driverImageUrl', 'editions', 'edition', 'editionPoints', 'editionPosition', 'driverNumber', 'poleCount', 'raceCount', 'sprintCount', 'resultsByYear', 'driverStandingsHistory', 'editionRacePlacements', 'editionRaceLineColor'));
+        return view('driver', compact('driver', 'drivers', 'driverImageUrl', 'editions', 'edition', 'editionPoints', 'editionPosition', 'driverNumber', 'championshipCount', 'poleCount', 'raceCount', 'sprintCount', 'resultsByYear', 'driverStandingsHistory', 'editionRacePlacements', 'editionRaceLineColor'));
     }
 
     public function driverStats(Request $request, Driver $driver): View
@@ -398,8 +414,16 @@ class DashboardController extends Controller
 
     public function team(Team $team): View
     {
+        $teams = Team::query()
+            ->orderBy('name')
+            ->get();
+
         $editions = Edition::query()
             ->with(['rankingTeams' => fn ($query) => $query->orderByRaw('CAST(points AS UNSIGNED) DESC')])
+            ->withCount([
+                'circuits',
+                'circuits as completed_races_count' => fn ($query) => $query->has('race'),
+            ])
             ->orderByDesc('year')
             ->get();
 
@@ -484,6 +508,14 @@ class DashboardController extends Controller
             })
             ->filter()
             ->values();
+
+        $championshipCount = $editions
+            ->filter(fn (Edition $historyEdition) =>
+                $historyEdition->circuits_count > 0
+                && $historyEdition->circuits_count === $historyEdition->completed_races_count
+                && (string) $historyEdition->rankingTeams->first()?->team_id === (string) $team->id
+            )
+            ->count();
 
         if ($edition) {
             $results = $results->filter(fn (array $item) => $item['result']->editionCircuit?->edition?->id === $edition->id);
@@ -601,7 +633,7 @@ class DashboardController extends Controller
                     ->values();
             });
 
-        return view('team', compact('team', 'editions', 'edition', 'editionPoints', 'editionPosition', 'resultsByYear', 'teamStandingsHistory', 'teamRaceRounds', 'teamRaceSeries', 'teamRaceMaxPosition'));
+        return view('team', compact('team', 'teams', 'editions', 'edition', 'editionPoints', 'editionPosition', 'championshipCount', 'resultsByYear', 'teamStandingsHistory', 'teamRaceRounds', 'teamRaceSeries', 'teamRaceMaxPosition'));
     }
 
     public function edition(Edition $edition): View

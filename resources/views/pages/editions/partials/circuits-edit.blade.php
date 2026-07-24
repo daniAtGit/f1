@@ -159,7 +159,7 @@
                         @foreach($grids as $grid)
                             <div class="row mb-1 pb-1" style="border-bottom:1px solid #eee;">
                                 <div class="col-1">
-                                    <div style="width:25px;height:25px;line-height:25px;text-align:center;border:1px solid #ccc;">
+                                    <div style="width:32px;height:25px;line-height:25px;text-align:center;border:1px solid #ccc;white-space:nowrap;font-size:0.75rem;">
                                         {{$grid->position}}
                                     </div>
                                 </div>
@@ -251,7 +251,7 @@
                         @foreach($races as $race)
                             <div class="row mb-1 pb-1" style="border-bottom:1px solid #eee;">
                                 <div class="col-1">
-                                    <div style="width:25px;height:25px;line-height:25px;text-align:center;border:1px solid #ccc;">
+                                    <div style="width:32px;height:25px;line-height:25px;text-align:center;border:1px solid #ccc;white-space:nowrap;font-size:0.75rem;">
                                         {{$race->position}}
                                     </div>
                                 </div>
@@ -344,7 +344,7 @@
                         @foreach($sprints as $sprint)
                             <div class="row mb-1 pb-1" style="border-bottom:1px solid #eee;">
                                 <div class="col-1">
-                                    <div style="width:25px;height:25px;line-height:25px;text-align:center;border:1px solid #ccc;">
+                                    <div style="width:32px;height:25px;line-height:25px;text-align:center;border:1px solid #ccc;white-space:nowrap;font-size:0.75rem;">
                                         {{$sprint->position}}
                                     </div>
                                 </div>
