@@ -2,6 +2,35 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('layouts.head.head')
+        <style>
+            @media (max-width: 430px) {
+                .driver-summary-stats .row {
+                    flex-direction: column;
+                }
+
+                .driver-summary-stat {
+                    display: flex;
+                    flex: 0 0 100%;
+                    width: 100%;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 0 .25rem;
+                }
+
+                .driver-summary-stat p {
+                    margin: 0;
+                    white-space: nowrap;
+                }
+
+                .driver-summary-stat > span {
+                    font-size: 27px !important;
+                }
+
+                .driver-summary-stat .driver-number {
+                    margin-right: 0 !important;
+                }
+            }
+        </style>
     </head>
     <body class="antialiased bg-light">
         @if (Route::has('login'))
@@ -38,8 +67,8 @@
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-3 text-gray-900">
-                            <div class="row">
-                                <div class="col-8">
+                            <div class="row align-items-center">
+                                <div class="col-5 col-sm-8">
                                     @if($driverImageUrl)
                                         <img
                                             src="{{ $driverImageUrl }}"
@@ -52,30 +81,33 @@
                                         <div class="text-muted fst-italic">Foto non disponibile</div>
                                     @endif
                                 </div>
-                                <div class="col-1">
-                                    <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                        <i class="fa-solid fa-bars-staggered" style="margin-left:2px;margin-right:1px;"></i>
-                                        Pos
-                                    </p>
-                                    <span style="font-size:30px">{{ $editionPosition }}</span>
-                                </div>
-                                <div class="col-1">
-                                    <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                        <i class="fa-solid fa-cubes" style="margin-left:2px;margin-right:1px;"></i>
-                                        Point
-                                    </p>
-                                    <span style="font-size:30px">{{ $editionPoints }}</span>
-                                </div>
-                                <div class="col-1">
-                                    <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                        <i class="fa-solid fa-car-side" style="margin-left:2px;margin-right:1px;"></i>
-                                        num
-                                    </p>
-                                    <div style="width:50px;height:50px;line-height:50px;text-align:center;border:1px solid #ccc;font-size:40px;font-style:italic;padding-left:3px;padding-right:5px;">
-                                        {{ $driverNumber }}
+                                <div class="col-7 col-sm-4 driver-summary-stats">
+                                    <div class="row g-0">
+                                        <div class="col-4 text-center driver-summary-stat">
+                                            <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                                <i class="fa-solid fa-bars-staggered" style="margin-left:2px;margin-right:1px;"></i>
+                                                Pos
+                                            </p>
+                                            <span style="font-size:30px">{{ $editionPosition }}</span>
+                                        </div>
+                                        <div class="col-4 text-center driver-summary-stat">
+                                            <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                                <i class="fa-solid fa-cubes" style="margin-left:2px;margin-right:1px;"></i>
+                                                Point
+                                            </p>
+                                            <span style="font-size:30px">{{ $editionPoints }}</span>
+                                        </div>
+                                        <div class="col-4 text-center driver-summary-stat">
+                                            <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                                <i class="fa-solid fa-car-side" style="margin-left:2px;margin-right:1px;"></i>
+                                                num
+                                            </p>
+                                            <div class="mx-auto driver-number" style="width:50px;height:50px;line-height:50px;text-align:center;border:1px solid #ccc;font-size:40px;font-style:italic;padding-left:3px;padding-right:5px;">
+                                                {{ $driverNumber }}
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-1"></div>
                             </div>
                         </div>
                     </div>
