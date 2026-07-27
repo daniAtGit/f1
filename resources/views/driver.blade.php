@@ -123,17 +123,21 @@
                     $paddingBottom = 24;
                     $plotWidth = $chartWidth - $paddingLeft - $paddingRight;
                     $plotHeight = $chartHeight - $paddingTop - $paddingBottom;
-                    $maxPosition = max((int) $history->max('position'), 1);
+                    $hasNonFinish = $history->contains(fn ($item) => (int) $item['position'] <= 0);
+                    $lastClassifiedPosition = max(1, (int) $history->pluck('position')->filter(fn ($position) => (int) $position > 0)->max());
+                    $maxPosition = $lastClassifiedPosition + (int) $hasNonFinish;
                     $countHistory = $history->count();
-                    $yTicks = $maxPosition <= 6
-                        ? range(1, $maxPosition)
-                        : array_values(array_unique([1, (int) ceil($maxPosition / 2), $maxPosition]));
+                    $yTicks = $lastClassifiedPosition <= 6
+                        ? range(1, $lastClassifiedPosition)
+                        : array_values(array_unique([1, (int) ceil($lastClassifiedPosition / 2), $lastClassifiedPosition]));
+                    if ($hasNonFinish) $yTicks[] = $maxPosition;
 
                     $chartPoints = $history->values()->map(function ($item, $index) use ($countHistory, $paddingLeft, $paddingTop, $plotWidth, $plotHeight, $maxPosition) {
                         $x = $countHistory > 1
                             ? $paddingLeft + ($plotWidth * $index / ($countHistory - 1))
                             : $paddingLeft + ($plotWidth / 2);
-                        $y = $paddingTop + (($item['position'] - 1) * $plotHeight / max($maxPosition - 1, 1));
+                        $displayPosition = (int) $item['position'] <= 0 ? $maxPosition : (int) $item['position'];
+                        $y = $paddingTop + (($displayPosition - 1) * $plotHeight / max($maxPosition - 1, 1));
 
                         return [
                             'x' => round($x, 2),
@@ -163,7 +167,7 @@
                                             $tickY = $paddingTop + (($tick - 1) * $plotHeight / max($maxPosition - 1, 1));
                                         @endphp
                                         <line x1="{{ $paddingLeft }}" y1="{{ $tickY }}" x2="{{ $paddingLeft + $plotWidth }}" y2="{{ $tickY }}" stroke="#f1f1f1" stroke-width="1" />
-                                        <text x="{{ $paddingLeft - 4 }}" y="{{ $tickY + 4 }}" text-anchor="end" font-size="9" fill="#777">{{ $tick }}</text>
+                                        <text x="{{ $paddingLeft - 4 }}" y="{{ $tickY + 4 }}" text-anchor="end" font-size="9" fill="#777">{{ $hasNonFinish && $tick === $maxPosition ? 'NC' : $tick }}</text>
                                     @endforeach
 
                                     <polyline
@@ -185,7 +189,7 @@
                                             text-anchor="middle"
                                             font-size="10"
                                             fill="#0f172a"
-                                        >P{{ $point['position'] }}</text>
+                                        >{{ $point['position'] <= 0 ? 'NC' : 'P'.$point['position'] }}</text>
                                         <text x="{{ $point['x'] }}" y="{{ $paddingTop + $plotHeight + 15 }}" text-anchor="middle" font-size="10" fill="#777">{{ $point['year'] }}</text>
                                     @endforeach
                                 </svg>
@@ -264,17 +268,21 @@
                     $racePaddingBottom = 48;
                     $racePlotWidth = $raceChartWidth - $racePaddingLeft - $racePaddingRight;
                     $racePlotHeight = $raceChartHeight - $racePaddingTop - $racePaddingBottom;
-                    $raceMaxPosition = max((int) $editionRaceChart->max('position'), 1);
+                    $raceHasNonFinish = $editionRaceChart->contains(fn ($item) => (int) $item['position'] <= 0);
+                    $raceLastClassifiedPosition = max(1, (int) $editionRaceChart->pluck('position')->filter(fn ($position) => (int) $position > 0)->max());
+                    $raceMaxPosition = $raceLastClassifiedPosition + (int) $raceHasNonFinish;
                     $raceCount = $editionRaceChart->count();
-                    $raceYTicks = $raceMaxPosition <= 8
-                        ? range(1, $raceMaxPosition)
-                        : array_values(array_unique([1, (int) ceil($raceMaxPosition / 2), $raceMaxPosition]));
+                    $raceYTicks = $raceLastClassifiedPosition <= 8
+                        ? range(1, $raceLastClassifiedPosition)
+                        : array_values(array_unique([1, (int) ceil($raceLastClassifiedPosition / 2), $raceLastClassifiedPosition]));
+                    if ($raceHasNonFinish) $raceYTicks[] = $raceMaxPosition;
 
                     $raceChartPoints = $editionRaceChart->values()->map(function ($item, $index) use ($raceCount, $racePaddingLeft, $racePaddingTop, $racePlotWidth, $racePlotHeight, $raceMaxPosition) {
                         $x = $raceCount > 1
                             ? $racePaddingLeft + ($racePlotWidth * $index / ($raceCount - 1))
                             : $racePaddingLeft + ($racePlotWidth / 2);
-                        $y = $racePaddingTop + (($item['position'] - 1) * $racePlotHeight / max($raceMaxPosition - 1, 1));
+                        $displayPosition = (int) $item['position'] <= 0 ? $raceMaxPosition : (int) $item['position'];
+                        $y = $racePaddingTop + (($displayPosition - 1) * $racePlotHeight / max($raceMaxPosition - 1, 1));
 
                         return [
                             'x' => round($x, 2),
@@ -306,7 +314,7 @@
                                                 $tickY = $racePaddingTop + (($tick - 1) * $racePlotHeight / max($raceMaxPosition - 1, 1));
                                             @endphp
                                             <line x1="{{ $racePaddingLeft }}" y1="{{ $tickY }}" x2="{{ $racePaddingLeft + $racePlotWidth }}" y2="{{ $tickY }}" stroke="#f1f1f1" stroke-width="1" />
-                                            <text x="{{ $racePaddingLeft - 4 }}" y="{{ $tickY + 4 }}" text-anchor="end" font-size="9" fill="#777">{{ $tick }}</text>
+                                            <text x="{{ $racePaddingLeft - 4 }}" y="{{ $tickY + 4 }}" text-anchor="end" font-size="9" fill="#777">{{ $raceHasNonFinish && $tick === $raceMaxPosition ? 'NC' : $tick }}</text>
                                         @endforeach
 
                                         <polyline
@@ -321,7 +329,7 @@
                                                 $raceLabelY = $point['y'] <= ($racePaddingTop + 12) ? $point['y'] + 18 : $point['y'] - 10;
                                             @endphp
                                             <circle cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="4" fill="{{ $editionRaceLineColor }}" />
-                                            <text x="{{ $point['x'] }}" y="{{ $raceLabelY }}" text-anchor="middle" font-size="10" fill="#0f172a">P{{ $point['position'] }}</text>
+                                            <text x="{{ $point['x'] }}" y="{{ $raceLabelY }}" text-anchor="middle" font-size="10" fill="#0f172a">{{ $point['position'] <= 0 ? 'NC' : 'P'.$point['position'] }}</text>
 
                                             @if($point['flagIconUrl'])
                                                 <image

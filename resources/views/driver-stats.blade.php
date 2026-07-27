@@ -30,9 +30,13 @@
             $plotWidth = $chartWidth - $paddingLeft - $paddingRight;
             $plotHeight = $chartHeight - $paddingTop - $paddingBottom;
             $roundCount = $chartRounds->count();
-            $yTicks = $chartMaxPosition <= 8
-                ? range(1, $chartMaxPosition)
-                : array_values(array_unique([1, (int) ceil($chartMaxPosition / 2), $chartMaxPosition]));
+            $chartPositions = collect($chartSeries)->flatMap(fn ($series) => collect($series['placements'])->pluck('position'));
+            $hasNonFinish = $chartPositions->contains(fn ($position) => (int) $position <= 0);
+            $lastClassifiedPosition = max(1, (int) $chartPositions->filter(fn ($position) => (int) $position > 0)->max());
+            $yTicks = $lastClassifiedPosition <= 8
+                ? range(1, $lastClassifiedPosition)
+                : array_values(array_unique([1, (int) ceil($lastClassifiedPosition / 2), $lastClassifiedPosition]));
+            if ($hasNonFinish) $yTicks[] = $chartMaxPosition;
             $linePatterns = ['', '10 6', '4 4', '12 4 3 4', '2 5', '14 6 2 6'];
             $pointShapes = ['circle', 'square', 'diamond', 'triangle', 'cross', 'circle'];
 
@@ -48,7 +52,8 @@
                         $x = $roundCount > 1
                             ? $paddingLeft + ($plotWidth * $roundIndex / ($roundCount - 1))
                             : $paddingLeft + ($plotWidth / 2);
-                        $y = $paddingTop + (($placement['position'] - 1) * $plotHeight / max($chartMaxPosition - 1, 1));
+                        $displayPosition = (int) $placement['position'] <= 0 ? $chartMaxPosition : (int) $placement['position'];
+                        $y = $paddingTop + (($displayPosition - 1) * $plotHeight / max($chartMaxPosition - 1, 1));
 
                         return [
                             'x' => round($x, 2),
@@ -162,7 +167,7 @@
                                             $tickY = $paddingTop + (($tick - 1) * $plotHeight / max($chartMaxPosition - 1, 1));
                                         @endphp
                                         <line x1="{{ $paddingLeft }}" y1="{{ $tickY }}" x2="{{ $paddingLeft + $plotWidth }}" y2="{{ $tickY }}" stroke="#f1f1f1" stroke-width="1" />
-                                        <text x="{{ $paddingLeft - 6 }}" y="{{ $tickY + 4 }}" text-anchor="end" font-size="10" fill="#777">{{ $tick }}</text>
+                                        <text x="{{ $paddingLeft - 6 }}" y="{{ $tickY + 4 }}" text-anchor="end" font-size="10" fill="#777">{{ $hasNonFinish && $tick === $chartMaxPosition ? 'NC' : $tick }}</text>
                                     @endforeach
 
                                     @foreach($preparedSeries as $series)
@@ -207,7 +212,7 @@
                                                 @else
                                                     <circle cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="4" fill="{{ $series['lineColor'] }}" />
                                                 @endif
-                                                <text x="{{ $point['x'] }}" y="{{ $labelY }}" text-anchor="middle" font-size="10" fill="{{ $series['lineColor'] }}">P{{ $point['position'] }}</text>
+                                                <text x="{{ $point['x'] }}" y="{{ $labelY }}" text-anchor="middle" font-size="10" fill="{{ $series['lineColor'] }}">{{ $point['position'] <= 0 ? 'NC' : 'P'.$point['position'] }}</text>
                                             @endforeach
                                         @endif
                                     @endforeach

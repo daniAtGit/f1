@@ -392,12 +392,10 @@ class DashboardController extends Controller
             })
             ->values();
 
-        $chartMaxPosition = max(
-            1,
-            (int) $chartSeries
-                ->flatMap(fn (array $series) => collect($series['placements'])->pluck('position'))
-                ->max()
-        );
+        $chartPositions = $chartSeries
+            ->flatMap(fn (array $series) => collect($series['placements'])->pluck('position'));
+        $chartMaxPosition = max(1, (int) $chartPositions->filter(fn (int $position) => $position > 0)->max())
+            + (int) $chartPositions->contains(fn (int $position) => $position <= 0);
 
         return view('driver-stats', compact(
             'driver',
@@ -562,12 +560,10 @@ class DashboardController extends Controller
                 return $series;
             });
 
-        $teamRaceMaxPosition = max(
-            1,
-            (int) $teamRaceSeries
-                ->flatMap(fn (array $series) => $series['placements']->pluck('position'))
-                ->max()
-        );
+        $teamRacePositions = $teamRaceSeries
+            ->flatMap(fn (array $series) => $series['placements']->pluck('position'));
+        $teamRaceMaxPosition = max(1, (int) $teamRacePositions->filter(fn (int $position) => $position > 0)->max())
+            + (int) $teamRacePositions->contains(fn (int $position) => $position <= 0);
 
         $resultsByYear = $results
             ->groupBy(fn (array $item) => $item['result']->editionCircuit?->edition?->year ?? 0)

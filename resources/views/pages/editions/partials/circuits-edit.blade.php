@@ -219,6 +219,7 @@
                                         @for($i=1;$i<=$driverTeams->count();$i++)
                                             <option value="{{$i}}">{{$i}}</option>
                                         @endfor
+                                        <option value="NC">NC</option>
                                     </select>
                                 </div>
                                 <div class="col-5">
@@ -312,6 +313,7 @@
                                         @for($i=1;$i<=$driverTeams->count();$i++)
                                             <option value="{{$i}}">{{$i}}</option>
                                         @endfor
+                                        <option value="NC">NC</option>
                                     </select>
                                 </div>
                                 <div class="col-5">
