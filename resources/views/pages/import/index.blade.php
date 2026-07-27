@@ -448,6 +448,11 @@
                         row = [columns[0], columns[1], columns[2], columns[3], columns[5]];
                     } else if (columns.length >= 5) {
                         row = [columns[0], columns[1], columns[2], columns[3], columns[4]];
+                    } else if (columns.length === 4) {
+                        // A Starting Grid row without a qualifying time still has
+                        // position, number, driver and team. Preserve it and let
+                        // the empty time be persisted as null.
+                        row = [columns[0], columns[1], columns[2], columns[3], ''];
                     } else {
                         row = [columns[0], columns[1], '', columns[2], columns[3]];
                     }
