@@ -187,7 +187,7 @@
 
                             <div>
                                 <label for="point">Pts</label>
-                                <input type="number" name="pts" id="rankingTeamPts" value="" class="form-control">
+                                <input type="text" name="pts" id="rankingTeamPts" value="" class="form-control">
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -225,7 +225,7 @@
 
                             <div>
                                 <label for="rankingDriverPts">Pts</label>
-                                <input type="number" name="pts" id="rankingDriverPts" value="" class="form-control">
+                                <input type="text" name="pts" id="rankingDriverPts" value="" class="form-control">
                             </div>
                         </div>
                         <div class="modal-footer">
