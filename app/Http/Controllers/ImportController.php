@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class ImportController extends Controller
@@ -90,16 +91,18 @@ class ImportController extends Controller
 
         $driversTeams = DriverTeam::query()
             ->where('edition_id', $request->edition)
+            ->with('team')
             ->get();
 
         $numbers = $rows->pluck(1);
+        $teamNames = $rows->pluck(2);
         $unknownNumbers = $numbers
             ->filter()
             ->reject(fn ($number) => $driversTeams->contains(fn (DriverTeam $driverTeam) => (string) $driverTeam->number === $number));
 
-        if ($numbers->contains('') || $rows->pluck(0)->contains('') || $unknownNumbers->isNotEmpty()) {
+        if ($numbers->contains('') || $teamNames->contains('') || $rows->pluck(0)->contains('') || $unknownNumbers->isNotEmpty()) {
             throw ValidationException::withMessages([
-                'grid_data' => 'Verifica i dati: posizione e numero pilota sono obbligatori. Numeri non presenti nell\'edizione: '.$unknownNumbers->unique()->implode(', ').'.',
+                'grid_data' => 'Verifica i dati: posizione, numero pilota e squadra sono obbligatori. Numeri non presenti nell\'edizione: '.$unknownNumbers->unique()->implode(', ').'.',
             ]);
         }
 
@@ -107,33 +110,56 @@ class ImportController extends Controller
             throw ValidationException::withMessages(['grid_data' => 'Verifica i dati: un numero pilota compare più di una volta.']);
         }
 
+        $matchedRows = $rows->map(function (array $row) use ($driversTeams) {
+            $number = $row[1];
+            $teamName = $this->normalizeTeamName($row[2]);
+
+            $matches = $driversTeams->filter(function (DriverTeam $driverTeam) use ($number, $teamName) {
+                $storedTeamName = $this->normalizeTeamName($driverTeam->team?->name ?? '');
+
+                return (string) $driverTeam->number === $number
+                    && $teamName !== ''
+                    && $storedTeamName !== ''
+                    && $this->teamNamesMatch($storedTeamName, $teamName);
+            });
+
+            return [
+                'row' => $row,
+                'driverTeam' => $matches->count() === 1 ? $matches->first() : null,
+            ];
+        });
+
+        $unmatchedRows = $matchedRows
+            ->filter(fn (array $match) => $match['driverTeam'] === null)
+            ->map(fn (array $match) => '#'.$match['row'][1].' ('.$match['row'][2].')');
+
+        if ($unmatchedRows->isNotEmpty()) {
+            throw ValidationException::withMessages([
+                'grid_data' => 'Verifica i dati: nessun pilota trovato con numero e squadra indicati: '.$unmatchedRows->implode(', ').'.',
+            ]);
+        }
+
         $existingResults = $resultModel::where('edition_circuit_id', $editionCircuit->id);
         if ($existingResults->exists() && ! $request->boolean('confirm_overwrite')) {
             throw ValidationException::withMessages(['grid_data' => 'Esistono già risultati per questo circuito e questa tipologia. Conferma la sostituzione per procedere.']);
         }
 
-        DB::transaction(function () use ($rows, $driversTeams, $editionCircuit, $request, $resultModel, $existingResults) {
+        DB::transaction(function () use ($matchedRows, $editionCircuit, $request, $resultModel, $existingResults) {
             if ($request->boolean('confirm_overwrite')) {
                 $existingResults->delete();
             }
 
-            foreach ($rows as $row) {
-                $number = trim((string) ($row[1] ?? ''));
+            foreach ($matchedRows as $match) {
+                $row = $match['row'];
+                $driverTeam = $match['driverTeam'];
 
-                // Team names vary between sources; race number is unique within an edition.
-                $driverTeam = $driversTeams->first(function (DriverTeam $driverTeam) use ($number) {
-                    return $number !== '' && (string) $driverTeam->number === $number;
-                });
-
-                if ($driverTeam) {
-                    $resultModel::create([
-                        'position' => $row[0],
-                        'driver_team_id' => $driverTeam->id,
-                        'circuit_id' => $editionCircuit->circuit_id,
-                        'edition_circuit_id' => $editionCircuit->id,
-                        'time' => $row[3] ?: null,
-                    ]);
-                }
+                $resultModel::create([
+                    'position' => $row[0],
+                    'driver_team_id' => $driverTeam->id,
+                    'circuit_id' => $editionCircuit->circuit_id,
+                    'edition_circuit_id' => $editionCircuit->id,
+                    'time' => $row[3] ?: null,
+                ]);
             }
         });
 
@@ -141,5 +167,28 @@ class ImportController extends Controller
             $editionCircuit->edition_id,
             $editionCircuit->id,
         ]);
+    }
+
+    private function normalizeTeamName(string $teamName): string
+    {
+        return (string) Str::of($teamName)
+            ->lower()
+            ->replaceMatches('/[^\\p{L}\\p{N}]+/u', ' ')
+            ->squish();
+    }
+
+    private function teamNamesMatch(string $storedTeamName, string $importedTeamName): bool
+    {
+        if (str_contains($storedTeamName, $importedTeamName) || str_contains($importedTeamName, $storedTeamName)) {
+            return true;
+        }
+
+        $ignoredWords = ['f1', 'formula', 'one', 'team', 'racing', 'grand', 'prix', 'motorsport'];
+        $storedWords = collect(explode(' ', $storedTeamName))
+            ->reject(fn (string $word) => in_array($word, $ignoredWords, true) || mb_strlen($word) < 3);
+        $importedWords = collect(explode(' ', $importedTeamName))
+            ->reject(fn (string $word) => in_array($word, $ignoredWords, true) || mb_strlen($word) < 3);
+
+        return $storedWords->intersect($importedWords)->isNotEmpty();
     }
 }
