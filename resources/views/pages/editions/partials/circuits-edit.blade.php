@@ -127,6 +127,7 @@
                                         @for($i=1;$i<=$driverTeams->count();$i++)
                                             <option value="{{$i}}">{{$i}}</option>
                                         @endfor
+                                        <option value="PIT">PIT</option>
                                     </select>
                                 </div>
                                 <div class="col-5">
