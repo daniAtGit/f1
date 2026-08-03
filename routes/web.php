@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [DashboardController::class, 'welcome'])->name('welcome');
 Route::get('driver/{driver}/stats', [DashboardController::class, 'driverStats'])->name('driver.stats');
 Route::get('driver/{driver}', [DashboardController::class, 'driver'])->name('driver.single');
+Route::get('team/{team}/stats', [DashboardController::class, 'teamStats'])->name('team.stats');
 Route::get('team/{team}', [DashboardController::class, 'team'])->name('team.single');
 Route::get('edition/{edition}', [DashboardController::class, 'edition'])->name('edition.single');
 Route::get('circuit/{circuit}', [DashboardController::class, 'circuit'])->name('circuit.single');

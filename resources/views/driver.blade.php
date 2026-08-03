@@ -197,6 +197,15 @@
                                 <div class="text-muted small">Nessuna classifica finale disponibile.</div>
                             @endif
                             </div>
+
+                            <div class="d-flex justify-content-end mt-3">
+                                <a
+                                    href="{{ route('driver.stats', ['driver' => $driver->id, 'chart' => 'standings']) }}"
+                                    class="btn btn-sm btn-outline-dark"
+                                >
+                                    Compare
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

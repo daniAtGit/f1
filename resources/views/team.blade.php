@@ -194,6 +194,10 @@
                                 <div class="text-muted small">Nessuna classifica finale disponibile.</div>
                             @endif
                             </div>
+
+                            <div class="d-flex justify-content-end mt-3">
+                                <a href="{{ route('team.stats', $team->id) }}" class="btn btn-sm btn-outline-dark">Compare</a>
+                            </div>
                         </div>
                     </div>
                 </div>

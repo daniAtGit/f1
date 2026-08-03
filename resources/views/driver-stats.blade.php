@@ -89,6 +89,9 @@
                         </div>
 
                         <form method="GET" action="{{ route('driver.stats', $driver->id) }}" class="row g-2 align-items-end mb-3">
+                            <input type="hidden" name="chart" value="{{ $comparisonChart }}">
+
+                            @if($comparisonChart === 'races')
                             <div class="col-12 col-md-3">
                                 <label for="edition" class="form-label small text-muted mb-1">Edition</label>
                                 <select class="form-select" name="edition" id="edition">
@@ -99,8 +102,9 @@
                                     @endforeach
                                 </select>
                             </div>
+                            @endif
 
-                            <div class="col-12 col-md-5">
+                            <div class="col-12 {{ $comparisonChart === 'races' ? 'col-md-5' : 'col-md-8' }}">
                                 <label for="compare_driver" class="form-label small text-muted mb-1">Add driver</label>
                                 <select class="form-select" name="compare_driver" id="compare_driver">
                                     <option value="">Select a driver</option>
@@ -142,7 +146,7 @@
                                         <span class="small">{{ $series['driverName'] }}</span>
                                         @if((string) $series['driverId'] !== (string) $driver->id)
                                             <a
-                                                href="{{ route('driver.stats', ['driver' => $driver->id, 'edition' => $edition?->id, 'compare' => $compareIds->reject(fn ($id) => $id === (string) $series['driverId'])->values()->all()]) }}"
+                                                href="{{ route('driver.stats', ['driver' => $driver->id, 'chart' => $comparisonChart, 'edition' => $edition?->id, 'compare' => $compareIds->reject(fn ($id) => $id === (string) $series['driverId'])->values()->all()]) }}"
                                                 class="text-decoration-none small"
                                                 aria-label="Remove {{ $series['driverName'] }}"
                                             >
@@ -154,11 +158,13 @@
                             </div>
                         @endif
 
-                        <div class="small text-muted mb-2">Race placements comparison</div>
+                        <div class="small text-muted mb-2">
+                            {{ $comparisonChart === 'standings' ? 'Placement over the years comparison' : 'Race placements comparison' }}
+                        </div>
 
                         @if($chartRounds->isNotEmpty() && $preparedSeries->contains(fn ($series) => $series['points']->isNotEmpty()))
                             <div class="d-flex justify-content-center">
-                                <svg viewBox="0 0 {{ $chartWidth }} {{ $chartHeight }}" role="img" aria-label="Confronto piazzamenti gara piloti" style="width:100%;max-width:100%;max-height:360px;">
+                                <svg viewBox="0 0 {{ $chartWidth }} {{ $chartHeight }}" role="img" aria-label="{{ $comparisonChart === 'standings' ? 'Confronto classifiche finali dei piloti' : 'Confronto piazzamenti gara piloti' }}" style="width:100%;max-width:100%;max-height:360px;">
                                     <line x1="{{ $paddingLeft }}" y1="{{ $paddingTop }}" x2="{{ $paddingLeft }}" y2="{{ $paddingTop + $plotHeight }}" stroke="#d7d7d7" stroke-width="1" />
                                     <line x1="{{ $paddingLeft }}" y1="{{ $paddingTop + $plotHeight }}" x2="{{ $paddingLeft + $plotWidth }}" y2="{{ $paddingTop + $plotHeight }}" stroke="#d7d7d7" stroke-width="1" />
 
@@ -223,7 +229,7 @@
                                                 ? $paddingLeft + ($plotWidth * $index / ($roundCount - 1))
                                                 : $paddingLeft + ($plotWidth / 2);
                                         @endphp
-                                        @if($round['flagIconUrl'])
+                                        @if($comparisonChart === 'races' && $round['flagIconUrl'])
                                             <image
                                                 href="{{ $round['flagIconUrl'] }}"
                                                 x="{{ $roundX - 8 }}"
@@ -234,16 +240,18 @@
                                             >
                                                 <title>{{ $round['circuitName'] }} - {{ $round['countryName'] }}</title>
                                             </image>
-                                        @else
+                                        @elseif($comparisonChart === 'races')
                                             <text x="{{ $roundX }}" y="{{ $paddingTop + $plotHeight + 26 }}" text-anchor="middle" font-size="9" fill="#777">R{{ $round['round'] }}</text>
                                         @endif
 
-                                        <text x="{{ $roundX }}" y="{{ $paddingTop + $plotHeight + 42 }}" text-anchor="middle" font-size="9" fill="#777">R{{ $round['round'] }}</text>
+                                        <text x="{{ $roundX }}" y="{{ $paddingTop + $plotHeight + 42 }}" text-anchor="middle" font-size="9" fill="#777">{{ $comparisonChart === 'standings' ? $round['label'] : 'R'.$round['round'] }}</text>
                                     @endforeach
                                 </svg>
                             </div>
                         @else
-                            <div class="text-muted small">Nessun risultato gara disponibile per questa edizione.</div>
+                            <div class="text-muted small">
+                                {{ $comparisonChart === 'standings' ? 'Nessuna classifica finale disponibile per i piloti selezionati.' : 'Nessun risultato gara disponibile per questa edizione.' }}
+                            </div>
                         @endif
                     </div>
                 </div>

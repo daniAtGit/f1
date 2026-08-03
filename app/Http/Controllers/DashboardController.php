@@ -305,8 +305,11 @@ class DashboardController extends Controller
     public function driverStats(Request $request, Driver $driver): View
     {
         $editions = Edition::query()
+            ->with(['rankingDrivers' => fn ($query) => $query->orderByRaw('CAST(points AS UNSIGNED) DESC')])
             ->orderByDesc('year')
             ->get();
+
+        $comparisonChart = $request->query('chart') === 'standings' ? 'standings' : 'races';
 
         $selectedEditionId = $request->query('edition');
         $edition = $selectedEditionId
@@ -337,34 +340,68 @@ class DashboardController extends Controller
             ->values();
 
         $availableDrivers = Driver::query()
-            ->when(
-                $edition,
-                fn ($query) => $query->whereHas(
-                    'driverTeams',
-                    fn ($driverTeamQuery) => $driverTeamQuery->where('edition_id', $edition->id)
-                )
-            )
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        $editionCircuits = $edition
-            ? $edition->circuits()
-                ->with('circuit.country')
-                ->orderBy('round')
-                ->get()
-            : collect();
+        if ($comparisonChart === 'standings') {
+            $chartRounds = $editions
+                ->sortBy('year')
+                ->map(fn (Edition $historyEdition) => [
+                    'round' => (int) $historyEdition->year,
+                    'label' => (string) $historyEdition->year,
+                ])
+                ->values();
 
-        $chartRounds = $editionCircuits
-            ->map(fn (EditionCircuit $editionCircuit) => [
-                'round' => (int) $editionCircuit->round,
-                'circuitName' => $editionCircuit->circuit?->name,
-                'countryName' => $editionCircuit->circuit?->country?->name,
-                'flagIconUrl' => $editionCircuit->circuit?->country?->flag_icon_url,
-            ])
-            ->values();
+            $chartSeries = $drivers
+                ->map(function (Driver $selectedDriver, int $index) use ($editions, $chartRounds) {
+                    $placements = $editions
+                        ->sortBy('year')
+                        ->map(function (Edition $historyEdition) use ($selectedDriver) {
+                            $rankingDriver = $historyEdition->rankingDrivers->firstWhere('driver_id', $selectedDriver->id);
 
-        $chartSeries = $drivers
-            ->map(function (Driver $selectedDriver, int $index) use ($edition, $chartRounds) {
+                            if (!$rankingDriver) {
+                                return null;
+                            }
+
+                            return [
+                                'round' => (int) $historyEdition->year,
+                                'position' => $historyEdition->rankingDrivers->search(
+                                    fn ($editionRankingDriver) => $editionRankingDriver->id === $rankingDriver->id
+                                ) + 1,
+                            ];
+                        })
+                        ->filter()
+                        ->values();
+
+                    return [
+                        'driverId' => $selectedDriver->id,
+                        'driverName' => $selectedDriver->name,
+                        'lineColor' => $this->comparisonLineColor($index),
+                        'placements' => $placements,
+                        'hasResults' => $placements->isNotEmpty(),
+                        'roundsCovered' => $chartRounds->pluck('round')->values(),
+                    ];
+                })
+                ->values();
+        } else {
+            $editionCircuits = $edition
+                ? $edition->circuits()
+                    ->with('circuit.country')
+                    ->orderBy('round')
+                    ->get()
+                : collect();
+
+            $chartRounds = $editionCircuits
+                ->map(fn (EditionCircuit $editionCircuit) => [
+                    'round' => (int) $editionCircuit->round,
+                    'circuitName' => $editionCircuit->circuit?->name,
+                    'countryName' => $editionCircuit->circuit?->country?->name,
+                    'flagIconUrl' => $editionCircuit->circuit?->country?->flag_icon_url,
+                ])
+                ->values();
+
+            $chartSeries = $drivers
+                ->map(function (Driver $selectedDriver, int $index) use ($edition, $chartRounds) {
                 $editionDriverTeam = $edition
                     ? $selectedDriver->driverTeams->firstWhere('edition_id', $edition->id)
                     : null;
@@ -389,8 +426,9 @@ class DashboardController extends Controller
                     'hasResults' => $placements->isNotEmpty(),
                     'roundsCovered' => $chartRounds->pluck('round')->values(),
                 ];
-            })
-            ->values();
+                })
+                ->values();
+        }
 
         $chartPositions = $chartSeries
             ->flatMap(fn (array $series) => collect($series['placements'])->pluck('position'));
@@ -401,6 +439,7 @@ class DashboardController extends Controller
             'driver',
             'editions',
             'edition',
+            'comparisonChart',
             'compareIds',
             'drivers',
             'availableDrivers',
@@ -630,6 +669,82 @@ class DashboardController extends Controller
             });
 
         return view('team', compact('team', 'teams', 'editions', 'edition', 'editionPoints', 'editionPosition', 'championshipCount', 'resultsByYear', 'teamStandingsHistory', 'teamRaceRounds', 'teamRaceSeries', 'teamRaceMaxPosition'));
+    }
+
+    public function teamStats(Request $request, Team $team): View
+    {
+        $editions = Edition::query()
+            ->with(['rankingTeams' => fn ($query) => $query->orderByRaw('CAST(points AS UNSIGNED) DESC')])
+            ->orderBy('year')
+            ->get();
+
+        $compareIds = collect($request->query('compare', []))
+            ->filter()
+            ->map(fn ($id) => (string) $id)
+            ->reject(fn ($id) => $id === (string) $team->id)
+            ->unique()
+            ->values();
+
+        $selectedTeamIds = $compareIds
+            ->prepend((string) $team->id)
+            ->values();
+
+        $teams = Team::query()
+            ->whereIn('id', $selectedTeamIds)
+            ->get()
+            ->sortBy(fn (Team $item) => array_search((string) $item->id, $selectedTeamIds->all(), true))
+            ->values();
+
+        $availableTeams = Team::query()
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        $chartYears = $editions
+            ->map(fn (Edition $historyEdition) => (int) $historyEdition->year)
+            ->values();
+
+        $chartSeries = $teams
+            ->map(function (Team $selectedTeam, int $index) use ($editions) {
+                $placements = $editions
+                    ->map(function (Edition $historyEdition) use ($selectedTeam) {
+                        $rankingTeam = $historyEdition->rankingTeams->firstWhere('team_id', $selectedTeam->id);
+
+                        if (!$rankingTeam) {
+                            return null;
+                        }
+
+                        return [
+                            'year' => (int) $historyEdition->year,
+                            'position' => $historyEdition->rankingTeams->search(
+                                fn ($editionRankingTeam) => $editionRankingTeam->id === $rankingTeam->id
+                            ) + 1,
+                        ];
+                    })
+                    ->filter()
+                    ->values();
+
+                return [
+                    'teamId' => $selectedTeam->id,
+                    'teamName' => $selectedTeam->name,
+                    'lineColor' => $selectedTeam->color ?: $this->comparisonLineColor($index),
+                    'placements' => $placements,
+                ];
+            })
+            ->values();
+
+        $chartPositions = $chartSeries
+            ->flatMap(fn (array $series) => collect($series['placements'])->pluck('position'));
+        $chartMaxPosition = max(1, (int) $chartPositions->max());
+
+        return view('team-stats', compact(
+            'team',
+            'compareIds',
+            'teams',
+            'availableTeams',
+            'chartYears',
+            'chartSeries',
+            'chartMaxPosition'
+        ));
     }
 
     public function edition(Edition $edition): View
