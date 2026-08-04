@@ -84,6 +84,15 @@
                                 <h1 class="h4 mb-0">{{ $driver->name }}</h1>
                             </div>
                             <div class="d-flex flex-wrap gap-2">
+
+                                <div class="input-group input-group-sm w-auto">
+                                    <span class="bg-white input-group-text text-decoration-none">Driver</span>
+                                    <select class="form-select" name="changeDriver" id="changeDriver" aria-label="changeDriver">
+                                        @foreach($availableDrivers as $driverOption)
+                                            <option value="{{ $driverOption->id }}" @selected($driverOption->id === $driver->id)>{{ $driverOption->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                                 <a href="{{ route('driver.single', ['driver' => $driver->id, 'edition' => $edition?->id]) }}" class="btn btn-sm btn-outline-secondary">Back</a>
                             </div>
                         </div>
@@ -121,7 +130,7 @@
                             @endforeach
 
                             <div class="col-12 col-md-4 d-flex gap-2">
-                                <button type="submit" class="btn btn-dark">Update</button>
+{{--                                <button type="submit" class="btn btn-dark">Update</button>--}}
                                 <button type="button" id="addCompareDriver" class="btn btn-outline-dark">Add line</button>
                             </div>
                         </form>
@@ -259,6 +268,16 @@
         </div>
 
         <script>
+            const driverStatsUrlTemplate = @json(route('driver.stats', ['driver' => '__DRIVER__']));
+
+            document.getElementById('changeDriver')?.addEventListener('change', function (event) {
+                const url = new URL(driverStatsUrlTemplate.replace('__DRIVER__', event.target.value), window.location.origin);
+                const currentUrl = new URL(window.location.href);
+
+                currentUrl.searchParams.forEach((value, key) => url.searchParams.append(key, value));
+                window.location.href = url.toString();
+            });
+
             document.getElementById('addCompareDriver')?.addEventListener('click', function () {
                 const form = this.closest('form');
                 const select = document.getElementById('compare_driver');

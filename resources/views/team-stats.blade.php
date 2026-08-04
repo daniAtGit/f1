@@ -61,7 +61,17 @@
                                 <div class="small text-muted">Team comparison</div>
                                 <h1 class="h4 mb-0">{{ $team->name }}</h1>
                             </div>
-                            <a href="{{ route('team.single', $team->id) }}" class="btn btn-sm btn-outline-secondary">Back</a>
+                            <div class="d-flex flex-wrap gap-2">
+                                <div class="input-group input-group-sm w-auto">
+                                    <span class="bg-white input-group-text text-decoration-none">Team</span>
+                                    <select class="form-select" name="changeTeam" id="changeTeam" aria-label="changeTeam">
+                                        @foreach($availableTeams as $teamOption)
+                                            <option value="{{ $teamOption->id }}" @selected($teamOption->id === $team->id)>{{ $teamOption->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <a href="{{ route('team.single', $team->id) }}" class="btn btn-sm btn-outline-secondary">Back</a>
+                            </div>
                         </div>
 
                         <form method="GET" action="{{ route('team.stats', $team->id) }}" class="row g-2 align-items-end mb-3">
@@ -82,7 +92,7 @@
                             @endforeach
 
                             <div class="col-12 col-md-4 d-flex gap-2">
-                                <button type="submit" class="btn btn-dark">Update</button>
+{{--                                <button type="submit" class="btn btn-dark">Update</button>--}}
                                 <button type="button" id="addCompareTeam" class="btn btn-outline-dark">Add line</button>
                             </div>
                         </form>
@@ -141,6 +151,16 @@
         </div>
 
         <script>
+            const teamStatsUrlTemplate = @json(route('team.stats', ['team' => '__TEAM__']));
+
+            document.getElementById('changeTeam')?.addEventListener('change', function (event) {
+                const url = new URL(teamStatsUrlTemplate.replace('__TEAM__', event.target.value), window.location.origin);
+                const currentUrl = new URL(window.location.href);
+
+                currentUrl.searchParams.forEach((value, key) => url.searchParams.append(key, value));
+                window.location.href = url.toString();
+            });
+
             document.getElementById('addCompareTeam')?.addEventListener('click', function () {
                 const form = this.closest('form');
                 const select = document.getElementById('compare_team');

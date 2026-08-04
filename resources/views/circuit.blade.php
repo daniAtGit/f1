@@ -61,7 +61,7 @@
                                             loading="lazy"
                                         >
                                     @else
-                                        <div class="text-muted fst-italic">Foto non disponibile</div>
+                                        <div class="text-muted fst-italic">Photo not available</div>
                                     @endif
                                 </div>
                             </div>

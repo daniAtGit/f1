@@ -14,5 +14,5 @@
         </div>
     </div>
 @empty
-    <div class="text-muted">Nessun dato disponibile</div>
+    <div class="text-muted">No data available.</div>
 @endforelse

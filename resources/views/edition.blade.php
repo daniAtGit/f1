@@ -46,8 +46,8 @@
                                     @forelse($editionCircuits as $circuit)
                                         <div class="mb-4">
                                             <div class="mb-3">
-                                                Round <b>{{ $circuit['round'] }}</b>
-                                                |
+                                                <b>Round {{ $circuit['round'] }}</b>
+                                                -
                                                 @if($circuit['date'])
                                                     <span style="font-size:11px;">{{ $circuit['date'] }}</span>
                                                 @endif
@@ -80,11 +80,11 @@
                                                                 </div>
                                                             </div>
                                                         @empty
-                                                            <div class="text-muted small">Nessun dato disponibile.</div>
+                                                            <div class="text-muted small">No data available.</div>
                                                         @endforelse
                                                         @if($circuit['gridResults']->count() > 3)
-                                                            <button type="button" class="btn btn-sm btn-outline-secondary result-toggle" data-show-label="Mostra tutto" data-hide-label="Mostra meno">
-                                                                Mostra tutto
+                                                            <button type="button" class="btn btn-sm btn-outline-secondary result-toggle" data-show-label="Show all" data-hide-label="Show less">
+                                                                Show all
                                                             </button>
                                                         @endif
                                                     </div>
@@ -104,11 +104,11 @@
                                                                 </div>
                                                             </div>
                                                         @empty
-                                                            <div class="text-muted small">Nessun dato disponibile.</div>
+                                                            <div class="text-muted small">No data available.</div>
                                                         @endforelse
                                                         @if($circuit['raceResults']->count() > 3)
-                                                            <button type="button" class="btn btn-sm btn-outline-secondary result-toggle" data-show-label="Mostra tutto" data-hide-label="Mostra meno">
-                                                                Mostra tutto
+                                                            <button type="button" class="btn btn-sm btn-outline-secondary result-toggle" data-show-label="Show all" data-hide-label="Show less">
+                                                                Show all
                                                             </button>
                                                         @endif
                                                     </div>
@@ -131,8 +131,8 @@
                                                                 </div>
                                                             @endforeach
                                                             @if($circuit['sprintResults']->count() > 3)
-                                                                <button type="button" class="btn btn-sm btn-outline-secondary result-toggle" data-show-label="Mostra tutto" data-hide-label="Mostra meno">
-                                                                    Mostra tutto
+                                                                <button type="button" class="btn btn-sm btn-outline-secondary result-toggle" data-show-label="Show all" data-hide-label="Show less">
+                                                                    Show all
                                                                 </button>
                                                             @endif
                                                         </div>
@@ -148,7 +148,7 @@
                                                                 <span>{{ $video['title'] ?: 'Video' }}</span>
                                                             </a>
                                                         @empty
-                                                            <div class="text-muted small">Nessun video collegato.</div>
+                                                            <div class="text-muted small">No related videos.</div>
                                                         @endforelse
                                                     </div>
                                                 </div>
@@ -156,7 +156,7 @@
                                         </div>
                                         <hr>
                                     @empty
-                                        <div class="text-muted">Nessun risultato disponibile.</div>
+                                        <div class="text-muted">No results available.</div>
                                     @endforelse
                                 </div>
                             </div>

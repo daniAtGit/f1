@@ -391,7 +391,7 @@
                                             @foreach($circuits as $circuit)
                                                 <div class="border-bottom pb-2 mb-2">
                                                     <div class="small text-muted">
-                                                        Round {{ $circuit['round'] }}
+                                                        <u>Round {{ $circuit['round'] }}</u>
                                                         @if($circuit['countryFlagIconUrl'])
                                                             <img
                                                                 src="{{ $circuit['countryFlagIconUrl'] }}"
