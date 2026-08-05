@@ -820,6 +820,14 @@ class DashboardController extends Controller
     public function circuit(Circuit $circuit): View
     {
         $circuit->load('country');
+        $circuits = Circuit::query()
+            ->with('country')
+            ->get()
+            ->sortBy([
+                fn (Circuit $item) => $item->country?->name,
+                fn (Circuit $item) => $item->city,
+                fn (Circuit $item) => $item->name,
+            ]);
 
         $poleResults = $this->circuitFirstPlaceResults(GridCircuit::class, $circuit);
         $raceResults = $this->circuitFirstPlaceResults(RaceCircuit::class, $circuit);
@@ -838,7 +846,7 @@ class DashboardController extends Controller
         $raceDrivers = $this->circuitFirstPlaceStandings($raceResults, $driverTeamsById);
         $sprintDrivers = $this->circuitFirstPlaceStandings($sprintResults, $driverTeamsById);
 
-        return view('circuit', compact('circuit', 'poleDrivers', 'raceDrivers', 'sprintDrivers'));
+        return view('circuit', compact('circuit', 'circuits', 'poleDrivers', 'raceDrivers', 'sprintDrivers'));
     }
 
     private function circuitFirstPlaceResults(string $resultModel, Circuit $circuit)

@@ -5,7 +5,7 @@
     </head>
     <body class="antialiased bg-light">
         @if (Route::has('login'))
-            <div class="position-absolute top-0 end-0 p-3 p-md-4 d-flex gap-2">
+            <div class="position-absolute top-0 end-0 p-3 p-md-4 d-flex align-items-center gap-2" style="z-index:20;">
                 @auth
                     <a href="{{ route('dashboard') }}" class="btn btn-sm btn-outline-dark">Dashboard</a>
                 @else
@@ -23,6 +23,32 @@
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
+                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-3 text-gray-900">
+                            <div class="row g-3">
+                                <div class="col-7"></div>
+                                <div class="col-5">
+                                    <label for="circuit-switcher" class="visually-hidden">Switch circuit</label>
+                                    <select
+                                        id="circuit-switcher"
+                                        class="form-select form-select-sm"
+                                        style="min-width:220px;"
+                                        aria-label="Switch circuit"
+                                        onchange="if (this.value) window.location.href = this.value"
+                                    >
+                                        @foreach($circuits as $availableCircuit)
+                                            <option value="{{ route('circuit.single', $availableCircuit) }}" @selected($availableCircuit->id === $circuit->id)>
+                                                {{ $availableCircuit->country?->name }} · {{ $availableCircuit->city }} · {{ $availableCircuit->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-3 text-gray-900">
