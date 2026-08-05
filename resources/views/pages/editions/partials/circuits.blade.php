@@ -1,4 +1,6 @@
 <div class="row mt-3">
+    @php($nextRound = ($edition->circuits->max('round') ?? 0) + 1)
+
     <div class="col-1"></div>
 
     <div class="col-10">
@@ -17,14 +19,14 @@
                 </div>
                 <div class="col-1">
                     <select name="round" id="round" class="form-control" required>
-                        <option value="" disabled selected>Round</option>
+                        <option value="" disabled>Round</option>
                         @for($i=1;$i<25;$i++)
-                            <option value="{{$i}}">{{$i}}</option>
+                            <option value="{{$i}}" @selected(old('round', $nextRound) == $i)>{{$i}}</option>
                         @endfor
                     </select>
                 </div>
-                <div class="col-2">
-                    <input type="date" name="date" class="form-control">
+                <div class="col-auto">
+                    <input type="text" name="date" class="form-control" style="width: 90px" placeholder="gg/mm" pattern="\d{2}/\d{2}" inputmode="numeric" title="Inserisci la data nel formato gg/mm">
                 </div>
                 <div class="col-5">
                     <button type="submit" class="btn btn-outline-primary">

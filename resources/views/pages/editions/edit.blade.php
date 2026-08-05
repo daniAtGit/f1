@@ -494,13 +494,14 @@
                         "{{route('editions.driver.team.cars')}}",
                         {
                             _token: '{{csrf_token()}}',
-                            team_id: $('#team_id').val()
+                            team_id: $('#team_id').val(),
+                            edition_id: $('#team_id').closest('form').find('[name="edition_id"]').val()
                         },
                         function (data) {
                             $('#car_id').empty();
-                            $('#car_id').append('<option value="" disabled selected>Car</option>');
+                            $('#car_id').append('<option value="" disabled>Car</option>');
                             data.forEach(function (dt) {
-                                $('#car_id').append('<option value="'+dt.id+'">'+dt.name+'</option>');
+                                $('#car_id').append('<option value="'+dt.id+'"'+(dt.is_edition_car ? ' selected' : '')+'>'+dt.name+'</option>');
                             });
                         }
                     );

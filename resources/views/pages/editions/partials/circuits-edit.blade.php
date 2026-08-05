@@ -45,7 +45,7 @@
                                 </select>
                             </div>
                             <div class="col-2">
-                                <input type="date" name="date" class="form-control" value="{{$editionCircuit->date?->format('Y-m-d')}}">
+                                <input type="text" name="date" class="form-control" value="{{$editionCircuit->date?->format('d/m')}}" placeholder="gg/mm" pattern="\d{2}/\d{2}" inputmode="numeric" title="Inserisci la data nel formato gg/mm">
                             </div>
                             <div class="col-3">
                                 <button type="submit" class="btn btn-outline-primary">

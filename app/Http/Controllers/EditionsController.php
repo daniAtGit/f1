@@ -146,7 +146,13 @@ class EditionsController extends Controller
 
     public function driverTeamCars(Request $request): mixed
     {
-        $team = Team::find($request->team_id);
+        $request->validate([
+            'team_id' => ['required', 'exists:teams,id'],
+            'edition_id' => ['required', 'exists:editions,id'],
+        ]);
+
+        $team = Team::findOrFail($request->team_id);
+        $edition = Edition::findOrFail($request->edition_id);
         $cars = [];
         $orderedCars = $team->cars()
             ->with('edition')
@@ -161,7 +167,8 @@ class EditionsController extends Controller
             $name = $car->name." | ".$car->edition->edition."-".$car->edition->year;
             $cars[$i] = [
                 'id' => $id,
-                'name' => $name
+                'name' => $name,
+                'is_edition_car' => (int) $car->edition->year === (int) $edition->year,
             ];
         }
         return $cars;
@@ -182,14 +189,22 @@ class EditionsController extends Controller
 
     public function circuitCreate(Request $request): RedirectResponse
     {
-        EditionCircuit::create([
-            'edition_id' => $request->edition_id,
-            'circuit_id' => $request->circuit_id,
-            'round' => $request->round,
-            'date' => $request->date
+        $request->validate([
+            'edition_id' => ['required', 'exists:editions,id'],
+            'circuit_id' => ['required', 'exists:circuits,id'],
+            'round' => ['required', 'integer'],
+            'date' => ['nullable', 'date_format:d/m'],
         ]);
 
-        $edition = Edition::find($request->edition_id);
+        $edition = Edition::findOrFail($request->edition_id);
+
+        EditionCircuit::create([
+            'edition_id' => $edition->id,
+            'circuit_id' => $request->circuit_id,
+            'round' => $request->round,
+            'date' => $this->editionCircuitDate($request->date, $edition->year),
+        ]);
+
         return redirect()->route('editions.edit', [
             'edition' => $edition,
             'tab' => 'circuits'
@@ -248,11 +263,18 @@ class EditionsController extends Controller
 
     public function circuitUpdate(Request $request): RedirectResponse
     {
-        $editionCircuit = EditionCircuit::find($request->editionCircuitId);
+        $request->validate([
+            'editionCircuitId' => ['required', 'exists:edition_circuit,id'],
+            'circuit_id' => ['required', 'exists:circuits,id'],
+            'round' => ['required', 'integer'],
+            'date' => ['nullable', 'date_format:d/m'],
+        ]);
+
+        $editionCircuit = EditionCircuit::with('edition')->findOrFail($request->editionCircuitId);
         $editionCircuit->update([
             'circuit_id' => $request->circuit_id,
             'round' => $request->round,
-            'date' => $request->date
+            'date' => $this->editionCircuitDate($request->date, $editionCircuit->edition->year),
         ]);
 
         if($request->altri) {
@@ -264,6 +286,16 @@ class EditionsController extends Controller
         }
 
         return redirect()->route('editions.circuit.edit', [$editionCircuit->edition_id,$editionCircuit->id]);
+    }
+
+    private function editionCircuitDate(?string $date, int $year): ?string
+    {
+        if (blank($date)) {
+            return null;
+        }
+
+        return \Carbon\CarbonImmutable::createFromFormat('!d/m/Y', "{$date}/{$year}")
+            ->format('Y-m-d');
     }
 
     public function circuitDestroy($editionId, $editionCircuitId): RedirectResponse
