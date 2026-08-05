@@ -92,7 +92,7 @@
                             @endforeach
 
                             <div class="col-12 col-md-4 d-flex gap-2">
-{{--                                <button type="submit" class="btn btn-dark">Update</button>--}}
+                                <button type="submit" class="btn btn-dark">Update</button>
                                 <button type="button" id="addCompareTeam" class="btn btn-outline-dark">Add line</button>
                             </div>
                         </form>
