@@ -91,33 +91,34 @@ class ImportController extends Controller
 
         $driversTeams = DriverTeam::query()
             ->where('edition_id', $request->edition)
-            ->with('team')
+            ->with(['driver', 'team'])
             ->get();
 
         $numbers = $rows->pluck(1);
-        $teamNames = $rows->pluck(2);
+        $driverNames = $rows->pluck(2);
+        $teamNames = $rows->pluck(3);
         $unknownNumbers = $numbers
             ->filter()
             ->reject(fn ($number) => $driversTeams->contains(fn (DriverTeam $driverTeam) => (string) $driverTeam->number === $number));
 
-        if ($numbers->contains('') || $teamNames->contains('') || $rows->pluck(0)->contains('') || $unknownNumbers->isNotEmpty()) {
+        if ($numbers->contains('') || $driverNames->contains('') || $teamNames->contains('') || $rows->pluck(0)->contains('') || $unknownNumbers->isNotEmpty()) {
             throw ValidationException::withMessages([
-                'grid_data' => 'Verifica i dati: posizione, numero pilota e squadra sono obbligatori. Numeri non presenti nell\'edizione: '.$unknownNumbers->unique()->implode(', ').'.',
+                'grid_data' => 'Verifica i dati: posizione, numero pilota, nome pilota e squadra sono obbligatori. Numeri non presenti nell\'edizione: '.$unknownNumbers->unique()->implode(', ').'.',
             ]);
-        }
-
-        if ($numbers->duplicates()->isNotEmpty()) {
-            throw ValidationException::withMessages(['grid_data' => 'Verifica i dati: un numero pilota compare più di una volta.']);
         }
 
         $matchedRows = $rows->map(function (array $row) use ($driversTeams) {
             $number = $row[1];
-            $teamName = $this->normalizeTeamName($row[2]);
+            $driverName = $this->normalizeDriverName($row[2]);
+            $teamName = $this->normalizeTeamName($row[3]);
 
-            $matches = $driversTeams->filter(function (DriverTeam $driverTeam) use ($number, $teamName) {
+            $matches = $driversTeams->filter(function (DriverTeam $driverTeam) use ($number, $driverName, $teamName) {
+                $storedDriverName = $this->normalizeDriverName($driverTeam->driver?->name ?? '');
                 $storedTeamName = $this->normalizeTeamName($driverTeam->team?->name ?? '');
 
                 return (string) $driverTeam->number === $number
+                    && $driverName !== ''
+                    && $this->driverNamesMatch($storedDriverName, $driverName)
                     && $teamName !== ''
                     && $storedTeamName !== ''
                     && $this->teamNamesMatch($storedTeamName, $teamName);
@@ -131,12 +132,16 @@ class ImportController extends Controller
 
         $unmatchedRows = $matchedRows
             ->filter(fn (array $match) => $match['driverTeam'] === null)
-            ->map(fn (array $match) => '#'.$match['row'][1].' ('.$match['row'][2].')');
+            ->map(fn (array $match) => '#'.$match['row'][1].' '.$match['row'][2].' ('.$match['row'][3].')');
 
         if ($unmatchedRows->isNotEmpty()) {
             throw ValidationException::withMessages([
-                'grid_data' => 'Verifica i dati: nessun pilota trovato con numero e squadra indicati: '.$unmatchedRows->implode(', ').'.',
+                'grid_data' => 'Verifica i dati: nessun pilota trovato con numero, nome e squadra indicati: '.$unmatchedRows->implode(', ').'.',
             ]);
+        }
+
+        if ($matchedRows->pluck('driverTeam.id')->duplicates()->isNotEmpty()) {
+            throw ValidationException::withMessages(['grid_data' => 'Verifica i dati: lo stesso pilota compare più di una volta.']);
         }
 
         $existingResults = $resultModel::where('edition_circuit_id', $editionCircuit->id);
@@ -158,7 +163,7 @@ class ImportController extends Controller
                     'driver_team_id' => $driverTeam->id,
                     'circuit_id' => $editionCircuit->circuit_id,
                     'edition_circuit_id' => $editionCircuit->id,
-                    'time' => $row[3] ?: null,
+                    'time' => $row[4] ?: null,
                 ]);
             }
         });
@@ -175,6 +180,53 @@ class ImportController extends Controller
             ->lower()
             ->replaceMatches('/[^\\p{L}\\p{N}]+/u', ' ')
             ->squish();
+    }
+
+    private function normalizeDriverName(string $driverName): string
+    {
+        return (string) Str::of($driverName)
+            ->ascii()
+            ->lower()
+            ->replaceMatches('/[^\\p{L}\\p{N}]+/u', ' ')
+            ->squish();
+    }
+
+    private function driverNamesMatch(string $storedDriverName, string $importedDriverName): bool
+    {
+        if ($storedDriverName === $importedDriverName) {
+            return true;
+        }
+
+        $storedWords = explode(' ', $storedDriverName);
+        $importedWords = explode(' ', $importedDriverName);
+
+        // The surname must match exactly. First names can vary slightly between
+        // the source and this application's records (for example Romain/Roman).
+        if (! in_array(last($importedWords), $storedWords, true)) {
+            return false;
+        }
+
+        return collect($importedWords)
+            ->reject(fn (string $word) => $word === last($importedWords))
+            ->every(fn (string $importedWord) => collect($storedWords)
+                ->contains(fn (string $storedWord) => $this->driverNameWordsMatch($storedWord, $importedWord)));
+    }
+
+    private function driverNameWordsMatch(string $storedWord, string $importedWord): bool
+    {
+        if ($storedWord === $importedWord) {
+            return true;
+        }
+
+        if (mb_strlen($storedWord) < 4 || mb_strlen($importedWord) < 4) {
+            return false;
+        }
+
+        // Two edits cover common transliterations such as Vitaly/Vitalij,
+        // while the exact surname, car number and team still disambiguate drivers.
+        $maximumDistance = max(mb_strlen($storedWord), mb_strlen($importedWord)) >= 5 ? 2 : 1;
+
+        return levenshtein($storedWord, $importedWord) <= $maximumDistance;
     }
 
     private function teamNamesMatch(string $storedTeamName, string $importedTeamName): bool

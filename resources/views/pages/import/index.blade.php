@@ -241,18 +241,18 @@
 
                         td.contentEditable = 'true';
                         td.dataset.row = row;
-                        td.dataset.col = col;
+                        td.dataset.col = col < 2 ? col : col + 1;
                         td.style.minWidth = '120px';
                         td.style.height = '32px';
                         tr.appendChild(td);
 
-                        // The driver is shown only as a reference: the submitted
-                        // data remains position, number, team and time/status.
                         if (col === 1) {
                             const driverCell = document.createElement('td');
 
-                            driverCell.className = 'driver-name text-muted';
+                            driverCell.className = 'driver-name';
                             driverCell.dataset.row = row;
+                            driverCell.dataset.col = 2;
+                            driverCell.contentEditable = 'true';
                             driverCell.style.minWidth = '180px';
                             tr.appendChild(driverCell);
                         }
@@ -272,7 +272,18 @@
                 const rows = [];
 
                 importGrid.querySelectorAll('tbody tr').forEach(function (row) {
-                    rows.push(Array.from(row.querySelectorAll('td[contenteditable="true"]')).map(cell => cell.textContent.trim()));
+                    const cells = row.querySelectorAll('td[contenteditable="true"]');
+                    if (!cells.length) {
+                        return;
+                    }
+
+                    rows.push([
+                        cells[0].textContent.trim(),
+                        cells[1].textContent.trim(),
+                        row.querySelector('td.driver-name')?.textContent.trim() ?? '',
+                        cells[3].textContent.trim(),
+                        cells[4].textContent.trim(),
+                    ]);
                 });
 
                 gridData.value = JSON.stringify(rows);
@@ -469,11 +480,12 @@
             }
 
             function fillImportGrid(rows) {
-                const rowCount = Math.max(rows.length, Number(importGrid.querySelectorAll('td[contenteditable="true"]').length / 4));
+                const rowCount = Math.max(rows.length, Number(importGrid.querySelectorAll('td[contenteditable="true"]').length / 5));
                 buildImportGrid(rowCount);
 
                 rows.forEach((row, rowIndex) => {
-                    [row[0], row[1], row[3], row[4]].forEach((value, colIndex) => {
+                    [row[0], row[1], row[3], row[4]].forEach((value, index) => {
+                        const colIndex = [0, 1, 3, 4][index];
                         const cell = importGrid.querySelector(`td[contenteditable="true"][data-row="${rowIndex}"][data-col="${colIndex}"]`);
                         if (cell) cell.textContent = value;
                     });
@@ -494,14 +506,16 @@
                 }
 
                 const unknownNumbers = [...new Set(parsedRows.map(row => row[1]).filter(number => availableDriverNumbers.size && !availableDriverNumbers.has(String(number))))];
-                const duplicateNumbers = parsedRows.map(row => row[1]).filter((number, index, numbers) => numbers.indexOf(number) !== index);
+                const duplicateDrivers = parsedRows
+                    .map(row => `${row[1]}|${row[2].trim().toLowerCase()}`)
+                    .filter((driver, index, drivers) => drivers.indexOf(driver) !== index);
 
                 fillImportGrid(parsedRows);
 
-                if (unknownNumbers.length || duplicateNumbers.length) {
+                if (unknownNumbers.length || duplicateDrivers.length) {
                     const messages = [];
                     if (unknownNumbers.length) messages.push(`numbers not present in the edition: ${unknownNumbers.join(', ')}`);
-                    if (duplicateNumbers.length) messages.push(`duplicate numbers: ${[...new Set(duplicateNumbers)].join(', ')}`);
+                    if (duplicateDrivers.length) messages.push('the same driver appears more than once');
                     showImportFeedback(`Check the data: ${messages.join('; ')}.`, true);
                     return;
                 }
