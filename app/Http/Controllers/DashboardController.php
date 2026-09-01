@@ -159,7 +159,7 @@ class DashboardController extends Controller
 
         $editionDriverRanking = $editionRankingDrivers->firstWhere('driver_id', $driver->id);
 
-        $editionPoints = (int) ($editionDriverRanking?->points ?? 0);
+        $editionPoints = $editionDriverRanking ? (int) $editionDriverRanking->points : null;
         $editionPosition = $editionDriverRanking
             ? $editionRankingDrivers->search(fn ($rankingDriver) => $rankingDriver->id === $editionDriverRanking->id) + 1
             : null;
@@ -465,7 +465,9 @@ class DashboardController extends Controller
             ->get();
 
         $selectedEditionId = request()->query('edition');
-        $edition = $selectedEditionId ? Edition::query()->find($selectedEditionId) : null;
+        $edition = $selectedEditionId
+            ? $editions->firstWhere('id', $selectedEditionId)
+            : null;
         $edition ??= $editions->first();
 
         $teamDriverTeams = DriverTeam::query()
@@ -521,7 +523,7 @@ class DashboardController extends Controller
 
         $selectedTeamRanking = $selectedRankingTeams->firstWhere('team_id', $team->id);
 
-        $editionPoints = (int) ($selectedTeamRanking?->points ?? 0);
+        $editionPoints = $selectedTeamRanking ? (int) $selectedTeamRanking->points : null;
         $editionPosition = $selectedTeamRanking
             ? $selectedRankingTeams->search(fn ($rankingTeam) => $rankingTeam->id === $selectedTeamRanking->id) + 1
             : null;

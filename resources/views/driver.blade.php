@@ -83,29 +83,35 @@
                                 </div>
                                 <div class="col-7 col-sm-4 driver-summary-stats">
                                     <div class="row g-0">
-                                        <div class="col-4 text-center driver-summary-stat">
-                                            <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                                <i class="fa-solid fa-bars-staggered" style="margin-left:2px;margin-right:1px;"></i>
-                                                Pos
-                                            </p>
-                                            <span style="font-size:30px">{{ $editionPosition }}</span>
-                                        </div>
-                                        <div class="col-4 text-center driver-summary-stat">
-                                            <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                                <i class="fa-solid fa-cubes" style="margin-left:2px;margin-right:1px;"></i>
-                                                Point
-                                            </p>
-                                            <span style="font-size:30px">{{ $editionPoints }}</span>
-                                        </div>
-                                        <div class="col-4 text-center driver-summary-stat">
-                                            <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                                <i class="fa-solid fa-car-side" style="margin-left:2px;margin-right:1px;"></i>
-                                                num
-                                            </p>
-                                            <div class="mx-auto driver-number" style="width:50px;height:50px;line-height:50px;text-align:center;border:1px solid #ccc;font-size:40px;font-style:italic;padding-left:3px;padding-right:5px;">
-                                                {{ $driverNumber }}
+                                        @if($editionPosition !== null)
+                                            <div class="col-4 text-center driver-summary-stat">
+                                                <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                                    <i class="fa-solid fa-bars-staggered" style="margin-left:2px;margin-right:1px;"></i>
+                                                    Pos
+                                                </p>
+                                                <span style="font-size:30px">{{ $editionPosition }}</span>
                                             </div>
-                                        </div>
+                                        @endif
+                                        @if($editionPoints !== null)
+                                            <div class="col-4 text-center driver-summary-stat">
+                                                <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                                    <i class="fa-solid fa-cubes" style="margin-left:2px;margin-right:1px;"></i>
+                                                    Point
+                                                </p>
+                                                <span style="font-size:30px">{{ $editionPoints }}</span>
+                                            </div>
+                                        @endif
+                                        @if($driverNumber !== null)
+                                            <div class="col-4 text-center driver-summary-stat">
+                                                <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                                    <i class="fa-solid fa-car-side" style="margin-left:2px;margin-right:1px;"></i>
+                                                    num
+                                                </p>
+                                                <div class="mx-auto driver-number" style="width:50px;height:50px;line-height:50px;text-align:center;border:1px solid #ccc;font-size:40px;font-style:italic;padding-left:3px;padding-right:5px;">
+                                                    {{ $driverNumber }}
+                                                </div>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -385,7 +391,9 @@
                                                 @if($editionPosition !== null)
                                                     <span class="text-muted fw-normal ms-2">Pos. {{ $editionPosition }}</span>
                                                 @endif
-                                                <span class="text-muted fw-normal ms-2">Pts. {{ $editionPoints }}</span>
+                                                @if($editionPoints !== null)
+                                                    <span class="text-muted fw-normal ms-2">Pts. {{ $editionPoints }}</span>
+                                                @endif
                                             </div>
 
                                             @foreach($circuits as $circuit)

@@ -89,20 +89,24 @@
                                             </p>
                                             <span style="font-size:30px">{{ $championshipCount }}</span>
                                         </div>
-                                        <div class="col-4 text-center team-summary-stat">
-                                            <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                                <i class="fa-solid fa-bars-staggered" style="margin-left:2px;margin-right:1px;"></i>
-                                                Pos
-                                            </p>
-                                            <span style="font-size:30px">{{ $editionPosition }}</span>
-                                        </div>
-                                        <div class="col-4 text-center team-summary-stat">
-                                            <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                                <i class="fa-solid fa-cubes" style="margin-left:2px;margin-right:1px;"></i>
-                                                Point
-                                            </p>
-                                            <span style="font-size:30px">{{ $editionPoints }}</span>
-                                        </div>
+                                        @if($editionPosition !== null)
+                                            <div class="col-4 text-center team-summary-stat">
+                                                <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                                    <i class="fa-solid fa-bars-staggered" style="margin-left:2px;margin-right:1px;"></i>
+                                                    Pos
+                                                </p>
+                                                <span style="font-size:30px">{{ $editionPosition }}</span>
+                                            </div>
+                                        @endif
+                                        @if($editionPoints !== null)
+                                            <div class="col-4 text-center team-summary-stat">
+                                                <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                                    <i class="fa-solid fa-cubes" style="margin-left:2px;margin-right:1px;"></i>
+                                                    Point
+                                                </p>
+                                                <span style="font-size:30px">{{ $editionPoints }}</span>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -343,7 +347,9 @@
                                                 @if($editionPosition !== null)
                                                     <span class="text-muted fw-normal ms-2">Pos. {{ $editionPosition }}</span>
                                                 @endif
-                                                <span class="text-muted fw-normal ms-2">Pts. {{ $editionPoints }}</span>
+                                                @if($editionPoints !== null)
+                                                    <span class="text-muted fw-normal ms-2">Pts. {{ $editionPoints }}</span>
+                                                @endif
                                             </div>
 
                                             @foreach($circuits as $circuit)
