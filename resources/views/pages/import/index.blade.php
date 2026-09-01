@@ -387,6 +387,22 @@
                                     gridDetails[2],
                                 ]);
                                 pendingResult = null;
+                                return;
+                            }
+
+                            // Drivers without a recorded qualifying time end with a
+                            // team-only line. Once the driver has been read, keep
+                            // that line as the team and leave time blank.
+                            if (pendingResult.driver) {
+                                parsedRows.push([
+                                    pendingResult.position,
+                                    pendingResult.number,
+                                    pendingResult.driver,
+                                    plainLine,
+                                    '',
+                                ]);
+                                pendingResult = null;
+                                return;
                             }
 
                             // Otherwise this is the driver-name line.
