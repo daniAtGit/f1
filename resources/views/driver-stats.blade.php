@@ -173,7 +173,7 @@
 
                         @if($chartRounds->isNotEmpty() && $preparedSeries->contains(fn ($series) => $series['points']->isNotEmpty()))
                             <div class="d-flex justify-content-center">
-                                <svg viewBox="0 0 {{ $chartWidth }} {{ $chartHeight }}" role="img" aria-label="{{ $comparisonChart === 'standings' ? 'Confronto classifiche finali dei piloti' : 'Confronto piazzamenti gara piloti' }}" style="width:100%;max-width:100%;max-height:360px;">
+                                <svg viewBox="0 0 {{ $chartWidth }} {{ $chartHeight }}" role="img" aria-label="{{ $comparisonChart === 'standings' ? 'Confronto classifiche finali dei piloti' : 'Confronto piazzamenti gara piloti' }}" style="display:block;width:95%;height:auto;margin:0 auto;">
                                     <line x1="{{ $paddingLeft }}" y1="{{ $paddingTop }}" x2="{{ $paddingLeft }}" y2="{{ $paddingTop + $plotHeight }}" stroke="#d7d7d7" stroke-width="1" />
                                     <line x1="{{ $paddingLeft }}" y1="{{ $paddingTop + $plotHeight }}" x2="{{ $paddingLeft + $plotWidth }}" y2="{{ $paddingTop + $plotHeight }}" stroke="#d7d7d7" stroke-width="1" />
 

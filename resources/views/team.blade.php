@@ -116,12 +116,12 @@
 
                 @php
                     $history = collect($teamStandingsHistory ?? []);
-                    $chartWidth = 360;
-                    $chartHeight = 150;
+                    $chartWidth = 960;
+                    $chartHeight = 240;
                     $paddingLeft = 20;
                     $paddingRight = 12;
                     $paddingTop = 12;
-                    $paddingBottom = 24;
+                    $paddingBottom = 48;
                     $plotWidth = $chartWidth - $paddingLeft - $paddingRight;
                     $plotHeight = $chartHeight - $paddingTop - $paddingBottom;
                     $hasNonFinish = $history->contains(fn ($item) => (int) $item['position'] <= 0);
@@ -157,9 +157,9 @@
                                 <i class="fa fa-chart-line"></i> Placement over the Years
                             </p>
 
-                            <div class="d-flex justify-content-center">
+                            <div style="width:100%;">
                             @if($chartPoints->isNotEmpty())
-                                <svg viewBox="0 0 {{ $chartWidth }} {{ $chartHeight }}" role="img" aria-label="Storico classifica finale del team" style="width:80%;max-width:80%;max-height:170px;">
+                                <svg viewBox="0 0 {{ $chartWidth }} {{ $chartHeight }}" role="img" aria-label="Storico classifica finale del team" style="display:block;width:95%;height:auto;margin:0 auto;">
                                     <line x1="{{ $paddingLeft }}" y1="{{ $paddingTop }}" x2="{{ $paddingLeft }}" y2="{{ $paddingTop + $plotHeight }}" stroke="#d7d7d7" stroke-width="1" />
                                     <line x1="{{ $paddingLeft }}" y1="{{ $paddingTop + $plotHeight }}" x2="{{ $paddingLeft + $plotWidth }}" y2="{{ $paddingTop + $plotHeight }}" stroke="#d7d7d7" stroke-width="1" />
 
@@ -191,7 +191,7 @@
                                             font-size="10"
                                             fill="#0f172a"
                                         >{{ $point['position'] <= 0 ? 'NC' : 'P'.$point['position'] }}</text>
-                                        <text x="{{ $point['x'] }}" y="{{ $paddingTop + $plotHeight + 15 }}" text-anchor="middle" font-size="10" fill="#777">{{ $point['year'] }}</text>
+                                        <text x="{{ $point['x'] }}" y="{{ $paddingTop + $plotHeight + 10 }}" text-anchor="start" font-size="10" fill="#777" transform="rotate(90 {{ $point['x'] }} {{ $paddingTop + $plotHeight + 10 }})">{{ $point['year'] }}</text>
                                     @endforeach
                                 </svg>
                             @else
@@ -287,7 +287,7 @@
                                 </div>
 
                                 <div class="d-flex justify-content-center">
-                                    <svg viewBox="0 0 {{ $raceChartWidth }} {{ $raceChartHeight }}" role="img" aria-label="Piazzamenti gara dei piloti del team nell'edizione selezionata" style="width:80%;max-width:80%;max-height:280px;">
+                                    <svg viewBox="0 0 {{ $raceChartWidth }} {{ $raceChartHeight }}" role="img" aria-label="Piazzamenti gara dei piloti del team nell'edizione selezionata" style="display:block;width:95%;height:auto;margin:0 auto;">
                                         <line x1="{{ $racePaddingLeft }}" y1="{{ $racePaddingTop }}" x2="{{ $racePaddingLeft }}" y2="{{ $racePaddingTop + $racePlotHeight }}" stroke="#d7d7d7" stroke-width="1" />
                                         <line x1="{{ $racePaddingLeft }}" y1="{{ $racePaddingTop + $racePlotHeight }}" x2="{{ $racePaddingLeft + $racePlotWidth }}" y2="{{ $racePaddingTop + $racePlotHeight }}" stroke="#d7d7d7" stroke-width="1" />
 
