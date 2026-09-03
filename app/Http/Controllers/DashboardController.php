@@ -144,16 +144,23 @@ class DashboardController extends Controller
             $result->setRelation('editionCircuit', $editionCircuits->get($result->edition_circuit_id));
         });
 
-        $driverNumber = $edition
-            ? $driver->driverTeams->firstWhere('edition_id', $edition->id)?->number
-            : $driver->driverTeams->last()?->number;
         $editionDriverTeam = $edition
             ? $driver->driverTeams->firstWhere('edition_id', $edition->id)
             : null;
+        $editionRaceResults = $driver->RaceCircuits
+            ->filter(fn (RaceCircuit $result) => $result->editionCircuit?->edition_id === $edition?->id);
 
         $poleCount = $driver->gridCircuits->where('position', 1)->count();
+        $racesCount = $driver->RaceCircuits->count();
+        $podiumCount = $driver->RaceCircuits
+            ->filter(fn (RaceCircuit $result) => (int) $result->position >= 1 && (int) $result->position <= 3)
+            ->count();
         $raceCount = $driver->RaceCircuits->where('position', 1)->count();
         $sprintCount = $driver->SprintCircuits->where('position', 1)->count();
+        $editionPodiumCount = $editionRaceResults
+            ->filter(fn (RaceCircuit $result) => (int) $result->position >= 1 && (int) $result->position <= 3)
+            ->count();
+        $editionRaceWinsCount = $editionRaceResults->where('position', 1)->count();
 
         $editionRankingDrivers = $edition?->rankingDrivers ?? collect();
 
@@ -196,8 +203,7 @@ class DashboardController extends Controller
             $results = $results->filter(fn (array $item) => $item['result']->editionCircuit?->edition_id === $edition->id);
         }
 
-        $editionRacePlacements = $driver->RaceCircuits
-            ->filter(fn (RaceCircuit $result) => $result->editionCircuit?->edition_id === $edition?->id)
+        $editionRacePlacements = $editionRaceResults
             ->sortBy(fn (RaceCircuit $result) => $result->editionCircuit?->round ?? PHP_INT_MAX)
             ->values()
             ->map(fn (RaceCircuit $result) => [
@@ -299,7 +305,7 @@ class DashboardController extends Controller
                     ->values();
             });
 
-        return view('driver', compact('driver', 'drivers', 'driverImageUrl', 'editions', 'edition', 'editionPoints', 'editionPosition', 'driverNumber', 'championshipCount', 'poleCount', 'raceCount', 'sprintCount', 'resultsByYear', 'driverStandingsHistory', 'editionRacePlacements', 'editionRaceLineColor'));
+        return view('driver', compact('driver', 'drivers', 'driverImageUrl', 'editions', 'edition', 'editionPoints', 'editionPosition', 'championshipCount', 'racesCount', 'poleCount', 'podiumCount', 'raceCount', 'sprintCount', 'editionPodiumCount', 'editionRaceWinsCount', 'resultsByYear', 'driverStandingsHistory', 'editionRacePlacements', 'editionRaceLineColor'));
     }
 
     public function driverStats(Request $request, Driver $driver): View
@@ -478,6 +484,29 @@ class DashboardController extends Controller
             ->keyBy('id');
 
         $teamDriverTeamIds = $teamDriverTeams->keys();
+        $allTeamDriverTeamIds = DriverTeam::query()
+            ->where('team_id', $team->id)
+            ->pluck('id');
+
+        $allTeamRaceResults = RaceCircuit::query()
+            ->whereIn('driver_team_id', $allTeamDriverTeamIds)
+            ->get();
+        $teamRacesCount = $allTeamRaceResults
+            ->pluck('edition_circuit_id')
+            ->unique()
+            ->count();
+        $teamPoleCount = GridCircuit::query()
+            ->whereIn('driver_team_id', $allTeamDriverTeamIds)
+            ->where('position', 1)
+            ->count();
+        $teamPodiumCount = $allTeamRaceResults
+            ->filter(fn (RaceCircuit $result) => (int) $result->position >= 1 && (int) $result->position <= 3)
+            ->count();
+        $teamWinCount = $allTeamRaceResults->where('position', 1)->count();
+        $teamSprintCount = SprintCircuit::query()
+            ->whereIn('driver_team_id', $allTeamDriverTeamIds)
+            ->where('position', 1)
+            ->count();
 
         $results = collect([
             'grid' => GridCircuit::query()
@@ -520,7 +549,6 @@ class DashboardController extends Controller
         });
 
         $selectedRankingTeams = $edition?->rankingTeams ?? collect();
-
         $selectedTeamRanking = $selectedRankingTeams->firstWhere('team_id', $team->id);
 
         $editionPoints = $selectedTeamRanking ? (int) $selectedTeamRanking->points : null;
@@ -561,6 +589,16 @@ class DashboardController extends Controller
         }
 
         $teamRaceResults = $results->where('type', 'race');
+        $editionRaceCount = $teamRaceResults
+            ->pluck('result.edition_circuit_id')
+            ->unique()
+            ->count();
+        $editionPodiumCount = $teamRaceResults
+            ->filter(fn (array $item) => (int) $item['result']->position >= 1 && (int) $item['result']->position <= 3)
+            ->count();
+        $editionWinCount = $teamRaceResults
+            ->filter(fn (array $item) => (int) $item['result']->position === 1)
+            ->count();
 
         $teamRaceRounds = $teamRaceResults
             ->map(fn (array $item) => $item['result']->editionCircuit)
@@ -670,7 +708,7 @@ class DashboardController extends Controller
                     ->values();
             });
 
-        return view('team', compact('team', 'teams', 'editions', 'edition', 'editionPoints', 'editionPosition', 'championshipCount', 'resultsByYear', 'teamStandingsHistory', 'teamRaceRounds', 'teamRaceSeries', 'teamRaceMaxPosition'));
+        return view('team', compact('team', 'teams', 'editions', 'edition', 'editionPoints', 'editionPosition', 'championshipCount', 'teamRacesCount', 'teamPoleCount', 'teamPodiumCount', 'teamWinCount', 'teamSprintCount', 'editionRaceCount', 'editionPodiumCount', 'editionWinCount', 'resultsByYear', 'teamStandingsHistory', 'teamRaceRounds', 'teamRaceSeries', 'teamRaceMaxPosition'));
     }
 
     public function teamStats(Request $request, Team $team): View
@@ -834,6 +872,11 @@ class DashboardController extends Controller
         $poleResults = $this->circuitFirstPlaceResults(GridCircuit::class, $circuit);
         $raceResults = $this->circuitFirstPlaceResults(RaceCircuit::class, $circuit);
         $sprintResults = $this->circuitFirstPlaceResults(SprintCircuit::class, $circuit);
+        $editionCount = EditionCircuit::query()
+            ->where('circuit_id', $circuit->id)
+            ->has('race')
+            ->distinct()
+            ->count('edition_id');
         $driverTeamsById = DriverTeam::with('driver.country')
             ->whereIn('id', $poleResults
                 ->merge($raceResults)
@@ -848,7 +891,7 @@ class DashboardController extends Controller
         $raceDrivers = $this->circuitFirstPlaceStandings($raceResults, $driverTeamsById);
         $sprintDrivers = $this->circuitFirstPlaceStandings($sprintResults, $driverTeamsById);
 
-        return view('circuit', compact('circuit', 'circuits', 'poleDrivers', 'raceDrivers', 'sprintDrivers'));
+        return view('circuit', compact('circuit', 'circuits', 'editionCount', 'poleDrivers', 'raceDrivers', 'sprintDrivers'));
     }
 
     private function circuitFirstPlaceResults(string $resultModel, Circuit $circuit)

@@ -26,6 +26,12 @@
                     font-size: 27px !important;
                 }
             }
+
+            @media (max-width: 575.98px) {
+                .team-career-stat p {
+                    white-space: nowrap;
+                }
+            }
         </style>
     </head>
     <body class="antialiased bg-light">
@@ -84,29 +90,25 @@
                                     <div class="row g-0">
                                         <div class="col-4 text-center team-summary-stat">
                                             <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                                <i class="fa-solid fa-trophy" style="margin-left:2px;margin-right:1px;"></i>
-                                                Titles
+                                                <i class="fa-solid fa-road" style="margin-left:2px;margin-right:1px;"></i>
+                                                Races
                                             </p>
-                                            <span style="font-size:30px">{{ $championshipCount }}</span>
+                                            <span style="font-size:30px">{{ $editionRaceCount }}</span>
                                         </div>
-                                        @if($editionPosition !== null)
-                                            <div class="col-4 text-center team-summary-stat">
-                                                <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                                    <i class="fa-solid fa-bars-staggered" style="margin-left:2px;margin-right:1px;"></i>
-                                                    Pos
-                                                </p>
-                                                <span style="font-size:30px">{{ $editionPosition }}</span>
-                                            </div>
-                                        @endif
-                                        @if($editionPoints !== null)
-                                            <div class="col-4 text-center team-summary-stat">
-                                                <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                                    <i class="fa-solid fa-cubes" style="margin-left:2px;margin-right:1px;"></i>
-                                                    Point
-                                                </p>
-                                                <span style="font-size:30px">{{ $editionPoints }}</span>
-                                            </div>
-                                        @endif
+                                        <div class="col-4 text-center team-summary-stat">
+                                            <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                                <i class="fa-solid fa-medal" style="margin-left:2px;margin-right:1px;"></i>
+                                                Podiums
+                                            </p>
+                                            <span style="font-size:30px">{{ $editionPodiumCount }}</span>
+                                        </div>
+                                        <div class="col-4 text-center team-summary-stat">
+                                            <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                                <i class="fa-solid fa-flag-checkered" style="margin-left:2px;margin-right:1px;"></i>
+                                                Won
+                                            </p>
+                                            <span style="font-size:30px">{{ $editionWinCount }}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -201,6 +203,57 @@
 
                             <div class="d-flex justify-content-end mt-3">
                                 <a href="{{ route('team.stats', $team->id) }}" class="btn btn-sm btn-outline-dark">Compare</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-3 text-gray-900">
+                            <div class="row team-career-stats">
+                                <div class="col-4 col-sm-2 text-center team-career-stat">
+                                    <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                        <i class="fa-solid fa-trophy" style="margin-left:2px;margin-right:1px;"></i>
+                                        Titles
+                                    </p>
+                                    <span style="font-size:30px">{{ $championshipCount }}</span>
+                                </div>
+                                <div class="col-4 col-sm-2 text-center team-career-stat">
+                                    <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                        <i class="fa-solid fa-road" style="margin-left:2px;margin-right:1px;"></i>
+                                        Races
+                                    </p>
+                                    <span style="font-size:30px">{{ $teamRacesCount }}</span>
+                                </div>
+                                <div class="col-4 col-sm-2 text-center team-career-stat">
+                                    <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                        <i class="fa-solid fa-grip-vertical" style="margin-left:2px;margin-right:1px;"></i>
+                                        Pole
+                                    </p>
+                                    <span style="font-size:30px">{{ $teamPoleCount }}</span>
+                                </div>
+                                <div class="col-4 col-sm-2 text-center team-career-stat">
+                                    <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                        <i class="fa-solid fa-medal" style="margin-left:2px;margin-right:1px;"></i>
+                                        Podiums
+                                    </p>
+                                    <span style="font-size:30px">{{ $teamPodiumCount }}</span>
+                                </div>
+                                <div class="col-4 col-sm-2 text-center team-career-stat">
+                                    <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                        <i class="fa-solid fa-flag-checkered" style="margin-left:2px;margin-right:1px;"></i>
+                                        Won
+                                    </p>
+                                    <span style="font-size:30px">{{ $teamWinCount }}</span>
+                                </div>
+                                <div class="col-4 col-sm-2 text-center team-career-stat">
+                                    <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                        <i class="fa-regular fa-flag" style="margin-left:2px;margin-right:1px;"></i>
+                                        Sprint
+                                    </p>
+                                    <span style="font-size:30px">{{ $teamSprintCount }}</span>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -26,8 +26,11 @@
                     font-size: 27px !important;
                 }
 
-                .driver-summary-stat .driver-number {
-                    margin-right: 0 !important;
+            }
+
+            @media (max-width: 575.98px) {
+                .driver-career-stat p {
+                    white-space: nowrap;
                 }
             }
         </style>
@@ -84,7 +87,7 @@
                                 <div class="col-7 col-sm-4 driver-summary-stats">
                                     <div class="row g-0">
                                         @if($editionPosition !== null)
-                                            <div class="col-4 text-center driver-summary-stat">
+                                            <div class="col-3 text-center driver-summary-stat">
                                                 <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
                                                     <i class="fa-solid fa-bars-staggered" style="margin-left:2px;margin-right:1px;"></i>
                                                     Pos
@@ -93,7 +96,7 @@
                                             </div>
                                         @endif
                                         @if($editionPoints !== null)
-                                            <div class="col-4 text-center driver-summary-stat">
+                                            <div class="col-3 text-center driver-summary-stat">
                                                 <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
                                                     <i class="fa-solid fa-cubes" style="margin-left:2px;margin-right:1px;"></i>
                                                     Point
@@ -101,17 +104,20 @@
                                                 <span style="font-size:30px">{{ $editionPoints }}</span>
                                             </div>
                                         @endif
-                                        @if($driverNumber !== null)
-                                            <div class="col-4 text-center driver-summary-stat">
-                                                <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                                    <i class="fa-solid fa-car-side" style="margin-left:2px;margin-right:1px;"></i>
-                                                    num
-                                                </p>
-                                                <div class="mx-auto driver-number" style="width:50px;height:50px;line-height:50px;text-align:center;border:1px solid #ccc;font-size:40px;font-style:italic;padding-left:3px;padding-right:5px;">
-                                                    {{ $driverNumber }}
-                                                </div>
-                                            </div>
-                                        @endif
+                                        <div class="col-3 text-center driver-summary-stat">
+                                            <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                                <i class="fa-solid fa-medal" style="margin-left:2px;margin-right:1px;"></i>
+                                                Podiums
+                                            </p>
+                                            <span style="font-size:30px">{{ $editionPodiumCount }}</span>
+                                        </div>
+                                        <div class="col-3 text-center driver-summary-stat">
+                                            <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                                <i class="fa-solid fa-flag-checkered" style="margin-left:2px;margin-right:1px;"></i>
+                                                Won
+                                            </p>
+                                            <span style="font-size:30px">{{ $editionRaceWinsCount }}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -219,34 +225,43 @@
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-3 text-gray-900">
-                            <div class="row">
-                                <div class="col-3">
-{{--                                    <div style="width:50px;height:50px;line-height:50px;text-align:center;border:1px solid #ccc;font-size:40px;font-style:italic;padding-left:3px;padding-right:5px;">--}}
-{{--                                        {{ $driverNumber }}--}}
-{{--                                    </div>--}}
-                                </div>
-                                <div class="col-3 text-center">
+                            <div class="row driver-career-stats">
+                                <div class="col-4 col-sm-2 text-center driver-career-stat">
                                     <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
                                         <i class="fa-solid fa-trophy" style="margin-left:2px;margin-right:1px;"></i>
                                         Titles
                                     </p>
                                     <span style="font-size:30px">{{ $championshipCount }}</span>
                                 </div>
-                                <div class="col-2 text-center">
+                                <div class="col-4 col-sm-2 text-center driver-career-stat">
+                                    <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                        <i class="fa-solid fa-road" style="margin-left:2px;margin-right:1px;"></i>
+                                        Races
+                                    </p>
+                                    <span style="font-size:30px">{{ $racesCount }}</span>
+                                </div>
+                                <div class="col-4 col-sm-2 text-center driver-career-stat">
                                     <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
                                         <i class="fa-solid fa-grip-vertical" style="margin-left:2px;margin-right:1px;"></i>
                                         Pole
                                     </p>
                                     <span style="font-size:30px">{{ $poleCount }}</span>
                                 </div>
-                                <div class="col-2 text-center">
+                                <div class="col-4 col-sm-2 text-center driver-career-stat">
+                                    <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                        <i class="fa-solid fa-medal" style="margin-left:2px;margin-right:1px;"></i>
+                                        Podiums
+                                    </p>
+                                    <span style="font-size:30px">{{ $podiumCount }}</span>
+                                </div>
+                                <div class="col-4 col-sm-2 text-center driver-career-stat">
                                     <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
                                         <i class="fa-solid fa-flag-checkered"></i>
-                                        Race
+                                        Won
                                     </p>
                                     <span style="font-size:30px">{{ $raceCount }}</span>
                                 </div>
-                                <div class="col-2 text-center">
+                                <div class="col-4 col-sm-2 text-center driver-career-stat">
                                     <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
                                         <i class="fa-regular fa-flag"></i>
                                         Sprint

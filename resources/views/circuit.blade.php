@@ -72,6 +72,11 @@
 
                                     <div class="h1 mb-3">{{ $circuit->name }}</div>
 
+                                    <div class="text-muted small mb-3">
+                                        <i class="fa-solid fa-calendar-days"></i>
+                                        Editions: {{ $editionCount }}
+                                    </div>
+
                                     <a href="https://www.google.com/search?q=wikipedia+{{$circuit->name}}" target="_blank" class="btn btn-sm btn-outline-secondary">
                                         <i class="fa-brands fa-wikipedia-w"></i> Wikipedia
                                     </a>
