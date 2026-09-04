@@ -147,6 +147,7 @@ class DashboardController extends Controller
         $editionDriverTeam = $edition
             ? $driver->driverTeams->firstWhere('edition_id', $edition->id)
             : null;
+        $driverRunsInSelectedEdition = $editionDriverTeam !== null;
         $editionRaceResults = $driver->RaceCircuits
             ->filter(fn (RaceCircuit $result) => $result->editionCircuit?->edition_id === $edition?->id);
 
@@ -305,7 +306,7 @@ class DashboardController extends Controller
                     ->values();
             });
 
-        return view('driver', compact('driver', 'drivers', 'driverImageUrl', 'editions', 'edition', 'editionPoints', 'editionPosition', 'championshipCount', 'racesCount', 'poleCount', 'podiumCount', 'raceCount', 'sprintCount', 'editionPodiumCount', 'editionRaceWinsCount', 'resultsByYear', 'driverStandingsHistory', 'editionRacePlacements', 'editionRaceLineColor'));
+        return view('driver', compact('driver', 'drivers', 'driverImageUrl', 'editions', 'edition', 'editionPoints', 'editionPosition', 'championshipCount', 'racesCount', 'poleCount', 'podiumCount', 'raceCount', 'sprintCount', 'editionPodiumCount', 'editionRaceWinsCount', 'resultsByYear', 'driverStandingsHistory', 'editionRacePlacements', 'editionRaceLineColor', 'driverRunsInSelectedEdition'));
     }
 
     public function driverStats(Request $request, Driver $driver): View
@@ -484,6 +485,7 @@ class DashboardController extends Controller
             ->keyBy('id');
 
         $teamDriverTeamIds = $teamDriverTeams->keys();
+        $teamRunsInSelectedEdition = $teamDriverTeams->isNotEmpty();
         $allTeamDriverTeamIds = DriverTeam::query()
             ->where('team_id', $team->id)
             ->pluck('id');
@@ -708,7 +710,7 @@ class DashboardController extends Controller
                     ->values();
             });
 
-        return view('team', compact('team', 'teams', 'editions', 'edition', 'editionPoints', 'editionPosition', 'championshipCount', 'teamRacesCount', 'teamPoleCount', 'teamPodiumCount', 'teamWinCount', 'teamSprintCount', 'editionRaceCount', 'editionPodiumCount', 'editionWinCount', 'resultsByYear', 'teamStandingsHistory', 'teamRaceRounds', 'teamRaceSeries', 'teamRaceMaxPosition'));
+        return view('team', compact('team', 'teams', 'editions', 'edition', 'editionPoints', 'editionPosition', 'championshipCount', 'teamRacesCount', 'teamPoleCount', 'teamPodiumCount', 'teamWinCount', 'teamSprintCount', 'editionRaceCount', 'editionPodiumCount', 'editionWinCount', 'resultsByYear', 'teamStandingsHistory', 'teamRaceRounds', 'teamRaceSeries', 'teamRaceMaxPosition', 'teamRunsInSelectedEdition'));
     }
 
     public function teamStats(Request $request, Team $team): View

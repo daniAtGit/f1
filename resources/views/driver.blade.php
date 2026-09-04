@@ -84,42 +84,44 @@
                                         <div class="text-muted fst-italic">Foto non disponibile</div>
                                     @endif
                                 </div>
-                                <div class="col-7 col-sm-4 driver-summary-stats">
-                                    <div class="row g-0">
-                                        @if($editionPosition !== null)
+                                @if($driverRunsInSelectedEdition)
+                                    <div class="col-7 col-sm-4 driver-summary-stats">
+                                        <div class="row g-0">
+                                            @if($editionPosition !== null)
+                                                <div class="col-3 text-center driver-summary-stat">
+                                                    <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                                        <i class="fa-solid fa-bars-staggered" style="margin-left:2px;margin-right:1px;"></i>
+                                                        Pos
+                                                    </p>
+                                                    <span style="font-size:30px">{{ $editionPosition }}</span>
+                                                </div>
+                                            @endif
+                                            @if($editionPoints !== null)
+                                                <div class="col-3 text-center driver-summary-stat">
+                                                    <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                                        <i class="fa-solid fa-cubes" style="margin-left:2px;margin-right:1px;"></i>
+                                                        Point
+                                                    </p>
+                                                    <span style="font-size:30px">{{ $editionPoints }}</span>
+                                                </div>
+                                            @endif
                                             <div class="col-3 text-center driver-summary-stat">
                                                 <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                                    <i class="fa-solid fa-bars-staggered" style="margin-left:2px;margin-right:1px;"></i>
-                                                    Pos
+                                                    <i class="fa-solid fa-medal" style="margin-left:2px;margin-right:1px;"></i>
+                                                    Podiums
                                                 </p>
-                                                <span style="font-size:30px">{{ $editionPosition }}</span>
+                                                <span style="font-size:30px">{{ $editionPodiumCount }}</span>
                                             </div>
-                                        @endif
-                                        @if($editionPoints !== null)
                                             <div class="col-3 text-center driver-summary-stat">
                                                 <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                                    <i class="fa-solid fa-cubes" style="margin-left:2px;margin-right:1px;"></i>
-                                                    Point
+                                                    <i class="fa-solid fa-flag-checkered" style="margin-left:2px;margin-right:1px;"></i>
+                                                    Won
                                                 </p>
-                                                <span style="font-size:30px">{{ $editionPoints }}</span>
+                                                <span style="font-size:30px">{{ $editionRaceWinsCount }}</span>
                                             </div>
-                                        @endif
-                                        <div class="col-3 text-center driver-summary-stat">
-                                            <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                                <i class="fa-solid fa-medal" style="margin-left:2px;margin-right:1px;"></i>
-                                                Podiums
-                                            </p>
-                                            <span style="font-size:30px">{{ $editionPodiumCount }}</span>
-                                        </div>
-                                        <div class="col-3 text-center driver-summary-stat">
-                                            <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                                <i class="fa-solid fa-flag-checkered" style="margin-left:2px;margin-right:1px;"></i>
-                                                Won
-                                            </p>
-                                            <span style="font-size:30px">{{ $editionRaceWinsCount }}</span>
                                         </div>
                                     </div>
-                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>

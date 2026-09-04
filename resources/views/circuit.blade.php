@@ -37,7 +37,7 @@
                                         aria-label="Switch circuit"
                                         onchange="if (this.value) window.location.href = this.value"
                                     >
-                                        @foreach($circuits as $availableCircuit)
+                                        @foreach($circuits->sortBy(fn ($availableCircuit) => $availableCircuit->country?->name) as $availableCircuit)
                                             <option value="{{ route('circuit.single', $availableCircuit) }}" @selected($availableCircuit->id === $circuit->id)>
                                                 {{ $availableCircuit->country?->name }} · {{ $availableCircuit->city }} · {{ $availableCircuit->name }}
                                             </option>

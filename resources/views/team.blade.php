@@ -86,31 +86,51 @@
                                         <div class="text-muted fst-italic">Foto non disponibile</div>
                                     @endif
                                 </div>
-                                <div class="col-7 col-sm-4 team-summary-stats">
-                                    <div class="row g-0">
-                                        <div class="col-4 text-center team-summary-stat">
-                                            <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                                <i class="fa-solid fa-road" style="margin-left:2px;margin-right:1px;"></i>
-                                                Races
-                                            </p>
-                                            <span style="font-size:30px">{{ $editionRaceCount }}</span>
-                                        </div>
-                                        <div class="col-4 text-center team-summary-stat">
-                                            <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                                <i class="fa-solid fa-medal" style="margin-left:2px;margin-right:1px;"></i>
-                                                Podiums
-                                            </p>
-                                            <span style="font-size:30px">{{ $editionPodiumCount }}</span>
-                                        </div>
-                                        <div class="col-4 text-center team-summary-stat">
-                                            <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
-                                                <i class="fa-solid fa-flag-checkered" style="margin-left:2px;margin-right:1px;"></i>
-                                                Won
-                                            </p>
-                                            <span style="font-size:30px">{{ $editionWinCount }}</span>
+                                @if($teamRunsInSelectedEdition)
+                                    <div class="col-7 col-sm-4 team-summary-stats">
+                                        <div class="row g-0">
+                                            @if($editionPosition !== null)
+                                                <div class="col text-center team-summary-stat">
+                                                    <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                                        <i class="fa-solid fa-bars-staggered" style="margin-left:2px;margin-right:1px;"></i>
+                                                        Pos
+                                                    </p>
+                                                    <span style="font-size:30px">{{ $editionPosition }}</span>
+                                                </div>
+                                           @endif
+                                            <div class="col text-center team-summary-stat">
+                                                <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                                    <i class="fa-solid fa-cubes" style="margin-left:2px;margin-right:1px;"></i>
+                                                    Points
+                                                </p>
+                                                <span style="font-size:30px">{{ $editionPoints ?? 0 }}</span>
+                                            </div>
+{{--                                            <div class="col text-center team-summary-stat">--}}
+{{--                                                <p style="font-style:italic;color:#c1c1c1;font-size:10px;">--}}
+{{--                                                    <i class="fa-solid fa-road" style="margin-left:2px;margin-right:1px;"></i>--}}
+{{--                                                    Races--}}
+{{--                                                </p>--}}
+{{--                                                <span style="font-size:30px">{{ $editionRaceCount }}</span>--}}
+{{--                                            </div>--}}
+                                            <div class="col text-center team-summary-stat">
+                                                <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                                    <i class="fa-solid fa-medal" style="margin-left:2px;margin-right:1px;"></i>
+                                                    Podiums
+                                                </p>
+                                                <span style="font-size:30px">{{ $editionPodiumCount }}</span>
+                                            </div>
+                                            <div class="col text-center team-summary-stat">
+                                                <p style="font-style:italic;color:#c1c1c1;font-size:10px;">
+                                                    <i class="fa-solid fa-flag-checkered" style="margin-left:2px;margin-right:1px;"></i>
+                                                    Won
+                                                </p>
+                                                <span style="font-size:30px">{{ $editionWinCount }}</span>
+                                            </div>
+
+
                                         </div>
                                     </div>
-                                </div>
+                                @endif
                             </div>
                         </div>
                     </div>
