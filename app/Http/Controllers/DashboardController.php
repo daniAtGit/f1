@@ -892,8 +892,27 @@ class DashboardController extends Controller
         $poleDrivers = $this->circuitFirstPlaceStandings($poleResults, $driverTeamsById);
         $raceDrivers = $this->circuitFirstPlaceStandings($raceResults, $driverTeamsById);
         $sprintDrivers = $this->circuitFirstPlaceStandings($sprintResults, $driverTeamsById);
+        $raceWinners = $raceResults
+            ->load('editionCircuit.edition')
+            ->map(function (RaceCircuit $result) use ($driverTeamsById) {
+                $driver = $driverTeamsById->get($result->driver_team_id)?->driver;
+                $year = $result->editionCircuit?->edition?->year;
 
-        return view('circuit', compact('circuit', 'circuits', 'editionCount', 'poleDrivers', 'raceDrivers', 'sprintDrivers'));
+                if (! $driver || ! $year) {
+                    return null;
+                }
+
+                return [
+                    'year' => $year,
+                    'driver' => $driver,
+                    'time' => $result->time,
+                ];
+            })
+            ->filter()
+            ->sortByDesc('year')
+            ->values();
+
+        return view('circuit', compact('circuit', 'circuits', 'editionCount', 'poleDrivers', 'raceDrivers', 'sprintDrivers', 'raceWinners'));
     }
 
     private function circuitFirstPlaceResults(string $resultModel, Circuit $circuit)

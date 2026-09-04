@@ -104,7 +104,42 @@
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-3 text-gray-900">
                             <div class="row g-3">
-                                <div class="col-12 col-lg-4">
+                                <div class="col-12 col-lg-3">
+                                    <div class="mb-3">
+                                        <i class="fa-solid fa-trophy"></i> Winners
+                                    </div>
+
+                                    @forelse($raceWinners as $winnerIndex => $winner)
+                                        @php
+                                            $nameParts = preg_split('/\\s+/', trim($winner['driver']->name));
+                                            $surname = array_pop($nameParts);
+                                            $driverName = trim(implode(' ', $nameParts).' '.\Illuminate\Support\Str::upper($surname));
+                                        @endphp
+                                        <div class="d-flex align-items-center gap-3 mb-1 pb-1{{ $winnerIndex >= 10 ? ' d-none circuit-winner-extra' : '' }}" style="border-bottom:1px solid #eee;">
+                                            <div class="fw-semibold align-self-start" style="width:50px;">{{ $winner['year'] }}</div>
+                                            <div class="flex-grow-1">
+                                                <a href="{{ route('driver.single', $winner['driver']) }}" class="text-decoration-none">
+                                                    {{ $driverName }}
+                                                </a>
+                                                <div class="text-muted">{{ $winner['time'] ?: '—' }}</div>
+                                            </div>
+                                        </div>
+                                    @empty
+                                        <div class="text-muted">No data available.</div>
+                                    @endforelse
+
+                                    @if($raceWinners->count() > 10)
+                                        <button
+                                            type="button"
+                                            class="btn btn-sm btn-outline-secondary mt-2"
+                                            onclick="this.closest('.col-lg-3').querySelectorAll('.circuit-winner-extra').forEach((item) => item.classList.remove('d-none')); this.remove();"
+                                        >
+                                            Vedi tutti
+                                        </button>
+                                    @endif
+                                </div>
+
+                                <div class="col-12 col-lg-3">
                                     @include('partials.circuit_driver_standings', [
                                         'title' => 'Pole',
                                         'icon' => 'fa-solid fa-gauge',
@@ -112,7 +147,7 @@
                                     ])
                                 </div>
 
-                                <div class="col-12 col-lg-4">
+                                <div class="col-12 col-lg-3">
                                     @include('partials.circuit_driver_standings', [
                                         'title' => 'Race',
                                         'icon' => 'fa-solid fa-flag-checkered',
@@ -120,7 +155,7 @@
                                     ])
                                 </div>
 
-                                <div class="col-12 col-lg-4">
+                                <div class="col-12 col-lg-3">
                                     @include('partials.circuit_driver_standings', [
                                         'title' => 'Sprint',
                                         'icon' => 'fa-regular fa-flag',
