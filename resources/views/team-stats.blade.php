@@ -40,12 +40,18 @@
                     return [
                         'x' => round($x, 2),
                         'y' => round($y, 2),
+                        'year' => $placement['year'],
                         'position' => $placement['position'],
                     ];
                 })->filter()->values();
 
                 $series['points'] = $points;
-                $series['polyline'] = $points->map(fn ($point) => $point['x'].','.$point['y'])->implode(' ');
+                $series['polylines'] = $points
+                    ->chunkWhile(fn ($point, $key, $segment) =>
+                        $key === 0 || $point['year'] === $segment->last()['year'] + 1
+                    )
+                    ->map(fn ($segment) => $segment->map(fn ($point) => $point['x'].','.$point['y'])->implode(' '))
+                    ->values();
                 $series['strokeDasharray'] = $linePatterns[$seriesIndex % count($linePatterns)];
 
                 return $series;
@@ -126,8 +132,10 @@
                                     @endforeach
 
                                     @foreach($preparedSeries as $series)
-                                        @if($series['polyline'] !== '')
-                                            <polyline fill="none" stroke="{{ $series['lineColor'] }}" stroke-width="2.5" @if($series['strokeDasharray'] !== '') stroke-dasharray="{{ $series['strokeDasharray'] }}" @endif points="{{ $series['polyline'] }}" />
+                                        @if($series['points']->isNotEmpty())
+                                            @foreach($series['polylines'] as $polyline)
+                                                <polyline fill="none" stroke="{{ $series['lineColor'] }}" stroke-width="2.5" @if($series['strokeDasharray'] !== '') stroke-dasharray="{{ $series['strokeDasharray'] }}" @endif points="{{ $polyline }}" />
+                                            @endforeach
                                             @foreach($series['points'] as $point)
                                                 @php $labelY = $point['y'] <= ($paddingTop + 12) ? $point['y'] + 18 : $point['y'] - 10; @endphp
                                                 <circle cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="4" fill="{{ $series['lineColor'] }}" />

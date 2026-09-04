@@ -25,7 +25,7 @@
             </div>
             <div class="col-1 text-end">
                 <div class="h5">{{$standingDriver->points}}</div>
-                @php($pointsDifference = $standingDrivers->first()->points - $standingDriver->points)
+                @php($pointsDifference = (float) $standingDrivers->first()->points - (float) $standingDriver->points)
                 @if($i > 0 && $pointsDifference <= 200)
                     <div class="small">-{{$pointsDifference}}</div>
                 @endif

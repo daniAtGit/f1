@@ -40,7 +40,7 @@
             $linePatterns = ['', '10 6', '4 4', '12 4 3 4', '2 5', '14 6 2 6'];
             $pointShapes = ['circle', 'square', 'diamond', 'triangle', 'cross', 'circle'];
 
-            $preparedSeries = collect($chartSeries)->values()->map(function ($series, $seriesIndex) use ($chartRounds, $roundCount, $paddingLeft, $paddingTop, $plotWidth, $plotHeight, $chartMaxPosition, $linePatterns, $pointShapes) {
+            $preparedSeries = collect($chartSeries)->values()->map(function ($series, $seriesIndex) use ($comparisonChart, $chartRounds, $roundCount, $paddingLeft, $paddingTop, $plotWidth, $plotHeight, $chartMaxPosition, $linePatterns, $pointShapes) {
                 $points = collect($series['placements'])
                     ->map(function ($placement) use ($chartRounds, $roundCount, $paddingLeft, $paddingTop, $plotWidth, $plotHeight, $chartMaxPosition) {
                         $roundIndex = $chartRounds->search(fn ($round) => $round['round'] === $placement['round']);
@@ -66,7 +66,14 @@
                     ->values();
 
                 $series['points'] = $points;
-                $series['polyline'] = $points->map(fn ($point) => $point['x'].','.$point['y'])->implode(' ');
+                $series['polylines'] = $points
+                    ->chunkWhile(fn ($point, $key, $segment) =>
+                        $comparisonChart !== 'standings'
+                        || $key === 0
+                        || $point['round'] === $segment->last()['round'] + 1
+                    )
+                    ->map(fn ($segment) => $segment->map(fn ($point) => $point['x'].','.$point['y'])->implode(' '))
+                    ->values();
                 $series['strokeDasharray'] = $linePatterns[$seriesIndex % count($linePatterns)];
                 $series['pointShape'] = $pointShapes[$seriesIndex % count($pointShapes)];
 
@@ -186,7 +193,8 @@
                                     @endforeach
 
                                     @foreach($preparedSeries as $series)
-                                        @if($series['polyline'] !== '')
+                                        @if($series['points']->isNotEmpty())
+                                            @foreach($series['polylines'] as $polyline)
                                             <polyline
                                                 fill="none"
                                                 stroke="{{ $series['lineColor'] }}"
@@ -194,8 +202,9 @@
                                                 @if($series['strokeDasharray'] !== '')
                                                     stroke-dasharray="{{ $series['strokeDasharray'] }}"
                                                 @endif
-                                                points="{{ $series['polyline'] }}"
+                                                points="{{ $polyline }}"
                                             />
+                                            @endforeach
 
                                             @foreach($series['points'] as $point)
                                                 @php
