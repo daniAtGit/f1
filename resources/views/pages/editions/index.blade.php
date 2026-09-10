@@ -48,7 +48,7 @@
                                     </td>
                                     <td>
                                         @foreach($edition->rankingDrivers->sortByDesc('points')->take(3) as $rankingDriver)
-                                            <b>{{$rankingDriver->points}}</b> | {{$rankingDriver->driver->name}}
+                                            <b>{{$rankingDriver->points}}</b> | <x-driver-name :driver="$rankingDriver->driver" />
                                             @if(!$loop->last)
                                                 <br>
                                             @endif

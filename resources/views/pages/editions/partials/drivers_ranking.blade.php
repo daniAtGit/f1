@@ -62,7 +62,7 @@
                             {{ $loop->iteration }}
                         </td>
                         <td class="text-center">{{$driver->points}}</td>
-                        <td>{{$driver->driver->name}}</td>
+                        <td><x-driver-name :driver="$driver->driver" /></td>
                         <td>{{$driver->driver->country->name}}</td>
                         <td>
                             <div style="display:flex;gap:8px;">

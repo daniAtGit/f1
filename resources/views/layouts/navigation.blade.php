@@ -118,6 +118,34 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('import.index')" :active="request()->routeIs('import.*')">
+                <i class="fa fa-file-import"></i> Import
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('editions.index')" :active="request()->routeIs('editions.*')">
+                <i class="fa fa-calendar"></i> Editions
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('drivers.index')" :active="request()->routeIs('drivers.*')">
+                <i class="fa fa-gamepad"></i> Drivers
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('teams.index')" :active="request()->routeIs('teams.*')">
+                <i class="fa fa-users-between-lines"></i> Teams
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('cars.index')" :active="request()->routeIs('cars.*')">
+                <i class="fa fa-car-side"></i> Cars
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('circuits.index')" :active="request()->routeIs('circuits.*')">
+                <i class="fa fa-ring"></i> Circuits
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('countries.index')" :active="request()->routeIs('countries.*')">
+                <i class="fa fa-globe"></i> Countries
+            </x-responsive-nav-link>
         </div>
 
         <!-- Responsive Settings Options -->

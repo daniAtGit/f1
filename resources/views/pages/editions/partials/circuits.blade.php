@@ -69,19 +69,19 @@
                         <td>{{$editionCircuit->circuit->name}}</td>
                         <td>
                             @foreach($editionCircuit->grid->sortBy('position')->take(3) as $gridCircuit)
-                                {{$gridCircuit->position}}. {{$gridCircuit->driverTeam->driver->name}}
+                                <span @class(['text-nowrap', 'fw-bold' => $gridCircuit->position == 1]) style="font-size:.8rem;">{{$gridCircuit->position}}. <x-driver-name :driver="$gridCircuit->driverTeam->driver" :compact="true" /></span>
                                 <br>
                             @endforeach
                         </td>
                         <td>
                             @foreach($editionCircuit->race->sortBy('position')->take(3) as $raceCircuit)
-                                {{$raceCircuit->position}}. {{$raceCircuit->driverTeam->driver->name}}
+                                <span @class(['text-nowrap', 'fw-bold' => $raceCircuit->position == 1]) style="font-size:.8rem;">{{$raceCircuit->position}}. <x-driver-name :driver="$raceCircuit->driverTeam->driver" :compact="true" /></span>
                                 <br>
                             @endforeach
                         </td>
                         <td>
                             @foreach($editionCircuit->sprint->sortBy('position')->take(3) as $sprintCircuit)
-                                {{$sprintCircuit->position}}. {{$sprintCircuit->driverTeam->driver->name}}
+                                <span @class(['text-nowrap', 'fw-bold' => $sprintCircuit->position == 1]) style="font-size:.8rem;">{{$sprintCircuit->position}}. <x-driver-name :driver="$sprintCircuit->driverTeam->driver" :compact="true" /></span>
                                 <br>
                             @endforeach
                         </td>

@@ -23,7 +23,7 @@ class EditionsController extends Controller
     public function index(): View
     {
         $editions = Edition::with([
-            'rankingDrivers.driver',
+            'rankingDrivers.driver.country',
             'rankingTeams.team',
         ])->get();
 
@@ -51,7 +51,7 @@ class EditionsController extends Controller
         $edition = Edition::find($request->editionId);
 
         $standingDrivers = $edition->rankingDrivers->load('driver','driver.country','team');
-        $standingTeams = $edition->rankingTeams->load('team');
+        $standingTeams = $edition->rankingTeams->load('team.country');
 
         return [
             'title' => 'Edition '.$edition->edition.' - '.$edition->year,

@@ -80,7 +80,7 @@ class DashboardController extends Controller
             ])
             ->orderByRaw('CAST(points AS UNSIGNED) DESC')
             ->get();
-        $standingTeams = $edition?->rankingTeams()->with('team')->orderByRaw('CAST(points AS UNSIGNED) DESC')->get();
+        $standingTeams = $edition?->rankingTeams()->with('team.country')->orderByRaw('CAST(points AS UNSIGNED) DESC')->get();
 
         return compact('editions', 'edition', 'prevRace', 'currentRace', 'nextRace', 'standingDrivers', 'standingTeams');
     }
@@ -148,6 +148,9 @@ class DashboardController extends Controller
             ? $driver->driverTeams->firstWhere('edition_id', $edition->id)
             : null;
         $driverRunsInSelectedEdition = $editionDriverTeam !== null;
+        if (! $driverRunsInSelectedEdition && ! $driverImageUrl) {
+            $driverImageUrl = $driver->getFallbackF1ImageUrl();
+        }
         $editionRaceResults = $driver->RaceCircuits
             ->filter(fn (RaceCircuit $result) => $result->editionCircuit?->edition_id === $edition?->id);
 
@@ -311,6 +314,8 @@ class DashboardController extends Controller
 
     public function driverStats(Request $request, Driver $driver): View
     {
+        $driver->load('country');
+
         $editions = Edition::query()
             ->with(['rankingDrivers' => fn ($query) => $query->orderByRaw('CAST(points AS UNSIGNED) DESC')])
             ->orderByDesc('year')
@@ -796,11 +801,11 @@ class DashboardController extends Controller
         $edition->load([
             'circuits.circuit.country',
             'circuits.videos',
-            'circuits.grid.driverTeam.driver',
+            'circuits.grid.driverTeam.driver.country',
             'circuits.grid.driverTeam.team',
-            'circuits.race.driverTeam.driver',
+            'circuits.race.driverTeam.driver.country',
             'circuits.race.driverTeam.team',
-            'circuits.sprint.driverTeam.driver',
+            'circuits.sprint.driverTeam.driver.country',
             'circuits.sprint.driverTeam.team',
         ]);
 
@@ -820,6 +825,7 @@ class DashboardController extends Controller
                         ->sortBy(fn (GridCircuit $result) => $result->position)
                         ->map(fn (GridCircuit $result) => [
                             'number' => $result->driverTeam->number,
+                            'driver' => $result->driverTeam->driver,
                             'driverName' => $result->driverTeam->driver->name,
                             'teamName' => $result->driverTeam->team->name,
                             'teamColor' => $result->driverTeam->team->color,
@@ -830,6 +836,7 @@ class DashboardController extends Controller
                         ->sortBy(fn (RaceCircuit $result) => $result->position)
                         ->map(fn (RaceCircuit $result) => [
                             'number' => $result->driverTeam->number,
+                            'driver' => $result->driverTeam->driver,
                             'driverName' => $result->driverTeam->driver->name,
                             'teamName' => $result->driverTeam->team->name,
                             'teamColor' => $result->driverTeam->team->color,
@@ -840,6 +847,7 @@ class DashboardController extends Controller
                         ->sortBy(fn (SprintCircuit $result) => $result->position)
                         ->map(fn (SprintCircuit $result) => [
                             'number' => $result->driverTeam->number,
+                            'driver' => $result->driverTeam->driver,
                             'driverName' => $result->driverTeam->driver->name,
                             'teamName' => $result->driverTeam->team->name,
                             'teamColor' => $result->driverTeam->team->color,

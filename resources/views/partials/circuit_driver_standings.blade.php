@@ -9,7 +9,7 @@
         </div>
         <div class="flex-grow-1 h6 mb-0">
             <a href="{{ route('driver.single', $standingDriver['driver']) }}" class="text-decoration-none">
-                {{ $standingDriver['driver']->name }}
+                <x-driver-name :driver="$standingDriver['driver']" />
             </a>
         </div>
     </div>

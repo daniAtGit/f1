@@ -67,7 +67,7 @@
                                 {{$driverTeam->number}}
                             </div>
                         </td>
-                        <td>{{$driverTeam->driver->name}}</td>
+                        <td><x-driver-name :driver="$driverTeam->driver" /></td>
                         <td>
                             <form method="post" action="{{route('editions.driver.team.delete')}}">
                                 @csrf

@@ -73,7 +73,7 @@
                                                             <div class="d-flex align-items-center gap-2 {{ $loop->iteration > 3 ? 'result-extra d-none' : '' }}">
                                                                 <span style="width:30px;height:30px;line-height:30px;padding:0 3px;text-align:center;border:1px solid #ccc;flex:0 0 auto;">{!! $result['position'] == 1 ? '<i class="fa-solid fa-gauge text-secondary"></i>' : $result['position'] !!}</span>
                                                                 <div class="small">
-                                                                    {{ $result['driverName'] }}
+                                                                    <x-driver-name :driver="$result['driver']" />
 {{--                                                                    | <b>{{ $result['number'] }}</b>--}}
 {{--                                                                    <br>--}}
 {{--                                                                    <span class="badge" style="background:{{ $result['teamColor'] }};">{{ $result['teamName'] }}</span>--}}
@@ -97,7 +97,7 @@
                                                             <div class="d-flex align-items-center gap-2 {{ $loop->iteration > 3 ? 'result-extra d-none' : '' }}">
                                                                 <span style="width:30px;height:30px;line-height:30px;padding:0 3px;text-align:center;border:1px solid #ccc;flex:0 0 auto;">{!! $result['position'] == 1 ? '<i class="fa-solid fa-trophy text-warning"></i>' : $result['position'] !!}</span>
                                                                 <div class="small">
-                                                                    {{ $result['driverName'] }}
+                                                                    <x-driver-name :driver="$result['driver']" />
 {{--                                                                    | <b>{{ $result['number'] }}</b>--}}
 {{--                                                                    <br>--}}
 {{--                                                                    <span class="badge" style="background:{{ $result['teamColor'] }};">{{ $result['teamName'] }}</span>--}}
@@ -123,7 +123,7 @@
                                                                 <div class="d-flex align-items-center gap-2 {{ $loop->iteration > 3 ? 'result-extra d-none' : '' }}">
                                                                     <span style="width:30px;height:30px;line-height:30px;padding:0 3px;text-align:center;border:1px solid #ccc;flex:0 0 auto;">{!! $result['position'] == 1 ? '<i class="fa-solid fa-trophy text-warning"></i>' : $result['position'] !!}</span>
                                                                     <div class="small">
-                                                                        {{ $result['driverName'] }}
+                                                                        <x-driver-name :driver="$result['driver']" />
 {{--                                                                        | <b>{{ $result['number'] }}</b>--}}
 {{--                                                                        <br>--}}
 {{--                                                                        <span class="badge" style="background:{{ $result['teamColor'] }};">{{ $result['teamName'] }}</span>--}}

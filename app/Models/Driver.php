@@ -75,6 +75,49 @@ class Driver extends Model
         return $this->getImgDriverFromWikimedia($cosa, $anno);
     }
 
+    public function getFallbackF1ImageUrl(): ?string
+    {
+        $terms = array_filter([
+            $this->name.' Formula One',
+            $this->name.' Formula 1',
+            $this->name.' racing',
+        ]);
+
+        foreach ($terms as $term) {
+            try {
+                $response = $this->wikiHttp()->get('https://commons.wikimedia.org/w/api.php', [
+                    'action' => 'query',
+                    'format' => 'json',
+                    'generator' => 'search',
+                    'gsrsearch' => $term,
+                    'gsrnamespace' => 6,
+                    'gsrlimit' => 10,
+                    'prop' => 'imageinfo',
+                    'iiprop' => 'url|mime',
+                ]);
+
+                if (! $response->ok()) {
+                    continue;
+                }
+
+                $pages = collect($response->json('query.pages', []))
+                    ->filter(fn ($page) => str_starts_with(data_get($page, 'imageinfo.0.mime', ''), 'image/'))
+                    ->sortBy('index');
+
+                foreach ($pages as $page) {
+                    $url = data_get($page, 'imageinfo.0.url');
+                    if (! empty($url)) {
+                        return $url;
+                    }
+                }
+            } catch (\Throwable $e) {
+                report($e);
+            }
+        }
+
+        return null;
+    }
+
     private function getImgDriverFromWikimedia($cosa = null, $anno = null): ?string
     {
         $fromTitle = $this->getImageFromWikipediaTitle();

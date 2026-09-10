@@ -36,6 +36,7 @@ class Country extends Model
             'CHN' => 'cn',
             'DEU' => 'de',
             'ESP' => 'es',
+            'FIN' => 'fi',
             'FRA' => 'fr',
             'GBR' => 'gb',
             'HUN' => 'hu',

@@ -36,7 +36,7 @@
                         <tbody>
                             @foreach($drivers as $i => $driver)
                                 <tr>
-                                    <td>{{$driver->name}}</td>
+                                    <td><x-driver-name :driver="$driver" /></td>
                                     <td>{{$driver->driverTeams->pluck('number')->unique()->implode(', ')}}</td>
                                     <td>{{$driver->birth_year}}</td>
                                     <td>{{$driver->country?->name}}</td>
