@@ -104,6 +104,7 @@ class DashboardController extends Controller
             ? $editions->firstWhere('id', $selectedEditionId)
             : null;
         $edition ??= $editions->first();
+
         $editionYearsById = $editions->pluck('year', 'id');
 
         $driver->load([
@@ -147,6 +148,7 @@ class DashboardController extends Controller
         $editionDriverTeam = $edition
             ? $driver->driverTeams->firstWhere('edition_id', $edition->id)
             : null;
+        $editionCar = $editionDriverTeam?->car()->with('team')->first();
         $driverRunsInSelectedEdition = $editionDriverTeam !== null;
         if (! $driverRunsInSelectedEdition && ! $driverImageUrl) {
             $driverImageUrl = $driver->getFallbackF1ImageUrl();
@@ -309,7 +311,7 @@ class DashboardController extends Controller
                     ->values();
             });
 
-        return view('driver', compact('driver', 'drivers', 'driverImageUrl', 'editions', 'edition', 'editionPoints', 'editionPosition', 'championshipCount', 'racesCount', 'poleCount', 'podiumCount', 'raceCount', 'sprintCount', 'editionPodiumCount', 'editionRaceWinsCount', 'resultsByYear', 'driverStandingsHistory', 'editionRacePlacements', 'editionRaceLineColor', 'driverRunsInSelectedEdition'));
+        return view('driver', compact('driver', 'drivers', 'driverImageUrl', 'editions', 'edition', 'editionCar', 'editionPoints', 'editionPosition', 'championshipCount', 'racesCount', 'poleCount', 'podiumCount', 'raceCount', 'sprintCount', 'editionPodiumCount', 'editionRaceWinsCount', 'resultsByYear', 'driverStandingsHistory', 'editionRacePlacements', 'editionRaceLineColor', 'driverRunsInSelectedEdition'));
     }
 
     public function driverStats(Request $request, Driver $driver): View
@@ -481,6 +483,10 @@ class DashboardController extends Controller
             ? $editions->firstWhere('id', $selectedEditionId)
             : null;
         $edition ??= $editions->first();
+
+        $editionCar = $edition
+            ? $team->cars()->where('edition_id', $edition->id)->with('team')->first()
+            : null;
 
         $teamDriverTeams = DriverTeam::query()
             ->where('team_id', $team->id)
@@ -715,7 +721,7 @@ class DashboardController extends Controller
                     ->values();
             });
 
-        return view('team', compact('team', 'teams', 'editions', 'edition', 'editionPoints', 'editionPosition', 'championshipCount', 'teamRacesCount', 'teamPoleCount', 'teamPodiumCount', 'teamWinCount', 'teamSprintCount', 'editionRaceCount', 'editionPodiumCount', 'editionWinCount', 'resultsByYear', 'teamStandingsHistory', 'teamRaceRounds', 'teamRaceSeries', 'teamRaceMaxPosition', 'teamRunsInSelectedEdition'));
+        return view('team', compact('team', 'teams', 'editions', 'edition', 'editionCar', 'editionPoints', 'editionPosition', 'championshipCount', 'teamRacesCount', 'teamPoleCount', 'teamPodiumCount', 'teamWinCount', 'teamSprintCount', 'editionRaceCount', 'editionPodiumCount', 'editionWinCount', 'resultsByYear', 'teamStandingsHistory', 'teamRaceRounds', 'teamRaceSeries', 'teamRaceMaxPosition', 'teamRunsInSelectedEdition'));
     }
 
     public function teamStats(Request $request, Team $team): View
@@ -865,6 +871,168 @@ class DashboardController extends Controller
             });
 
         return view('edition', compact('editions', 'edition', 'editionCircuits'));
+    }
+
+    public function stats(): View
+    {
+        $championshipsByDriverId = Edition::query()
+            ->with(['rankingDrivers' => fn ($query) => $query->orderByRaw('CAST(points AS UNSIGNED) DESC')])
+            ->withCount([
+                'circuits',
+                'circuits as completed_races_count' => fn ($query) => $query->has('race'),
+            ])
+            ->get()
+            ->filter(fn (Edition $edition) =>
+                $edition->circuits_count > 0
+                && $edition->circuits_count === $edition->completed_races_count
+            )
+            ->map(fn (Edition $edition) => $edition->rankingDrivers->first()?->driver_id)
+            ->filter()
+            ->countBy();
+
+        $driverStatistics = Driver::query()
+            ->with('country')
+            ->withCount([
+                'RaceCircuits as races_count',
+                'gridCircuits as poles_count' => fn ($query) => $query->where('position', 1),
+                'RaceCircuits as podiums_count' => fn ($query) => $query->whereBetween('position', [1, 3]),
+                'RaceCircuits as race_wins_count' => fn ($query) => $query->where('position', 1),
+                'SprintCircuits as sprint_wins_count' => fn ($query) => $query->where('position', 1),
+            ])
+            ->get()
+            ->map(fn (Driver $driver) => [
+                'driver' => $driver,
+                'titles' => (int) $championshipsByDriverId->get($driver->id, 0),
+                'races' => $driver->races_count,
+                'poles' => $driver->poles_count,
+                'podiums' => $driver->podiums_count,
+                'raceWins' => $driver->race_wins_count,
+                'sprintWins' => $driver->sprint_wins_count,
+            ])
+            ->sort(function (array $left, array $right) {
+                $titlesComparison = $right['titles'] <=> $left['titles'];
+
+                return $titlesComparison !== 0
+                    ? $titlesComparison
+                    : strnatcasecmp($left['driver']->name, $right['driver']->name);
+            })
+            ->values();
+
+        $championshipsByTeamId = Edition::query()
+            ->with(['rankingTeams' => fn ($query) => $query->orderByRaw('CAST(points AS UNSIGNED) DESC')])
+            ->withCount([
+                'circuits',
+                'circuits as completed_races_count' => fn ($query) => $query->has('race'),
+            ])
+            ->get()
+            ->filter(fn (Edition $edition) =>
+                $edition->circuits_count > 0
+                && $edition->circuits_count === $edition->completed_races_count
+            )
+            ->map(fn (Edition $edition) => $edition->rankingTeams->first()?->team_id)
+            ->filter()
+            ->countBy();
+
+        $teamStatistics = Team::query()
+            ->with('country')
+            ->withCount([
+                'raceCircuits as races_count',
+                'gridCircuits as poles_count' => fn ($query) => $query->where('position', 1),
+                'raceCircuits as podiums_count' => fn ($query) => $query->whereBetween('position', [1, 3]),
+                'raceCircuits as race_wins_count' => fn ($query) => $query->where('position', 1),
+                'sprintCircuits as sprint_wins_count' => fn ($query) => $query->where('position', 1),
+            ])
+            ->get()
+            ->map(fn (Team $team) => [
+                'team' => $team,
+                'titles' => (int) $championshipsByTeamId->get($team->id, 0),
+                'races' => $team->races_count,
+                'poles' => $team->poles_count,
+                'podiums' => $team->podiums_count,
+                'raceWins' => $team->race_wins_count,
+                'sprintWins' => $team->sprint_wins_count,
+            ])
+            ->sort(function (array $left, array $right) {
+                $titlesComparison = $right['titles'] <=> $left['titles'];
+
+                return $titlesComparison !== 0
+                    ? $titlesComparison
+                    : strnatcasecmp($left['team']->name, $right['team']->name);
+            })
+            ->values();
+
+        // Carichiamo solo le colonne necessarie e calcoliamo i leader una volta
+        // per tipo di risultato. In precedenza ogni circuito scandiva di nuovo
+        // l'intera raccolta dei risultati per ciascuna statistica.
+        $raceResults = RaceCircuit::query()->get(['circuit_id', 'driver_team_id', 'position']);
+        $gridResults = GridCircuit::query()->get(['circuit_id', 'driver_team_id', 'position']);
+        $sprintResults = SprintCircuit::query()->get(['circuit_id', 'driver_team_id', 'position']);
+        $driverTeamsById = DriverTeam::query()
+            ->with('driver.country')
+            ->whereIn('id', $raceResults
+                ->pluck('driver_team_id')
+                ->merge($gridResults->pluck('driver_team_id'))
+                ->merge($sprintResults->pluck('driver_team_id'))
+                ->filter()
+                ->unique())
+            ->get()
+            ->keyBy('id');
+
+        $leadersByCircuit = function ($results) use ($driverTeamsById) {
+            return $results
+                ->groupBy('circuit_id')
+                ->map(function ($circuitResults) use ($driverTeamsById) {
+                    return $circuitResults
+                        ->groupBy('driver_team_id')
+                        ->map(function ($driverResults, $driverTeamId) use ($driverTeamsById) {
+                            return [
+                                'driver' => $driverTeamsById->get($driverTeamId)?->driver,
+                                'count' => $driverResults->count(),
+                            ];
+                        })
+                        ->filter(fn (array $leader) => $leader['driver'] !== null)
+                        ->sort(function (array $left, array $right) {
+                            $countComparison = $right['count'] <=> $left['count'];
+
+                            return $countComparison !== 0
+                                ? $countComparison
+                                : strnatcasecmp($left['driver']->name, $right['driver']->name);
+                        })
+                        ->first();
+                });
+        };
+
+        $raceLeaders = $leadersByCircuit($raceResults);
+        $poleLeaders = $leadersByCircuit($gridResults->where('position', 1));
+        $podiumLeaders = $leadersByCircuit($raceResults->whereBetween('position', [1, 3]));
+        $raceWinLeaders = $leadersByCircuit($raceResults->where('position', 1));
+        $sprintWinLeaders = $leadersByCircuit($sprintResults->where('position', 1));
+
+        $circuitStatistics = Circuit::query()
+            ->with('country')
+            ->withCount('editionCircuits')
+            ->get()
+            ->map(function (Circuit $circuit) use ($raceLeaders, $poleLeaders, $podiumLeaders, $raceWinLeaders, $sprintWinLeaders) {
+                return [
+                    'circuit' => $circuit,
+                    'editions' => $circuit->edition_circuits_count,
+                    'mostRacesDriver' => $raceLeaders->get($circuit->id),
+                    'mostPolesDriver' => $poleLeaders->get($circuit->id),
+                    'mostPodiumsDriver' => $podiumLeaders->get($circuit->id),
+                    'mostRaceWinsDriver' => $raceWinLeaders->get($circuit->id),
+                    'mostSprintWinsDriver' => $sprintWinLeaders->get($circuit->id),
+                ];
+            })
+            ->sort(function (array $left, array $right) {
+                $editionComparison = $right['editions'] <=> $left['editions'];
+
+                return $editionComparison !== 0
+                    ? $editionComparison
+                    : strnatcasecmp($left['circuit']->name, $right['circuit']->name);
+            })
+            ->values();
+
+        return view('global-stats', compact('driverStatistics', 'teamStatistics', 'circuitStatistics'));
     }
 
     public function circuit(Circuit $circuit): View

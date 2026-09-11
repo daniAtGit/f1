@@ -16,6 +16,7 @@ Route::get('driver/{driver}/stats', [DashboardController::class, 'driverStats'])
 Route::get('driver/{driver}', [DashboardController::class, 'driver'])->name('driver.single');
 Route::get('team/{team}/stats', [DashboardController::class, 'teamStats'])->name('team.stats');
 Route::get('team/{team}', [DashboardController::class, 'team'])->name('team.single');
+Route::get('stats', [DashboardController::class, 'stats'])->name('stats');
 Route::get('edition/{edition}', [DashboardController::class, 'edition'])->name('edition.single');
 Route::get('circuit/{circuit}', [DashboardController::class, 'circuit'])->name('circuit.single');
 

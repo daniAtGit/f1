@@ -121,7 +121,10 @@
 
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-2">
                 <div class="overflow-hidden">
-                    <div class="d-flex justify-content-end">
+                    <div class="d-flex justify-content-between align-items-center" style="padding:0 10px;">
+                        <a id="edition-stats-button" class="btn btn-outline-secondary" href="{{ route('stats') }}" title="Stats" aria-label="Stats">
+                            <i class="fa fa-chart-simple"></i>
+                        </a>
                         <div class="input-group w-auto">
                             <a class="bg-white input-group-text text-decoration-none" id="basic-addon1" href="{{ route('edition.single', ['edition' => $edition?->id]) }}">Edition</a>
                             <select class="form-select" name="changeEdition" id="changeEdition" aria-label="changeEdition" aria-describedby="basic-addon1">

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 
@@ -34,6 +35,26 @@ class Team extends Model
     public function cars(): HasMany
     {
         return $this->hasMany(Car::class, 'team_id', 'id');
+    }
+
+    public function driverTeams(): HasMany
+    {
+        return $this->hasMany(DriverTeam::class, 'team_id', 'id');
+    }
+
+    public function gridCircuits(): HasManyThrough
+    {
+        return $this->hasManyThrough(GridCircuit::class, DriverTeam::class, 'team_id', 'driver_team_id');
+    }
+
+    public function raceCircuits(): HasManyThrough
+    {
+        return $this->hasManyThrough(RaceCircuit::class, DriverTeam::class, 'team_id', 'driver_team_id');
+    }
+
+    public function sprintCircuits(): HasManyThrough
+    {
+        return $this->hasManyThrough(SprintCircuit::class, DriverTeam::class, 'team_id', 'driver_team_id');
     }
 
     public function getImgTeamFromGoogle($cosa = null, $anno = null): ?string

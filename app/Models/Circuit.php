@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Support\Facades\Http;
 
@@ -28,6 +29,11 @@ class Circuit extends Model
     public function country(): BelongsTo
     {
         return $this->belongsTo(Country::class);
+    }
+
+    public function editionCircuits(): HasMany
+    {
+        return $this->hasMany(EditionCircuit::class, 'circuit_id', 'id');
     }
 
     public function getImgCircuitFromGoogle($cosa = null, $anno = null): ?string

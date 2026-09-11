@@ -408,6 +408,21 @@
                     </div>
                 </div>
 
+                @if($editionCar)
+                    @php($carImageUrl = $editionCar->getImageUrl())
+                    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-2">
+                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                            <div class="p-3 text-center">
+                                @if($carImageUrl)
+                                    <img src="{{ $carImageUrl }}" alt="{{ $editionCar->name }}" class="img-fluid" style="max-height:220px;object-fit:contain;" loading="lazy">
+                                @else
+                                    <div class="text-muted small">Immagine di {{ $editionCar->name }} non disponibile.</div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-2">
                     <div class="row g-3">
                         <div class="col-12 col-lg-12">
