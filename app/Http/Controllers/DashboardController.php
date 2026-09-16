@@ -346,12 +346,18 @@ class DashboardController extends Controller
             ->whereIn('id', $selectedDriverIds)
             ->with([
                 'driverTeams.team',
+                'driverTeams.team.country',
+                'driverTeams.car',
                 'RaceCircuits.driverTeam.team',
                 'RaceCircuits.editionCircuit.circuit.country',
             ])
             ->get()
             ->sortBy(fn (Driver $item) => array_search((string) $item->id, $selectedDriverIds->all(), true))
             ->values();
+
+        $selectedEditionDriverTeam = $edition
+            ? $drivers->firstWhere('id', $driver->id)?->driverTeams->firstWhere('edition_id', $edition->id)
+            : null;
 
         $availableDrivers = Driver::query()
             ->orderBy('name')
@@ -456,6 +462,7 @@ class DashboardController extends Controller
             'comparisonChart',
             'compareIds',
             'drivers',
+            'selectedEditionDriverTeam',
             'availableDrivers',
             'chartRounds',
             'chartSeries',
@@ -511,15 +518,21 @@ class DashboardController extends Controller
         $teamPoleCount = GridCircuit::query()
             ->whereIn('driver_team_id', $allTeamDriverTeamIds)
             ->where('position', 1)
-            ->count();
+            ->distinct('edition_circuit_id')
+            ->count('edition_circuit_id');
         $teamPodiumCount = $allTeamRaceResults
             ->filter(fn (RaceCircuit $result) => (int) $result->position >= 1 && (int) $result->position <= 3)
             ->count();
-        $teamWinCount = $allTeamRaceResults->where('position', 1)->count();
+        $teamWinCount = $allTeamRaceResults
+            ->where('position', 1)
+            ->pluck('edition_circuit_id')
+            ->unique()
+            ->count();
         $teamSprintCount = SprintCircuit::query()
             ->whereIn('driver_team_id', $allTeamDriverTeamIds)
             ->where('position', 1)
-            ->count();
+            ->distinct('edition_circuit_id')
+            ->count('edition_circuit_id');
 
         $results = collect([
             'grid' => GridCircuit::query()
@@ -611,6 +624,8 @@ class DashboardController extends Controller
             ->count();
         $editionWinCount = $teamRaceResults
             ->filter(fn (array $item) => (int) $item['result']->position === 1)
+            ->pluck('result.edition_circuit_id')
+            ->unique()
             ->count();
 
         $teamRaceRounds = $teamRaceResults
@@ -933,24 +948,41 @@ class DashboardController extends Controller
             ->filter()
             ->countBy();
 
+        $teamEventCounts = function (string $resultModel, ?callable $filter = null, bool $distinctEvents = true) {
+            $table = (new $resultModel())->getTable();
+            $countExpression = $distinctEvents
+                ? "COUNT(DISTINCT {$table}.edition_circuit_id)"
+                : 'COUNT(*)';
+            $query = $resultModel::query()
+                ->join('driver_team', "{$table}.driver_team_id", '=', 'driver_team.id')
+                ->select('driver_team.team_id')
+                ->selectRaw("{$countExpression} as total")
+                ->groupBy('driver_team.team_id');
+
+            if ($filter) {
+                $filter($query, $table);
+            }
+
+            return $query->pluck('total', 'team_id');
+        };
+
+        $teamRacesById = $teamEventCounts(RaceCircuit::class);
+        $teamPolesById = $teamEventCounts(GridCircuit::class, fn ($query, $table) => $query->where("{$table}.position", 1));
+        $teamPodiumsById = $teamEventCounts(RaceCircuit::class, fn ($query, $table) => $query->whereBetween("{$table}.position", [1, 3]), false);
+        $teamRaceWinsById = $teamEventCounts(RaceCircuit::class, fn ($query, $table) => $query->where("{$table}.position", 1));
+        $teamSprintWinsById = $teamEventCounts(SprintCircuit::class, fn ($query, $table) => $query->where("{$table}.position", 1));
+
         $teamStatistics = Team::query()
             ->with('country')
-            ->withCount([
-                'raceCircuits as races_count',
-                'gridCircuits as poles_count' => fn ($query) => $query->where('position', 1),
-                'raceCircuits as podiums_count' => fn ($query) => $query->whereBetween('position', [1, 3]),
-                'raceCircuits as race_wins_count' => fn ($query) => $query->where('position', 1),
-                'sprintCircuits as sprint_wins_count' => fn ($query) => $query->where('position', 1),
-            ])
             ->get()
             ->map(fn (Team $team) => [
                 'team' => $team,
                 'titles' => (int) $championshipsByTeamId->get($team->id, 0),
-                'races' => $team->races_count,
-                'poles' => $team->poles_count,
-                'podiums' => $team->podiums_count,
-                'raceWins' => $team->race_wins_count,
-                'sprintWins' => $team->sprint_wins_count,
+                'races' => (int) $teamRacesById->get($team->id, 0),
+                'poles' => (int) $teamPolesById->get($team->id, 0),
+                'podiums' => (int) $teamPodiumsById->get($team->id, 0),
+                'raceWins' => (int) $teamRaceWinsById->get($team->id, 0),
+                'sprintWins' => (int) $teamSprintWinsById->get($team->id, 0),
             ])
             ->sort(function (array $left, array $right) {
                 $titlesComparison = $right['titles'] <=> $left['titles'];
@@ -983,10 +1015,13 @@ class DashboardController extends Controller
                 ->groupBy('circuit_id')
                 ->map(function ($circuitResults) use ($driverTeamsById) {
                     return $circuitResults
-                        ->groupBy('driver_team_id')
-                        ->map(function ($driverResults, $driverTeamId) use ($driverTeamsById) {
+                        ->groupBy(fn ($result) => $driverTeamsById->get($result->driver_team_id)?->driver?->id)
+                        ->reject(fn ($driverResults, $driverId) => $driverId === null)
+                        ->map(function ($driverResults) use ($driverTeamsById) {
+                            $driver = $driverTeamsById->get($driverResults->first()->driver_team_id)?->driver;
+
                             return [
-                                'driver' => $driverTeamsById->get($driverTeamId)?->driver,
+                                'driver' => $driver,
                                 'count' => $driverResults->count(),
                             ];
                         })
@@ -1008,14 +1043,18 @@ class DashboardController extends Controller
         $raceWinLeaders = $leadersByCircuit($raceResults->where('position', 1));
         $sprintWinLeaders = $leadersByCircuit($sprintResults->where('position', 1));
 
+        $editionsByCircuitId = EditionCircuit::query()
+            ->selectRaw('circuit_id, COUNT(DISTINCT edition_id) as editions_count')
+            ->groupBy('circuit_id')
+            ->pluck('editions_count', 'circuit_id');
+
         $circuitStatistics = Circuit::query()
             ->with('country')
-            ->withCount('editionCircuits')
             ->get()
-            ->map(function (Circuit $circuit) use ($raceLeaders, $poleLeaders, $podiumLeaders, $raceWinLeaders, $sprintWinLeaders) {
+            ->map(function (Circuit $circuit) use ($editionsByCircuitId, $raceLeaders, $poleLeaders, $podiumLeaders, $raceWinLeaders, $sprintWinLeaders) {
                 return [
                     'circuit' => $circuit,
-                    'editions' => $circuit->edition_circuits_count,
+                    'editions' => (int) $editionsByCircuitId->get($circuit->id, 0),
                     'mostRacesDriver' => $raceLeaders->get($circuit->id),
                     'mostPolesDriver' => $poleLeaders->get($circuit->id),
                     'mostPodiumsDriver' => $podiumLeaders->get($circuit->id),

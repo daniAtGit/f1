@@ -89,6 +89,31 @@
                             <div>
                                 <div class="small text-muted">Driver comparison</div>
                                 <h1 class="h4 mb-0"><x-driver-name :driver="$driver" /></h1>
+                                @if($selectedEditionDriverTeam?->team?->name)
+                                    @php
+                                        $carSearchQuery = implode(' ', array_filter([
+                                            $selectedEditionDriverTeam->car?->name,
+                                            $selectedEditionDriverTeam->team->name,
+                                            $edition?->year,
+                                        ]));
+                                    @endphp
+                                    <div class="small d-flex align-items-center gap-1 mt-1">
+                                        @if($selectedEditionDriverTeam->team?->country?->flag_icon_url)
+                                            <img
+                                                src="{{ $selectedEditionDriverTeam->team->country->flag_icon_url }}"
+                                                alt="{{ $selectedEditionDriverTeam->team->country->name }}"
+                                                title="{{ $selectedEditionDriverTeam->team->country->name }}"
+                                                width="20"
+                                                height="14"
+                                                style="object-fit:cover;border:1px solid #ccc;padding:1px;"
+                                                loading="lazy"
+                                            >
+                                        @endif
+                                        <span>
+                                            <strong>{{ $selectedEditionDriverTeam->team->name }}</strong>@if($selectedEditionDriverTeam?->car?->name) - <a href="https://www.google.com/search?tbm=isch&amp;q={{ urlencode($carSearchQuery) }}" target="_blank" rel="noopener noreferrer">{{ $selectedEditionDriverTeam->car->name }}</a>@endif
+                                        </span>
+                                    </div>
+                                @endif
                             </div>
                             <div class="d-flex flex-wrap gap-2">
 
