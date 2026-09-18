@@ -1127,7 +1127,12 @@ class DashboardController extends Controller
             ->sortByDesc('year')
             ->values();
 
-        return view('circuit', compact('circuit', 'circuits', 'editionCount', 'poleDrivers', 'raceDrivers', 'sprintDrivers', 'raceWinners'));
+        $circuitImageYear = EditionCircuit::query()
+            ->where('circuit_id', $circuit->id)
+            ->join('editions', 'editions.id', '=', 'edition_circuit.edition_id')
+            ->max('editions.year') ?? now()->year;
+
+        return view('circuit', compact('circuit', 'circuits', 'editionCount', 'poleDrivers', 'raceDrivers', 'sprintDrivers', 'raceWinners', 'circuitImageYear'));
     }
 
     private function circuitFirstPlaceResults(string $resultModel, Circuit $circuit)

@@ -28,7 +28,7 @@
                 @endif
             </div>
             <div class="col">
-                <div class="h5 mb-1"><a href="{{route('driver.single', $standingDriver->driver)}}"><x-driver-name :driver="$standingDriver->driver" :show-flag="false" /></a></div>
+                <div class="h5 mb-1"><a href="{{ route('driver.single', ['driver' => $standingDriver->driver, 'edition' => $edition?->id]) }}"><x-driver-name :driver="$standingDriver->driver" :show-flag="false" /></a></div>
                 <badge class="badge" style="background:{{$standingDriver->team->color}};max-width:100%;white-space:normal;text-align:center;">{{$standingDriver->team->name}}</badge>
             </div>
             <div class="col-auto text-end">

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class Team extends Model
@@ -69,34 +70,109 @@ class Team extends Model
 
     private function getImgTeamFromWikimedia($cosa = null, $anno = null): ?string
     {
-        $fromTitle = $this->getImageFromWikipediaTitle();
-        if (!empty($fromTitle)) {
-            return $fromTitle;
-        }
-
-        $teamName = $this->normalizedTeamName();
-        $terms = array_unique(array_filter([
-            $teamName.' formula one team',
-            $teamName.' f1 team',
-            trim($teamName.' '.($cosa ?? '').' '.($anno ?? '')),
-            $teamName,
-        ]));
-
-        foreach ($terms as $term) {
-            $url = $this->getImageFromWikipediaSearch($term);
-            if (!empty($url)) {
-                return $url;
+        return Cache::remember("team-image:v3:{$this->id}", now()->addWeek(), function () {
+            $logoUrl = $this->getLogoFromWikidata();
+            if (!empty($logoUrl)) {
+                return $logoUrl;
             }
-        }
 
-        foreach ($terms as $term) {
-            $url = $this->getImageFromWikimediaCommonsSearch($term);
-            if (!empty($url)) {
-                return $url;
+            $teamName = $this->normalizedTeamName();
+            $terms = array_unique(array_filter([
+                $teamName.' formula one team logo',
+                $teamName.' racing team logo',
+                $teamName.' logo',
+                $teamName.' emblem',
+                $teamName.' wordmark',
+            ]));
+
+            foreach ($terms as $term) {
+                $url = $this->getImageFromWikimediaCommonsSearch($term);
+                if (!empty($url)) {
+                    return $url;
+                }
             }
+
+            return null;
+        });
+    }
+
+    private function getLogoFromWikidata(): ?string
+    {
+        $title = $this->extractWikipediaTitleFromUrl();
+        if (empty($title)) {
+            return null;
         }
 
-        return null;
+        try {
+            $pageResponse = $this->wikiHttp()->get($this->wikipediaApiUrl(), [
+                'action' => 'query',
+                'format' => 'json',
+                'redirects' => 1,
+                'prop' => 'pageprops',
+                'titles' => $title,
+            ]);
+
+            if (!$pageResponse->ok()) {
+                return null;
+            }
+
+            $wikidataId = collect($pageResponse->json('query.pages', []))
+                ->pluck('pageprops.wikibase_item')
+                ->filter()
+                ->first();
+
+            if (empty($wikidataId)) {
+                return null;
+            }
+
+            $claimsResponse = $this->wikiHttp()->get('https://www.wikidata.org/w/api.php', [
+                'action' => 'wbgetclaims',
+                'format' => 'json',
+                'entity' => $wikidataId,
+                'property' => 'P154',
+            ]);
+
+            if (!$claimsResponse->ok()) {
+                return null;
+            }
+
+            $filename = data_get($claimsResponse->json(), 'claims.P154.0.mainsnak.datavalue.value');
+
+            return is_string($filename) && $filename !== ''
+                ? $this->getWikimediaFileUrl($filename)
+                : null;
+        } catch (\Throwable $e) {
+            report($e);
+
+            return null;
+        }
+    }
+
+    private function getWikimediaFileUrl(string $filename): ?string
+    {
+        try {
+            $response = $this->wikiHttp()->get('https://commons.wikimedia.org/w/api.php', [
+                'action' => 'query',
+                'format' => 'json',
+                'titles' => 'File:'.$filename,
+                'prop' => 'imageinfo',
+                'iiprop' => 'url|mime',
+            ]);
+
+            if (!$response->ok()) {
+                return null;
+            }
+
+            return collect($response->json('query.pages', []))
+                ->filter(fn ($page) => str_starts_with(data_get($page, 'imageinfo.0.mime', ''), 'image/'))
+                ->pluck('imageinfo.0.url')
+                ->filter()
+                ->first();
+        } catch (\Throwable $e) {
+            report($e);
+
+            return null;
+        }
     }
 
     private function getImageFromWikipediaTitle(): ?string
@@ -195,12 +271,9 @@ class Team extends Model
             }
 
             $pages = collect($response->json('query.pages', []))
-                ->filter(fn ($page) => $this->titleMatchesTeamName(data_get($page, 'title')))
+                ->filter(fn ($page) => $this->isTeamIdentityImageTitle(data_get($page, 'title')))
                 ->filter(fn ($page) => str_starts_with(data_get($page, 'imageinfo.0.mime', ''), 'image/'))
-                ->sortBy([
-                    fn ($page) => $this->teamTitlePriority(data_get($page, 'title')),
-                    fn ($page) => data_get($page, 'index', PHP_INT_MAX),
-                ]);
+                ->sortBy(fn ($page) => data_get($page, 'index', PHP_INT_MAX));
 
             foreach ($pages as $page) {
                 $url = data_get($page, 'imageinfo.0.url');
@@ -213,6 +286,45 @@ class Team extends Model
         }
 
         return null;
+    }
+
+    private function isTeamIdentityImageTitle(?string $title): bool
+    {
+        if (empty($title)) {
+            return false;
+        }
+
+        $normalizedTitle = $this->normalizeTeamTitle($title);
+        $hasIdentityKeyword = collect(['logo', 'emblem', 'badge', 'wordmark'])
+            ->contains(fn (string $keyword) => str_contains($normalizedTitle, $keyword));
+
+        if (!$hasIdentityKeyword) {
+            return false;
+        }
+
+        $describesVehicleOrPerson = collect([
+            ' car ',
+            ' automobile ',
+            ' truck ',
+            ' vehicle ',
+            ' driver ',
+            ' portrait ',
+            ' helmet ',
+            ' wheel ',
+            ' on the side ',
+            ' wearing ',
+        ])->contains(fn (string $keyword) => str_contains(' '.$normalizedTitle.' ', $keyword));
+
+        if ($describesVehicleOrPerson) {
+            return false;
+        }
+
+        $identityWords = collect(preg_split('/\s+/', $this->normalizedTeamName()) ?: [])
+            ->reject(fn (string $word) => in_array($word, ['f1', 'formula', 'one', 'team', 'racing', 'scuderia', 'grand', 'prix'], true))
+            ->filter(fn (string $word) => mb_strlen($word) >= 3);
+
+        return $identityWords->isNotEmpty()
+            && $identityWords->contains(fn (string $word) => str_contains($normalizedTitle, $word));
     }
 
     private function titleMatchesTeamName(?string $title): bool
@@ -255,7 +367,20 @@ class Team extends Model
 
     private function normalizeTeamTitle(string $value): string
     {
-        return trim(preg_replace('/\s+/', ' ', mb_strtolower($value)));
+        $value = preg_replace('/[^\pL\pN]+/u', ' ', mb_strtolower($value));
+
+        return trim(preg_replace('/\s+/', ' ', $value));
+    }
+
+    private function wikipediaApiUrl(): string
+    {
+        $host = parse_url((string) $this->wikipedia, PHP_URL_HOST);
+
+        if (!is_string($host) || !str_ends_with($host, '.wikipedia.org')) {
+            $host = 'en.wikipedia.org';
+        }
+
+        return 'https://'.$host.'/w/api.php';
     }
 
     private function extractWikipediaTitleFromUrl(): ?string

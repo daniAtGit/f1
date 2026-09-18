@@ -34,46 +34,99 @@ class Car extends Model
 
     public function getImageUrl(): ?string
     {
-        return Cache::remember("car-image:{$this->id}", now()->addWeek(), function () {
-            $search = trim(implode(' ', array_filter([
-                $this->team?->name,
-                $this->name,
-                'Formula One car',
-            ])));
+        return Cache::remember("car-image:v2:{$this->id}", now()->addWeek(), function () {
+            $searches = $this->imageSearchTerms();
 
-            if ($search === '') {
+            if ($searches->isEmpty()) {
                 return null;
             }
 
-            try {
-                $response = Http::timeout(8)
-                    ->retry(2, 250)
-                    ->withHeaders(['Accept' => 'application/json'])
-                    ->withUserAgent(env('WIKIMEDIA_USER_AGENT', 'F1ArchivioBot/1.0 (https://localhost; mailto:admin@example.com)'))
-                    ->get('https://commons.wikimedia.org/w/api.php', [
-                        'action' => 'query',
-                        'format' => 'json',
-                        'generator' => 'search',
-                        'gsrsearch' => $search,
-                        'gsrnamespace' => 6,
-                        'gsrlimit' => 10,
-                        'prop' => 'imageinfo',
-                        'iiprop' => 'url|mime',
-                    ]);
+            foreach ($searches as $search) {
+                $imageUrl = $this->findImageOnWikimedia($search);
 
-                if (! $response->ok()) {
-                    return null;
+                if ($imageUrl) {
+                    return $imageUrl;
+                }
+            }
+
+            return null;
+        });
+    }
+
+    private function imageSearchTerms()
+    {
+        $team = trim((string) $this->team?->name);
+        $name = trim((string) $this->name);
+        $year = trim((string) $this->edition?->year);
+
+        $modelNames = collect(preg_split('/[\s,\/]+/', $name) ?: [])
+            ->map(fn (string $part) => trim($part, " \t\n\r\0\x0B()[]"))
+            ->filter(fn (string $part) => strlen($part) >= 3 && preg_match('/\d/', $part))
+            ->flatMap(function (string $model) {
+                $fallbacks = [$model];
+                $withoutTrailingVariant = preg_replace('/(?<=\d)[a-z]$/i', '', $model);
+                $withoutSuffix = preg_replace('/-[a-z]+$/i', '', $model);
+
+                if ($withoutTrailingVariant !== $model) {
+                    $fallbacks[] = $withoutTrailingVariant;
                 }
 
-                return collect($response->json('query.pages', []))
-                    ->filter(fn (array $page) => str_starts_with(data_get($page, 'imageinfo.0.mime', ''), 'image/'))
-                    ->sortBy('index')
-                    ->value('imageinfo.0.url');
-            } catch (\Throwable $exception) {
-                report($exception);
+                if ($withoutSuffix !== $model) {
+                    $fallbacks[] = $withoutSuffix;
+                }
 
+                return $fallbacks;
+            })
+            ->filter()
+            ->unique()
+            ->values();
+
+        return collect([
+            implode(' ', array_filter([$team, $name, $year])),
+            implode(' ', array_filter([$team, $name])),
+            $name,
+        ])
+            ->merge($modelNames->flatMap(fn (string $model) => [
+                implode(' ', array_filter([$team, $model, $year])),
+                implode(' ', array_filter([$team, $model])),
+                $model,
+            ]))
+            ->map(fn (string $search) => trim($search))
+            ->filter()
+            ->unique()
+            ->values();
+    }
+
+    private function findImageOnWikimedia(string $search): ?string
+    {
+        try {
+            $response = Http::timeout(8)
+                ->retry(2, 250)
+                ->withHeaders(['Accept' => 'application/json'])
+                ->withUserAgent(env('WIKIMEDIA_USER_AGENT', 'F1ArchivioBot/1.0 (https://localhost; mailto:admin@example.com)'))
+                ->get('https://commons.wikimedia.org/w/api.php', [
+                    'action' => 'query',
+                    'format' => 'json',
+                    'generator' => 'search',
+                    'gsrsearch' => $search,
+                    'gsrnamespace' => 6,
+                    'gsrlimit' => 10,
+                    'prop' => 'imageinfo',
+                    'iiprop' => 'url|mime',
+                ]);
+
+            if (! $response->ok()) {
                 return null;
             }
-        });
+
+            return collect($response->json('query.pages', []))
+                ->filter(fn (array $page) => str_starts_with(data_get($page, 'imageinfo.0.mime', ''), 'image/'))
+                ->sortBy('index')
+                ->value('imageinfo.0.url');
+        } catch (\Throwable $exception) {
+            report($exception);
+
+            return null;
+        }
     }
 }

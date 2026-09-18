@@ -73,13 +73,20 @@
                             <div class="row align-items-center">
                                 <div class="col-5 col-sm-8">
                                     @if($driverImageUrl)
-                                        <img
-                                            src="{{ $driverImageUrl }}"
-                                            alt="{{ $driver->name }}"
-                                            class="img-fluid"
-                                            style="max-height:180px;object-fit:contain;"
-                                            loading="lazy"
+                                        <a
+                                            href="https://www.google.com/search?tbm=isch&amp;q={{ urlencode($driver->name.' Formula 1 driver '.($edition?->year ?? now()->year)) }}"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            aria-label="Cerca immagini di {{ $driver->name }} nel {{ $edition?->year ?? now()->year }}"
                                         >
+                                            <img
+                                                src="{{ $driverImageUrl }}"
+                                                alt="{{ $driver->name }}"
+                                                class="img-fluid"
+                                                style="max-height:180px;object-fit:contain;"
+                                                loading="lazy"
+                                            >
+                                        </a>
                                     @else
                                         <div class="text-muted fst-italic">Foto non disponibile</div>
                                     @endif
@@ -402,7 +409,14 @@
                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                             <div class="p-3 text-center">
                                 @if($carImageUrl)
-                                    <img src="{{ $carImageUrl }}" alt="{{ $editionCar->name }}" class="img-fluid" style="max-height:220px;object-fit:contain;" loading="lazy">
+                                    <a
+                                        href="https://www.google.com/search?tbm=isch&amp;q={{ urlencode(collect([$editionCar->team?->name, $editionCar->name, 'Formula 1 car', $edition?->year ?? now()->year])->filter()->implode(' ')) }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        aria-label="Cerca immagini di {{ $editionCar->name }} nel {{ $edition?->year ?? now()->year }}"
+                                    >
+                                        <img src="{{ $carImageUrl }}" alt="{{ $editionCar->name }}" class="img-fluid" style="max-height:220px;object-fit:contain;" loading="lazy">
+                                    </a>
                                 @else
                                     <div class="text-muted small">Immagine di {{ $editionCar->name }} non disponibile.</div>
                                 @endif

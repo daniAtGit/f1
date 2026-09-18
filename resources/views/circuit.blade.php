@@ -84,13 +84,20 @@
 
                                 <div class="col-12 col-lg-4 text-lg-end">
                                     @if($circuitImageUrl)
-                                        <img
-                                            src="{{ $circuitImageUrl }}"
-                                            alt="{{ $circuit->name }}"
-                                            class="img-fluid rounded border"
-                                            style="max-height:220px;object-fit:contain;background:#fff;"
-                                            loading="lazy"
+                                        <a
+                                            href="https://www.google.com/search?tbm=isch&amp;q={{ urlencode($circuit->name.' Formula 1 circuit '.$circuitImageYear) }}"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            aria-label="Cerca immagini di {{ $circuit->name }} nel {{ $circuitImageYear }}"
                                         >
+                                            <img
+                                                src="{{ $circuitImageUrl }}"
+                                                alt="{{ $circuit->name }}"
+                                                class="img-fluid rounded border"
+                                                style="max-height:220px;object-fit:contain;background:#fff;"
+                                                loading="lazy"
+                                            >
+                                        </a>
                                     @else
                                         <div class="text-muted fst-italic">Photo not available</div>
                                     @endif

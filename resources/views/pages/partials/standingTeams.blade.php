@@ -19,7 +19,7 @@
                 @endif
             </div>
             <div class="col h4 mb-0">
-                <a href="{{route('team.single', $standingTeam->team)}}">
+                <a href="{{ route('team.single', ['team' => $standingTeam->team, 'edition' => $edition?->id]) }}">
                     <badge class="badge" style="background:{{$standingTeam->team->color}};max-width:100%;white-space:normal;text-align:center;">{{$standingTeam->team->name}}</badge>
                 </a>
             </div>
