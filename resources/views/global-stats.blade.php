@@ -41,6 +41,9 @@
                         <li class="nav-item" role="presentation">
                             <button type="button" class="nav-link" :class="{ 'active': activeTab === 'circuits' }" @click="activeTab = 'circuits'; $nextTick(() => window.adjustStatsTables?.())">Circuits</button>
                         </li>
+                        <li class="nav-item" role="presentation">
+                            <button type="button" class="nav-link" :class="{ 'active': activeTab === 'season-wins' }" @click="activeTab = 'season-wins'; $nextTick(() => window.adjustStatsTables?.())">Wins</button>
+                        </li>
                     </ul>
 
                     <div x-show="activeTab === 'drivers'">
@@ -165,6 +168,56 @@
                             </table>
                         </div>
                     </div>
+
+                    <div x-show="activeTab === 'season-wins'" x-cloak>
+                        <div class="table-responsive stats-table-wrapper">
+                            <table id="season-wins-stats-table" class="table table-sm table-hover align-middle mb-0 stats-table">
+                                <thead>
+                                    <tr>
+                                        <th>Victories</th>
+                                        <th>Races</th>
+                                        <th>Year</th>
+                                        <th>Driver</th>
+                                        <th>Team</th>
+                                        <th>Driver Pos</th>
+                                        <th>Driver Pts</th>
+                                        <th>Team Pos</th>
+                                        <th>Team Pts</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($seasonWinStatistics as $statistic)
+                                        <tr>
+                                            <td>{{ $statistic['wins'] }}</td>
+                                            <td>{{ $statistic['races'] }}</td>
+                                            <td>{{ $statistic['year'] }}</td>
+                                            <td>
+                                                <a href="{{ route('driver.single', $statistic['driver']) }}" class="text-decoration-none text-reset">
+                                                    <x-driver-name :driver="$statistic['driver']" :compact="true" />
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <a href="{{ route('team.single', $statistic['team']) }}" class="d-inline-flex align-items-center gap-1 text-nowrap text-decoration-none text-reset">
+                                                    @if($statistic['team']->country?->flag_icon_url)
+                                                        <span style="width:20px;height:20px;padding:2px;border:1px solid #ccc;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;">
+                                                            <img src="{{ $statistic['team']->country->flag_icon_url }}" alt="{{ $statistic['team']->country->name }}" title="{{ $statistic['team']->country->name }}" width="14" height="10" style="object-fit:cover;" loading="lazy">
+                                                        </span>
+                                                    @endif
+                                                    <span>{{ $statistic['team']->name }}</span>
+                                                </a>
+                                            </td>
+                                            <td>{{ $statistic['finalPosition'] }}</td>
+                                            <td>{{ $statistic['driverPoints'] }}</td>
+                                            <td>{{ $statistic['teamPosition'] ?? '—' }}</td>
+                                            <td>{{ $statistic['teamPoints'] ?? '—' }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr><td colspan="9" class="text-center text-muted py-4">Nessuna vittoria disponibile.</td></tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -267,6 +320,20 @@
                     info: 'Visualizzati _START_–_END_ di _TOTAL_ circuiti',
                     infoEmpty: 'Nessun circuito disponibile.',
                     lengthMenu: 'Mostra _MENU_ circuiti',
+                },
+            });
+
+            $('#season-wins-stats-table').DataTable({
+                order: [[0, 'desc'], [3, 'asc']],
+                columnDefs: [
+                    { targets: [0, 1, 2, 5, 6, 7, 8], className: 'text-center' },
+                ],
+                language: {
+                    search: 'Cerca:',
+                    zeroRecords: 'Nessuna stagione trovata.',
+                    info: 'Visualizzate _START_–_END_ di _TOTAL_ stagioni',
+                    infoEmpty: 'Nessuna stagione disponibile.',
+                    lengthMenu: 'Mostra _MENU_ stagioni',
                 },
             });
 

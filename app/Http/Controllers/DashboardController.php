@@ -1071,7 +1071,90 @@ class DashboardController extends Controller
             })
             ->values();
 
-        return view('global-stats', compact('driverStatistics', 'teamStatistics', 'circuitStatistics'));
+        $seasonRaceCounts = RaceCircuit::query()
+            ->join('edition_circuit', 'race_circuit.edition_circuit_id', '=', 'edition_circuit.id')
+            ->select('edition_circuit.edition_id')
+            ->selectRaw('COUNT(DISTINCT race_circuit.edition_circuit_id) as races_count')
+            ->groupBy('edition_circuit.edition_id')
+            ->pluck('races_count', 'edition_id');
+
+        $seasonWinCounts = RaceCircuit::query()
+            ->join('driver_team', 'race_circuit.driver_team_id', '=', 'driver_team.id')
+            ->join('edition_circuit', 'race_circuit.edition_circuit_id', '=', 'edition_circuit.id')
+            ->where('race_circuit.position', 1)
+            ->select('edition_circuit.edition_id', 'driver_team.driver_id')
+            ->selectRaw('COUNT(*) as wins_count')
+            ->groupBy('edition_circuit.edition_id', 'driver_team.driver_id')
+            ->get()
+            ->keyBy(fn ($result) => $result->edition_id.'|'.$result->driver_id);
+
+        $seasonWinStatistics = Edition::query()
+            ->whereIn('id', $seasonWinCounts->pluck('edition_id')->unique())
+            ->with([
+                'rankingDrivers.driver.country',
+                'rankingDrivers.team.country',
+                'rankingTeams.team',
+            ])
+            ->get()
+            ->flatMap(function (Edition $edition) use ($seasonRaceCounts, $seasonWinCounts) {
+                $standings = $edition->rankingDrivers
+                    ->sort(function ($left, $right) {
+                        $pointsComparison = (float) $right->points <=> (float) $left->points;
+
+                        return $pointsComparison !== 0
+                            ? $pointsComparison
+                            : strnatcasecmp($left->driver?->name ?? '', $right->driver?->name ?? '');
+                    })
+                    ->values();
+
+                $teamPositions = $edition->rankingTeams
+                    ->sort(function ($left, $right) {
+                        $pointsComparison = (float) $right->points <=> (float) $left->points;
+
+                        return $pointsComparison !== 0
+                            ? $pointsComparison
+                            : strnatcasecmp($left->team?->name ?? '', $right->team?->name ?? '');
+                    })
+                    ->values()
+                    ->mapWithKeys(fn ($rankingTeam, int $index) => [$rankingTeam->team_id => $index + 1]);
+
+                return $standings
+                    ->take(3)
+                    ->map(function ($rankingDriver, int $index) use ($edition, $seasonRaceCounts, $seasonWinCounts, $teamPositions) {
+                        $wins = (int) ($seasonWinCounts->get($edition->id.'|'.$rankingDriver->driver_id)?->wins_count ?? 0);
+
+                        if ($wins === 0 || ! $rankingDriver->driver || ! $rankingDriver->team) {
+                            return null;
+                        }
+
+                        return [
+                            'wins' => $wins,
+                            'races' => (int) $seasonRaceCounts->get($edition->id, 0),
+                            'year' => (int) $edition->year,
+                            'driver' => $rankingDriver->driver,
+                            'team' => $rankingDriver->team,
+                            'finalPosition' => $index + 1,
+                            'driverPoints' => $rankingDriver->points,
+                            'teamPosition' => $teamPositions->get($rankingDriver->team_id),
+                            'teamPoints' => $edition->rankingTeams
+                                ->firstWhere('team_id', $rankingDriver->team_id)?->points,
+                        ];
+                    })
+                    ->filter();
+            })
+            ->sort(function (array $left, array $right) {
+                return ($right['wins'] <=> $left['wins'])
+                    ?: strnatcasecmp($left['driver']->name, $right['driver']->name)
+                    ?: ($right['year'] <=> $left['year']);
+            })
+            ->values();
+
+        return view('global-stats', compact(
+            'driverStatistics',
+            'teamStatistics',
+            'circuitStatistics',
+            'seasonWinStatistics'
+        ));
     }
 
     public function circuit(Circuit $circuit): View
