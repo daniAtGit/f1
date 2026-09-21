@@ -353,6 +353,11 @@
                         this.querySelector('#teamTitle').style.background = button.getAttribute('data-ranking-team-color');;
                     });
 
+                document.getElementById('modalRankingTeams')
+                    .addEventListener('shown.bs.modal', function () {
+                        this.querySelector('#rankingTeamPts').focus();
+                    });
+
                 document.getElementById('modalRankingDrivers')
                     .addEventListener('show.bs.modal', function (event) {
                         const button = event.relatedTarget;
@@ -361,6 +366,11 @@
                         this.querySelector('#rankingDriverTeam').value = button.getAttribute('data-ranking-team-name');
                         this.querySelector('#rankingDriverPts').value = button.getAttribute('data-ranking-driver-pts');
                         this.querySelector('#driverTeamTitle').style.background = button.getAttribute('data-ranking-team-color');
+                    });
+
+                document.getElementById('modalRankingDrivers')
+                    .addEventListener('shown.bs.modal', function () {
+                        this.querySelector('#rankingDriverPts').focus();
                     });
 
                 document.getElementById('modalRankingDriversDelete')
