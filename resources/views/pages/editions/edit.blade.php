@@ -303,13 +303,13 @@
                             "width": "200px",
                         },
                         {
-                            "targets": 1,
+                            "targets": 2,
                             "width": "20px",
                             "className": 'dt-center',
                         },
                         {
                             "targets": -1,
-                            "width": "30px",
+                            "width": "90px",
                             "className": 'dt-center',
                             'orderable': false
                         },
@@ -499,22 +499,59 @@
                     );
                 });
 
-                $('#team_id').on('change', function(){
-                    $.post(
+                function loadDriverTeamCars(teamId, carSelect, selectedCarId = null) {
+                    carSelect.prop('disabled', true);
+
+                    return $.post(
                         "{{route('editions.driver.team.cars')}}",
                         {
                             _token: '{{csrf_token()}}',
-                            team_id: $('#team_id').val(),
-                            edition_id: $('#team_id').closest('form').find('[name="edition_id"]').val()
+                            team_id: teamId,
+                            edition_id: '{{$edition->id}}'
                         },
                         function (data) {
-                            $('#car_id').empty();
-                            $('#car_id').append('<option value="" disabled>Car</option>');
+                            carSelect.empty().append('<option value="">Car</option>');
+
                             data.forEach(function (dt) {
-                                $('#car_id').append('<option value="'+dt.id+'"'+(dt.is_edition_car ? ' selected' : '')+'>'+dt.name+'</option>');
+                                carSelect.append(new Option(dt.name, dt.id));
                             });
+
+                            if (selectedCarId !== null) {
+                                const selectedCarExists = data.some(function (dt) {
+                                    return String(dt.id) === String(selectedCarId);
+                                });
+
+                                carSelect.val(selectedCarExists ? selectedCarId : '');
+                                return;
+                            }
+
+                            const editionCar = data.find(function (dt) {
+                                return Boolean(dt.is_edition_car);
+                            });
+
+                            carSelect.val(editionCar ? editionCar.id : '');
                         }
-                    );
+                    ).always(function () {
+                        carSelect.prop('disabled', false);
+                    });
+                }
+
+                $('#team_id').on('change', function(){
+                    loadDriverTeamCars($(this).val(), $('#car_id'));
+                });
+
+                document.getElementById('modalDriverTeamEdit').addEventListener('show.bs.modal', function (event) {
+                    const button = event.relatedTarget;
+                    const teamId = button.getAttribute('data-team-id');
+                    const selectedCarId = button.getAttribute('data-car-id');
+
+                    $('#edit_driver_team_id').val(button.getAttribute('data-driver-team-id'));
+                    $('#edit_team_name').text(button.getAttribute('data-team-name'));
+                    $('#edit_team_badge').css('background-color', button.getAttribute('data-team-color'));
+                    $('#edit_driver_name').val(button.getAttribute('data-driver-name'));
+                    $('#edit_number').val(button.getAttribute('data-number'));
+
+                    loadDriverTeamCars(teamId, $('#edit_car_id'), selectedCarId);
                 });
             });
         </script>

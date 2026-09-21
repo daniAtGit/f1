@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::post('editions-show', [EditionsController::class, 'show'])->name('editions.show');
 
     Route::post('editions-driver-team-create', [EditionsController::class, 'driverTeamCreate'])->name('editions.driver.team.create');
+    Route::post('editions-driver-team-update', [EditionsController::class, 'driverTeamUpdate'])->name('editions.driver.team.update');
     Route::post('editions-driver-team-cars', [EditionsController::class, 'driverTeamCars'])->name('editions.driver.team.cars');
     Route::post('editions-driver-team-delete', [EditionsController::class, 'driverTeamDelete'])->name('editions.driver.team.delete');
     Route::post('editions-circuit-create', [EditionsController::class, 'circuitCreate'])->name('editions.circuit.create');

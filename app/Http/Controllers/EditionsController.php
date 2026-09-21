@@ -67,6 +67,7 @@ class EditionsController extends Controller
             'driversTeams.driver',
             'driversTeams.driver.country',
             'driversTeams.team',
+            'driversTeams.car.edition',
             'circuits',
             'circuits.circuit.country',
             'circuits.videos',
@@ -172,6 +173,37 @@ class EditionsController extends Controller
             ];
         }
         return $cars;
+    }
+
+    public function driverTeamUpdate(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'edition_id' => ['required', 'exists:editions,id'],
+            'driver_team_id' => ['required', 'exists:driver_team,id'],
+            'car_id' => ['nullable', 'exists:cars,id'],
+            'number' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        $driverTeam = DriverTeam::query()
+            ->whereKey($validated['driver_team_id'])
+            ->where('edition_id', $validated['edition_id'])
+            ->firstOrFail();
+
+        if (! empty($validated['car_id'])) {
+            Team::findOrFail($driverTeam->team_id)
+                ->cars()
+                ->findOrFail($validated['car_id']);
+        }
+
+        $driverTeam->update([
+            'car_id' => $validated['car_id'] ?? null,
+            'number' => $validated['number'] ?? null,
+        ]);
+
+        return redirect()->route('editions.edit', [
+            'edition' => $driverTeam->edition_id,
+            'tab' => 'teams_drivers',
+        ]);
     }
 
     public function driverTeamDelete(Request $request): RedirectResponse
