@@ -176,6 +176,7 @@
                                     <tr>
                                         <th>Victories</th>
                                         <th>Races</th>
+                                        <th>%</th>
                                         <th>Year</th>
                                         <th>Driver</th>
                                         <th>Team</th>
@@ -190,6 +191,7 @@
                                         <tr>
                                             <td>{{ $statistic['wins'] }}</td>
                                             <td>{{ $statistic['races'] }}</td>
+                                            <td data-order="{{ $statistic['winPercentage'] }}">{{ number_format($statistic['winPercentage'], 2, ',', '.') }}</td>
                                             <td>{{ $statistic['year'] }}</td>
                                             <td>
                                                 <a href="{{ route('driver.single', $statistic['driver']) }}" class="text-decoration-none text-reset">
@@ -212,7 +214,7 @@
                                             <td>{{ $statistic['teamPoints'] ?? '—' }}</td>
                                         </tr>
                                     @empty
-                                        <tr><td colspan="9" class="text-center text-muted py-4">Nessuna vittoria disponibile.</td></tr>
+                                        <tr><td colspan="10" class="text-center text-muted py-4">Nessuna vittoria disponibile.</td></tr>
                                     @endforelse
                                 </tbody>
                             </table>
@@ -324,9 +326,9 @@
             });
 
             $('#season-wins-stats-table').DataTable({
-                order: [[0, 'desc'], [3, 'asc']],
+                order: [[0, 'desc'], [4, 'asc']],
                 columnDefs: [
-                    { targets: [0, 1, 2, 5, 6, 7, 8], className: 'text-center' },
+                    { targets: [0, 1, 2, 3, 6, 7, 8, 9], className: 'text-center' },
                 ],
                 language: {
                     search: 'Cerca:',

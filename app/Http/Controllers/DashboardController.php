@@ -1122,6 +1122,7 @@ class DashboardController extends Controller
                     ->take(3)
                     ->map(function ($rankingDriver, int $index) use ($edition, $seasonRaceCounts, $seasonWinCounts, $teamPositions) {
                         $wins = (int) ($seasonWinCounts->get($edition->id.'|'.$rankingDriver->driver_id)?->wins_count ?? 0);
+                        $races = (int) $seasonRaceCounts->get($edition->id, 0);
 
                         if ($wins === 0 || ! $rankingDriver->driver || ! $rankingDriver->team) {
                             return null;
@@ -1129,7 +1130,8 @@ class DashboardController extends Controller
 
                         return [
                             'wins' => $wins,
-                            'races' => (int) $seasonRaceCounts->get($edition->id, 0),
+                            'races' => $races,
+                            'winPercentage' => $races > 0 ? ($wins / $races) * 100 : 0,
                             'year' => (int) $edition->year,
                             'driver' => $rankingDriver->driver,
                             'team' => $rankingDriver->team,
