@@ -168,6 +168,22 @@
                             'points' => $item['points'],
                         ];
                     });
+
+                    $chartSegments = collect();
+                    $currentSegment = collect();
+
+                    foreach ($chartPoints as $point) {
+                        if ($currentSegment->isNotEmpty() && $point['year'] > $currentSegment->last()['year'] + 1) {
+                            $chartSegments->push($currentSegment);
+                            $currentSegment = collect();
+                        }
+
+                        $currentSegment->push($point);
+                    }
+
+                    if ($currentSegment->isNotEmpty()) {
+                        $chartSegments->push($currentSegment);
+                    }
                 @endphp
 
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-4">
@@ -191,12 +207,16 @@
                                         <text x="{{ $paddingLeft - 4 }}" y="{{ $tickY + 4 }}" text-anchor="end" font-size="9" fill="#777">{{ $hasNonFinish && $tick === $maxPosition ? 'NC' : $tick }}</text>
                                     @endforeach
 
-                                    <polyline
-                                        fill="none"
-                                        stroke="#0d6efd"
-                                        stroke-width="2.5"
-                                        points="{{ $chartPoints->map(fn ($point) => $point['x'].','.$point['y'])->implode(' ') }}"
-                                    />
+                                    @foreach($chartSegments as $segment)
+                                        @if($segment->count() > 1)
+                                            <polyline
+                                                fill="none"
+                                                stroke="#0d6efd"
+                                                stroke-width="2.5"
+                                                points="{{ $segment->map(fn ($point) => $point['x'].','.$point['y'])->implode(' ') }}"
+                                            />
+                                        @endif
+                                    @endforeach
 
                                     @foreach($chartPoints as $point)
                                         <circle cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="4" fill="#0d6efd" />
