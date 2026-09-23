@@ -148,7 +148,19 @@
                                                                 <span>{{ $video['title'] ?: 'Video' }}</span>
                                                             </a>
                                                         @empty
-                                                            <div class="text-muted small">No related videos.</div>
+                                                            @if($circuit['gridResults']->isNotEmpty() && $circuit['raceResults']->isNotEmpty())
+                                                                <a
+                                                                    href="https://www.youtube.com/results?search_query={{ urlencode('F1 ' . $circuit['circuitName'] . ' ' . $edition->year) }}"
+                                                                    target="_blank"
+                                                                    rel="noopener"
+                                                                    class="btn btn-sm btn-outline-danger d-inline-flex align-items-center justify-content-center gap-2"
+                                                                >
+                                                                    <i class="fa fa-youtube"></i>
+                                                                    <span>Search on YouTube</span>
+                                                                </a>
+                                                            @else
+                                                                <div class="text-muted small">No related videos.</div>
+                                                            @endif
                                                         @endforelse
                                                     </div>
                                                 </div>
