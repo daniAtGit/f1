@@ -83,8 +83,6 @@
                                         data-bs-target="#modalDriverTeamEdit"
                                         data-driver-team-id="{{$driverTeam->id}}"
                                         data-team-id="{{$driverTeam->team_id}}"
-                                        data-team-name="{{$driverTeam->team->name}}"
-                                        data-team-color="{{$driverTeam->team->color}}"
                                         data-car-id="{{$driverTeam->car_id}}"
                                         data-driver-name="{{$driverTeam->driver->name}}"
                                         data-number="{{$driverTeam->number}}">
@@ -130,13 +128,12 @@
 
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Team</label>
-                        <div>
-                            <span id="edit_team_badge" class="badge d-block p-2 text-start">
-                                <i class="fa fa-car-side"></i>
-                                <span id="edit_team_name"></span>
-                            </span>
-                        </div>
+                        <label for="edit_team_id" class="form-label">Team</label>
+                        <select name="team_id" id="edit_team_id" class="form-control" required>
+                            @foreach($teams as $team)
+                                <option value="{{$team->id}}">{{$team->name}}</option>
+                            @endforeach
+                        </select>
                     </div>
 
                     <div class="mb-3">

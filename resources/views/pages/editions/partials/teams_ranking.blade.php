@@ -13,6 +13,22 @@
                     <i class="fa fa-list-ul"></i> Create
                 </button>
             </form>
+        @elseif($rankingTeamsAdd->isNotEmpty())
+            <form method="post" action="{{route('editions.ranking.teams.add')}}">
+                @csrf
+                <input type="hidden" name="edition_id_add" value="{{$edition->id}}">
+
+                <select name="team_id_add" id="ranking_team_id_add" required>
+                    <option value="" disabled selected>Team</option>
+                    @foreach($rankingTeamsAdd as $teamAdd)
+                        <option value="{{$teamAdd->team->id}}">{{$teamAdd->team->name}}</option>
+                    @endforeach
+                </select>
+
+                <button type="submit" class="btn btn-outline-primary">
+                    <i class="fa fa-floppy-disk"></i> Add
+                </button>
+            </form>
         @endif
     </div>
 
@@ -46,16 +62,26 @@
                             </div>
                         </td>
                         <td>
-                            <button type="button"
-                                    class="btn btn-sm btn-outline-primary"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalRankingTeams"
-                                    data-ranking-team-id="{{ $team->id }}"
-                                    data-ranking-team-name="{{ $team->team->name }}"
-                                    data-ranking-team-pts="{{ $team->points }}"
-                                    data-ranking-team-color="{{ $team->team->color }}">
-                                <i class="fa fa-edit"></i>
-                            </button>
+                            <div class="d-flex gap-2">
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalRankingTeams"
+                                        data-ranking-team-id="{{ $team->id }}"
+                                        data-ranking-team-name="{{ $team->team->name }}"
+                                        data-ranking-team-pts="{{ $team->points }}"
+                                        data-ranking-team-color="{{ $team->team->color }}">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+
+                                <form method="post" action="{{route('editions.ranking.team.delete')}}" onsubmit="return confirm('Remove {{ addslashes($team->team->name) }} from the team ranking?');">
+                                    @csrf
+                                    <input type="hidden" name="ranking_team_id" value="{{$team->id}}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Remove from ranking">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 @endforeach

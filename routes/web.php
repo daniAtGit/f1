@@ -49,7 +49,9 @@ Route::middleware('auth')->group(function () {
     Route::post('editions-circuit-update', [EditionsController::class, 'circuitUpdate'])->name('editions.circuit.update');
 
     Route::post('editions-ranking-team-create', [EditionsController::class, 'rankingTeamsCreate'])->name('editions.ranking.teams.create');
+    Route::post('editions-ranking-team-add', [EditionsController::class, 'rankingTeamsAdd'])->name('editions.ranking.teams.add');
     Route::post('editions-ranking-team-update', [EditionsController::class, 'rankingTeamUpdate'])->name('editions.ranking.team.update');
+    Route::post('editions-ranking-team-delete', [EditionsController::class, 'rankingTeamDelete'])->name('editions.ranking.team.delete');
 
     Route::post('editions-ranking-driver-create', [EditionsController::class, 'rankingDriversCreate'])->name('editions.ranking.drivers.create');
     Route::post('editions-ranking-driver-add', [EditionsController::class, 'rankingDriversAdd'])->name('editions.ranking.drivers.add');

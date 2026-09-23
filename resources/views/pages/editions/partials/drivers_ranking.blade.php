@@ -20,7 +20,7 @@
 
                 <select name="team_id_add" id="team_id_add">
                     <option value="" disabled selected>Team</option>
-                        @foreach($rankingDriversAdd as $driverAdd)
+                        @foreach($rankingDriverTeams as $driverAdd)
                             <option value="{{$driverAdd->team->id}}">{{$driverAdd->team->name}}</option>
                         @endforeach
                 </select>

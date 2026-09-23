@@ -78,7 +78,6 @@ class EditionsController extends Controller
 
         $driverTeamsById = $edition->driversTeams->keyBy('id');
         $driversById = $edition->driversTeams->pluck('driver')->keyBy('id');
-        $teamsById = $edition->driversTeams->pluck('team')->keyBy('id');
 
         $edition->circuits->each(function ($editionCircuit) use ($driverTeamsById) {
             foreach (['grid', 'race', 'sprint'] as $relation) {
@@ -91,6 +90,7 @@ class EditionsController extends Controller
 
         $drivers = Driver::all()->sortBy('name');
         $teams = Team::all()->sortBy('name');
+        $teamsById = $teams->keyBy('id');
         $circuits = Circuit::all()->load('country')->sortBy('country.name');
 
         $rankingTeams = RankingTeam::where('edition_id', $edition->id)->get();
@@ -98,17 +98,28 @@ class EditionsController extends Controller
             'team',
             $teamsById->get($rankingTeam->team_id)
         ));
+        $rankingTeamsAdd = $edition->driversTeams
+            ->unique('team_id')
+            ->reject(fn (DriverTeam $driverTeam) => $rankingTeams->contains('team_id', $driverTeam->team_id))
+            ->sortBy('team.name')
+            ->values();
 
         $rankingDrivers = RankingDriver::where('edition_id', $edition->id)->get();
         $rankingDrivers->each(function ($rankingDriver) use ($driversById, $teamsById) {
             $rankingDriver->setRelation('driver', $driversById->get($rankingDriver->driver_id));
             $rankingDriver->setRelation('team', $teamsById->get($rankingDriver->team_id));
         });
-        $rankingDriversAdd = $edition->driversTeams;
+        $rankingDriversAdd = $edition->driversTeams
+            ->sortBy('driver.name')
+            ->values();
+        $rankingDriverTeams = $edition->driversTeams
+            ->unique('team_id')
+            ->sortBy('team.name')
+            ->values();
 
         //dd($rankingDrivers, $rankingDriversAdd);
 
-        return view('pages.editions.edit', compact('edition', 'drivers', 'teams', 'circuits','rankingTeams','rankingDrivers','rankingDriversAdd'));
+        return view('pages.editions.edit', compact('edition', 'drivers', 'teams', 'circuits','rankingTeams','rankingTeamsAdd','rankingDrivers','rankingDriversAdd','rankingDriverTeams'));
     }
 
     public function update(Request $request, Edition $edition): RedirectResponse
@@ -180,6 +191,7 @@ class EditionsController extends Controller
         $validated = $request->validate([
             'edition_id' => ['required', 'exists:editions,id'],
             'driver_team_id' => ['required', 'exists:driver_team,id'],
+            'team_id' => ['required', 'exists:teams,id'],
             'car_id' => ['nullable', 'exists:cars,id'],
             'number' => ['nullable', 'integer', 'min:1'],
         ]);
@@ -190,12 +202,13 @@ class EditionsController extends Controller
             ->firstOrFail();
 
         if (! empty($validated['car_id'])) {
-            Team::findOrFail($driverTeam->team_id)
+            Team::findOrFail($validated['team_id'])
                 ->cars()
                 ->findOrFail($validated['car_id']);
         }
 
         $driverTeam->update([
+            'team_id' => $validated['team_id'],
             'car_id' => $validated['car_id'] ?? null,
             'number' => $validated['number'] ?? null,
         ]);
@@ -469,6 +482,33 @@ class EditionsController extends Controller
         ]);
     }
 
+    public function rankingTeamsAdd(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'edition_id_add' => ['required', 'exists:editions,id'],
+            'team_id_add' => ['required', 'exists:teams,id'],
+        ]);
+
+        $edition = Edition::findOrFail($validated['edition_id_add']);
+
+        abort_unless(
+            $edition->driversTeams()->where('team_id', $validated['team_id_add'])->exists(),
+            422
+        );
+
+        RankingTeam::firstOrCreate([
+            'edition_id' => $edition->id,
+            'team_id' => $validated['team_id_add'],
+        ], [
+            'points' => 0,
+        ]);
+
+        return redirect()->route('editions.edit', [
+            'edition' => $edition,
+            'tab' => 'teams_ranking',
+        ]);
+    }
+
     public function rankingTeamUpdate(Request $request)
     {
         $rankingTeam = RankingTeam::find($request->ranking_team_id);
@@ -478,6 +518,22 @@ class EditionsController extends Controller
         return redirect()->route('editions.edit', [
             'edition' => $rankingTeam->edition_id,
             'tab' => 'teams_ranking'
+        ]);
+    }
+
+    public function rankingTeamDelete(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'ranking_team_id' => ['required', 'exists:ranking_team,id'],
+        ]);
+
+        $rankingTeam = RankingTeam::findOrFail($validated['ranking_team_id']);
+        $editionId = $rankingTeam->edition_id;
+        $rankingTeam->delete();
+
+        return redirect()->route('editions.edit', [
+            'edition' => $editionId,
+            'tab' => 'teams_ranking',
         ]);
     }
 

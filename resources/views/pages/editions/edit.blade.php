@@ -540,14 +540,17 @@
                     loadDriverTeamCars($(this).val(), $('#car_id'));
                 });
 
+                $('#edit_team_id').on('change', function(){
+                    loadDriverTeamCars($(this).val(), $('#edit_car_id'));
+                });
+
                 document.getElementById('modalDriverTeamEdit').addEventListener('show.bs.modal', function (event) {
                     const button = event.relatedTarget;
                     const teamId = button.getAttribute('data-team-id');
                     const selectedCarId = button.getAttribute('data-car-id');
 
                     $('#edit_driver_team_id').val(button.getAttribute('data-driver-team-id'));
-                    $('#edit_team_name').text(button.getAttribute('data-team-name'));
-                    $('#edit_team_badge').css('background-color', button.getAttribute('data-team-color'));
+                    $('#edit_team_id').val(teamId);
                     $('#edit_driver_name').val(button.getAttribute('data-driver-name'));
                     $('#edit_number').val(button.getAttribute('data-number'));
 
