@@ -267,11 +267,11 @@
                     { targets: [0, 2, 3, 4, 5, 6], className: 'text-center' },
                 ],
                 language: {
-                    search: 'Cerca:',
-                    zeroRecords: 'Nessun pilota con titoli.',
-                    info: 'Visualizzati _START_–_END_ di _TOTAL_ piloti',
-                    infoEmpty: 'Nessun pilota con titoli.',
-                    lengthMenu: 'Mostra _MENU_ piloti',
+                    search: 'Search:',
+                    zeroRecords: 'No drivers with titles found.',
+                    info: 'Showing _START_–_END_ of _TOTAL_ drivers',
+                    infoEmpty: 'No drivers with titles found.',
+                    lengthMenu: 'Show _MENU_ drivers',
                 },
             });
 
@@ -297,11 +297,11 @@
                     { targets: [0, 2, 3, 4, 5, 6], className: 'text-center' },
                 ],
                 language: {
-                    search: 'Cerca:',
-                    zeroRecords: 'Nessun team con titoli.',
-                    info: 'Visualizzati _START_–_END_ di _TOTAL_ team',
-                    infoEmpty: 'Nessun team con titoli.',
-                    lengthMenu: 'Mostra _MENU_ team',
+                    search: 'Search:',
+                    zeroRecords: 'No teams with titles found.',
+                    info: 'Showing _START_–_END_ of _TOTAL_ teams',
+                    infoEmpty: 'No teams with titles found.',
+                    lengthMenu: 'Show _MENU_ teams',
                 },
             });
 
@@ -317,11 +317,11 @@
                     { targets: 0, className: 'text-center' },
                 ],
                 language: {
-                    search: 'Cerca:',
-                    zeroRecords: 'Nessun circuito trovato.',
-                    info: 'Visualizzati _START_–_END_ di _TOTAL_ circuiti',
-                    infoEmpty: 'Nessun circuito disponibile.',
-                    lengthMenu: 'Mostra _MENU_ circuiti',
+                    search: 'Search:',
+                    zeroRecords: 'No circuits found.',
+                    info: 'Showing _START_–_END_ of _TOTAL_ circuits',
+                    infoEmpty: 'No circuits available.',
+                    lengthMenu: 'Show _MENU_ circuits',
                 },
             });
 
@@ -331,11 +331,11 @@
                     { targets: [0, 1, 2, 3, 6, 7, 8, 9], className: 'text-center' },
                 ],
                 language: {
-                    search: 'Cerca:',
-                    zeroRecords: 'Nessuna stagione trovata.',
-                    info: 'Visualizzate _START_–_END_ di _TOTAL_ stagioni',
-                    infoEmpty: 'Nessuna stagione disponibile.',
-                    lengthMenu: 'Mostra _MENU_ stagioni',
+                    search: 'Search:',
+                    zeroRecords: 'No seasons found.',
+                    info: 'Showing _START_–_END_ of _TOTAL_ seasons',
+                    infoEmpty: 'No seasons available.',
+                    lengthMenu: 'Show _MENU_ seasons',
                 },
             });
 

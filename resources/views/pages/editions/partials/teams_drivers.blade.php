@@ -30,7 +30,7 @@
                     </select>
                 </div>
                 <div class="col-1">
-                    <input type="number" name="number" class="form-control" placeholder="Number" min="1">
+                    <input type="number" name="number" class="form-control" placeholder="Number" min="0">
                 </div>
 
                 <div class="col-3">
@@ -150,7 +150,7 @@
 
                     <div class="mb-3">
                         <label for="edit_number" class="form-label">Number</label>
-                        <input type="number" name="number" id="edit_number" class="form-control" min="1">
+                        <input type="number" name="number" id="edit_number" class="form-control" min="0">
                     </div>
                 </div>
 

@@ -193,7 +193,7 @@ class EditionsController extends Controller
             'driver_team_id' => ['required', 'exists:driver_team,id'],
             'team_id' => ['required', 'exists:teams,id'],
             'car_id' => ['nullable', 'exists:cars,id'],
-            'number' => ['nullable', 'integer', 'min:1'],
+            'number' => ['nullable', 'integer', 'min:0'],
         ]);
 
         $driverTeam = DriverTeam::query()
