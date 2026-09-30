@@ -65,6 +65,7 @@ class Country extends Model
             'TUR' => 'tr',
             'USA' => 'us',
             'VEN' => 've',
+            'ZAF' => 'za',
         ];
 
         $iso2 = $iso2ByAcronym[strtoupper((string) $this->acronym)] ?? null;
