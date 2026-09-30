@@ -5,7 +5,8 @@
 </head>
 <body class="antialiased bg-light">
     @if (Route::has('login'))
-        <div class="position-absolute top-0 end-0 p-3 p-md-4 d-flex gap-2">
+        <div class="position-absolute top-0 end-0 p-3 p-md-4 d-flex align-items-center gap-2">
+            <x-theme-toggle />
             @auth
                 <a href="{{ route('dashboard') }}" class="btn btn-sm btn-outline-dark">Dashboard</a>
             @else
@@ -234,13 +235,18 @@
 
         .stats-table.dataTable > thead > tr > th,
         .stats-table.dataTable > tbody > tr > td {
-            border-color: #dee2e6 !important;
+            border-color: var(--bs-table-border-color) !important;
         }
 
         #driver-stats-table_wrapper .dataTables_filter input,
         #team-stats-table_wrapper .dataTables_filter input {
-            border: 1px solid #ced4da !important;
+            border: 1px solid var(--bs-border-color) !important;
             border-radius: .375rem;
+        }
+
+        html.dark #driver-stats-table_wrapper .dataTables_filter input,
+        html.dark #team-stats-table_wrapper .dataTables_filter input {
+            border-color: #475569 !important;
         }
 
         @media (min-width: 768px) {

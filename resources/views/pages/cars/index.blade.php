@@ -43,7 +43,8 @@
                                     <td>
                                         {{$car->edition->edition}} - {{$car->edition->year}}
                                     </td>
-                                    <td>
+                                    <td class="text-nowrap">
+                                        <div class="d-inline-flex flex-nowrap gap-1">
                                         <a href="https://www.google.com/search?q={{$car->team->name}}+{{$car->name}}" class="btn btn-sm btn-outline-info" target="_blank">
                                             <i class="fa-solid fa-eye"></i>
                                         </a>
@@ -54,6 +55,7 @@
                                         <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalDelete{{$i}}">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach

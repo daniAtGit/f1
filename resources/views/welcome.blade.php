@@ -5,7 +5,8 @@
     </head>
     <body class="antialiased bg-light">
         @if (Route::has('login'))
-            <div class="position-absolute top-0 end-0 p-3 p-md-4 d-flex gap-2">
+            <div class="position-absolute top-0 end-0 p-3 p-md-4 d-flex align-items-center gap-2">
+                <x-theme-toggle />
                 @auth
                     <a href="{{ route('dashboard') }}" class="btn btn-sm btn-outline-dark">Dashboard</a>
                 @else

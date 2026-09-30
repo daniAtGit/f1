@@ -1,3 +1,208 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+    color-scheme: light;
+}
+
+html.dark {
+    color-scheme: dark;
+}
+
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    margin-right: .5rem;
+    color: #475569;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: .375rem;
+    transition: color .15s ease, background-color .15s ease, border-color .15s ease;
+}
+
+.theme-toggle:hover,
+.theme-toggle:focus-visible {
+    color: #1e293b;
+    background: #f1f5f9;
+    border-color: #e2e8f0;
+    outline: none;
+}
+
+.theme-toggle svg {
+    width: 1.2rem;
+    height: 1.2rem;
+}
+
+.theme-toggle__moon,
+html.dark .theme-toggle__sun {
+    display: none;
+}
+
+html.dark .theme-toggle__moon {
+    display: block;
+}
+
+html.dark body,
+html.dark .bg-light,
+html.dark .bg-gray-100 {
+    color: #e2e8f0;
+    background-color: #0f172a !important;
+}
+
+html.dark nav,
+html.dark header,
+html.dark .bg-white,
+html.dark .card,
+html.dark .modal-content,
+html.dark .dropdown-menu,
+html.dark .input-group-text,
+html.dark .form-select,
+html.dark .form-control {
+    color: #e2e8f0 !important;
+    background-color: #1e293b !important;
+}
+
+html.dark nav,
+html.dark header,
+html.dark .border-b,
+html.dark .border,
+html.dark .border-t,
+html.dark .table,
+html.dark .table > :not(caption) > * > * {
+    border-color: #334155 !important;
+}
+
+html.dark .text-gray-900,
+html.dark .text-gray-800,
+html.dark .text-gray-700,
+html.dark .text-gray-600,
+html.dark .text-dark,
+html.dark .text-body,
+html.dark .form-label,
+html.dark .table {
+    color: #e2e8f0 !important;
+}
+
+/* Breeze inputs use Tailwind utilities instead of Bootstrap's form-control. */
+html.dark input.border-gray-300,
+html.dark textarea.border-gray-300 {
+    color: #e2e8f0;
+    background-color: #1e293b;
+    border-color: #475569;
+}
+
+html.dark input.border-gray-300::placeholder,
+html.dark textarea.border-gray-300::placeholder {
+    color: #94a3b8;
+}
+
+html.dark input.border-gray-300:focus,
+html.dark textarea.border-gray-300:focus {
+    color: #f8fafc;
+    background-color: #1e293b;
+    border-color: #818cf8;
+}
+
+html.dark .text-gray-500,
+html.dark .text-gray-400,
+html.dark .text-muted,
+html.dark .form-text {
+    color: #94a3b8 !important;
+}
+
+html.dark .table-striped > tbody > tr:nth-of-type(odd) > *,
+html.dark .table-hover > tbody > tr:hover > * {
+    color: #e2e8f0;
+    background-color: #273549;
+}
+
+/* Bootstrap tables render their cells through CSS variables. Set those variables
+   explicitly so tables created by DataTables do not retain their light theme. */
+html.dark .table {
+    --bs-table-color: #e2e8f0;
+    --bs-table-bg: #1e293b;
+    --bs-table-border-color: #334155;
+    --bs-table-striped-color: #e2e8f0;
+    --bs-table-striped-bg: #273549;
+    --bs-table-hover-color: #e2e8f0;
+    --bs-table-hover-bg: #273549;
+}
+
+html.dark .nav-tabs {
+    border-color: #334155;
+}
+
+html.dark .nav-tabs .nav-link {
+    color: #cbd5e1;
+}
+
+html.dark .nav-tabs .nav-link:hover,
+html.dark .nav-tabs .nav-link:focus {
+    color: #f8fafc;
+    border-color: #475569 #475569 #334155;
+}
+
+html.dark .nav-tabs .nav-link.active {
+    color: #f8fafc;
+    background-color: #1e293b;
+    border-color: #475569 #475569 #1e293b;
+}
+
+html.dark .dataTables_wrapper .dataTables_filter input,
+html.dark .dataTables_wrapper .dataTables_length select {
+    color: #e2e8f0;
+    background-color: #1e293b;
+    border-color: #475569;
+}
+
+html.dark .dataTables_wrapper .dataTables_filter input:focus,
+html.dark .dataTables_wrapper .dataTables_length select:focus {
+    color: #f8fafc;
+    background-color: #1e293b;
+    border-color: #94a3b8;
+    box-shadow: 0 0 0 .25rem rgba(148, 163, 184, .2);
+}
+
+html.dark .dataTables_wrapper .page-link {
+    color: #cbd5e1;
+    background-color: #1e293b;
+    border-color: #475569;
+}
+
+html.dark .dataTables_wrapper .page-item.active .page-link {
+    color: #0f172a;
+    background-color: #cbd5e1;
+    border-color: #cbd5e1;
+}
+
+html.dark .dataTables_wrapper .page-item.disabled .page-link {
+    color: #64748b;
+    background-color: #1e293b;
+    border-color: #334155;
+}
+
+html.dark .theme-toggle {
+    color: #cbd5e1;
+}
+
+html.dark .theme-toggle:hover,
+html.dark .theme-toggle:focus-visible {
+    color: #f8fafc;
+    background: #334155;
+    border-color: #475569;
+}
+
+html.dark .btn-outline-dark {
+    color: #e2e8f0;
+    border-color: #94a3b8;
+}
+
+html.dark .btn-outline-dark:hover {
+    color: #0f172a;
+    background-color: #e2e8f0;
+}

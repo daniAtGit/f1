@@ -47,7 +47,8 @@
                                             <i class="fa-brands fa-wikipedia-w text-secondary px-1" title="No Wikipedia"></i>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td class="text-nowrap">
+                                        <div class="d-inline-flex flex-nowrap gap-1">
                                         <a href="{{route('driver.single', $driver)}}" class="btn btn-sm btn-outline-info">
                                             <i class="fa-solid fa-eye"></i>
                                         </a>
@@ -58,6 +59,7 @@
                                         <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalDelete{{$i}}">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach

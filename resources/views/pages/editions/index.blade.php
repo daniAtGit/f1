@@ -61,7 +61,8 @@
                                             <i class="fa-brands fa-wikipedia-w text-secondary px-1" title="No Wikipedia"></i>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td class="text-nowrap">
+                                        <div class="d-inline-flex flex-nowrap gap-1">
                                         <button  type="button" class="btn btn-sm btn-outline-info offcanvasModal" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom" id="{{$edition->id}}">
                                             <i class="fa fa-eye"></i>
                                         </button>
@@ -73,6 +74,7 @@
                                         <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalDelete{{$i}}">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
