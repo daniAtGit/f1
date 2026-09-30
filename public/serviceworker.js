@@ -1,7 +1,7 @@
 var staticCacheName = "pwa-v" + new Date().getTime();
 var basePath = new URL('.', self.location).pathname;
 var filesToCache = [
-    basePath + 'offline',
+    basePath + 'offline.html',
     basePath + 'images/icons/icon-72x72.png',
     basePath + 'images/icons/icon-96x96.png',
     basePath + 'images/icons/icon-128x128.png',
@@ -45,7 +45,7 @@ self.addEventListener("fetch", event => {
                 return response || fetch(event.request);
             })
             .catch(() => {
-                return caches.match(basePath + 'offline');
+                return caches.match(basePath + 'offline.html');
             })
     )
 });
