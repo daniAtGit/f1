@@ -93,23 +93,26 @@
                                 |
                             @endforeach
                         </td>
-                        <td>
-                            <button class="offcanvasModal" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom" id="{{$editionCircuit->id}}">
-                                <i class="fa fa-eye text-info"></i>
-                            </button>
-                            |
-                            <a href="{{route('editions.circuit.edit', [$edition->id, $editionCircuit->id])}}">
-                                <i class="fa fa-edit text-primary"></i>
-                            </a>
-                            |
+                        <td class="text-nowrap">
+                            <div class="d-flex flex-nowrap align-items-center justify-content-center gap-2">
+                                <button class="btn btn-sm btn-outline-info offcanvasModal" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom" id="{{$editionCircuit->id}}" title="View">
+                                    <i class="fa fa-eye"></i>
+                                </button>
 
-                            @if($editionCircuit->sprint->count() ||$editionCircuit->grid->count() || $editionCircuit->race->count())
-                                <i class="fa-solid fa-trash text-secondary" title="Action not possible"></i>
-                            @else
-                                <a href="{{route('editions.circuit.delete', [$edition->id, $editionCircuit->id])}}">
-                                    <i class="fa-solid fa-trash text-danger"></i>
+                                <a href="{{route('editions.circuit.edit', [$edition->id, $editionCircuit->id])}}" class="btn btn-sm btn-outline-primary" title="Edit">
+                                    <i class="fa fa-edit"></i>
                                 </a>
-                            @endif
+
+                                @if($editionCircuit->sprint->count() || $editionCircuit->grid->count() || $editionCircuit->race->count())
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" title="Action not possible" disabled>
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                @else
+                                    <a href="{{route('editions.circuit.delete', [$edition->id, $editionCircuit->id])}}" class="btn btn-sm btn-outline-danger" title="Delete">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </a>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                 @endforeach

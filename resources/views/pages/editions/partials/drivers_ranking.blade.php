@@ -73,29 +73,31 @@
                             </div>
                         </td>
                         <td>
-                            <button type="button"
-                                    class="btn btn-sm btn-outline-primary"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalRankingDrivers"
-                                    data-ranking-driver-id="{{ $driver->id }}"
-                                    data-ranking-driver-name="{{ $driver->driver->name }}"
-                                    data-ranking-team-name="{{ $driver->team->name }}"
-                                    data-ranking-team-color="{{ $driver->team->color }}"
-                                    data-ranking-driver-pts="{{ $driver->points }}">
-                                <i class="fa fa-edit"></i>
-                            </button>
-                            |
-                            <button type="button"
-                                    class="btn btn-sm btn-outline-danger"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalRankingDriversDelete"
-                                    data-ranking-driver-id="{{ $driver->id }}"
-                                    data-ranking-driver-name="{{ $driver->driver->name }}"
-                                    data-ranking-team-name="{{ $driver->team->name }}"
-                                    data-ranking-team-color="{{ $driver->team->color }}"
-                                    data-ranking-driver-pts="{{ $driver->points }}">
-                                <i class="fa fa-trash"></i>
-                            </button>
+                            <div class="d-flex gap-2">
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-primary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalRankingDrivers"
+                                        data-ranking-driver-id="{{ $driver->id }}"
+                                        data-ranking-driver-name="{{ $driver->driver->name }}"
+                                        data-ranking-team-name="{{ $driver->team->name }}"
+                                        data-ranking-team-color="{{ $driver->team->color }}"
+                                        data-ranking-driver-pts="{{ $driver->points }}">
+                                    <i class="fa fa-edit"></i>
+                                </button>
+
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-danger"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalRankingDriversDelete"
+                                        data-ranking-driver-id="{{ $driver->id }}"
+                                        data-ranking-driver-name="{{ $driver->driver->name }}"
+                                        data-ranking-team-name="{{ $driver->team->name }}"
+                                        data-ranking-team-color="{{ $driver->team->color }}"
+                                        data-ranking-driver-pts="{{ $driver->points }}">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 @endforeach
