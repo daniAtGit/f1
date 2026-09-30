@@ -70,7 +70,7 @@ class Team extends Model
 
     private function getImgTeamFromWikimedia($cosa = null, $anno = null): ?string
     {
-        return Cache::remember("team-image:v3:{$this->id}", now()->addWeek(), function () {
+            return Cache::remember("team-image:v7:{$this->id}", now()->addWeek(), function () {
             $logoUrl = $this->getLogoFromWikidata();
             if (!empty($logoUrl)) {
                 return $logoUrl;
@@ -138,7 +138,7 @@ class Team extends Model
 
             $filename = data_get($claimsResponse->json(), 'claims.P154.0.mainsnak.datavalue.value');
 
-            return is_string($filename) && $filename !== ''
+            return is_string($filename) && $filename !== '' && $this->isTeamIdentityImageTitle('File:'.$filename)
                 ? $this->getWikimediaFileUrl($filename)
                 : null;
         } catch (\Throwable $e) {
@@ -313,18 +313,24 @@ class Team extends Model
             ' wheel ',
             ' on the side ',
             ' wearing ',
+            ' 812 ',
+            ' gts ',
+            ' stradale ',
+            ' portofino ',
+            ' purosangue ',
         ])->contains(fn (string $keyword) => str_contains(' '.$normalizedTitle.' ', $keyword));
 
         if ($describesVehicleOrPerson) {
             return false;
         }
 
-        $identityWords = collect(preg_split('/\s+/', $this->normalizedTeamName()) ?: [])
-            ->reject(fn (string $word) => in_array($word, ['f1', 'formula', 'one', 'team', 'racing', 'scuderia', 'grand', 'prix'], true))
+        $identityName = preg_replace('/^(rb|rbr)\s+/i', '', $this->normalizedTeamName());
+        $identityWords = collect(preg_split('/\s+/', $identityName) ?: [])
+            ->reject(fn (string $word) => in_array($word, ['f1', 'formula', 'one', 'team', 'racing', 'grand', 'prix'], true))
             ->filter(fn (string $word) => mb_strlen($word) >= 3);
 
         return $identityWords->isNotEmpty()
-            && $identityWords->contains(fn (string $word) => str_contains($normalizedTitle, $word));
+            && $identityWords->every(fn (string $word) => str_contains($normalizedTitle, $word));
     }
 
     private function titleMatchesTeamName(?string $title): bool

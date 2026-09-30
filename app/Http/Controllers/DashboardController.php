@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Car;
 use App\Models\Circuit;
 use App\Models\Driver;
 use App\Models\DriverTeam;
@@ -12,6 +13,7 @@ use App\Models\RaceCircuit;
 use App\Models\SprintCircuit;
 use App\Models\Team;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -737,6 +739,98 @@ class DashboardController extends Controller
             });
 
         return view('team', compact('team', 'teams', 'editions', 'edition', 'editionCar', 'editionPoints', 'editionPosition', 'championshipCount', 'teamRacesCount', 'teamPoleCount', 'teamPodiumCount', 'teamWinCount', 'teamSprintCount', 'editionRaceCount', 'editionPodiumCount', 'editionWinCount', 'resultsByYear', 'teamStandingsHistory', 'teamRaceRounds', 'teamRaceSeries', 'teamRaceMaxPosition', 'teamRunsInSelectedEdition'));
+    }
+
+    public function teamGallery(Team $team): View
+    {
+        $carsByEdition = $team->cars()
+            ->with('edition')
+            ->get()
+            ->groupBy('edition_id');
+
+        $galleryEditions = Edition::query()
+            ->whereHas('driversTeams', fn ($query) => $query->where('team_id', $team->id))
+            ->with([
+                'rankingTeams',
+                'rankingDrivers.driver',
+                'driversTeams' => fn ($query) => $query
+                    ->where('team_id', $team->id)
+                    ->with(['driver', 'car']),
+            ])
+            ->orderByDesc('year')
+            ->get()
+            ->map(function (Edition $edition) use ($team, $carsByEdition) {
+                $teamRankings = $edition->rankingTeams
+                    ->sortByDesc(fn ($ranking) => (float) $ranking->points)
+                    ->values();
+                $teamRanking = $teamRankings->firstWhere('team_id', $team->id);
+
+                $driverRankings = $edition->rankingDrivers
+                    ->sort(function ($left, $right) {
+                        $pointsComparison = (float) $right->points <=> (float) $left->points;
+
+                        return $pointsComparison !== 0
+                            ? $pointsComparison
+                            : strnatcasecmp($left->driver?->name ?? '', $right->driver?->name ?? '');
+                    })
+                    ->values();
+
+                $drivers = $edition->driversTeams
+                    ->map(function (DriverTeam $driverTeam) use ($driverRankings, $team) {
+                        $ranking = $driverRankings->first(fn ($item) => (string) $item->driver_id === (string) $driverTeam->driver_id
+                            && (string) $item->team_id === (string) $team->id);
+
+                        return [
+                            'id' => $driverTeam->driver?->id,
+                            'name' => $driverTeam->driver?->name,
+                            'position' => $ranking
+                                ? $driverRankings->search(fn ($item) => $item->id === $ranking->id) + 1
+                                : null,
+                        ];
+                    })
+                    ->filter(fn (array $driver) => $driver['id'] !== null)
+                    ->unique('id')
+                    ->values();
+
+                return [
+                    'id' => $edition->id,
+                    'year' => $edition->year,
+                    'edition' => $edition->edition,
+                    'position' => $teamRanking
+                        ? $teamRankings->search(fn ($item) => $item->id === $teamRanking->id) + 1
+                        : null,
+                    'car' => $edition->driversTeams->pluck('car')->filter()->first()
+                        ?? $carsByEdition->get($edition->id)?->first(),
+                    'drivers' => $drivers,
+                ];
+            });
+
+        $teams = Team::query()
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        return view('team-gallery', compact('team', 'teams', 'galleryEditions'));
+    }
+
+    public function teamGalleryImage(Request $request, Team $team): JsonResponse
+    {
+        $carId = $request->query('car');
+
+        if (! $carId) {
+            return response()->json([
+                'url' => $team->getImgTeamFromGoogle('formula one team'),
+            ]);
+        }
+
+        $car = Car::query()
+            ->where('id', $carId)
+            ->where('team_id', $team->id)
+            ->with(['team', 'edition'])
+            ->first();
+
+        return response()->json([
+            'url' => $car?->getImageUrl(),
+        ]);
     }
 
     public function teamStats(Request $request, Team $team): View

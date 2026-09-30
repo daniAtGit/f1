@@ -281,7 +281,10 @@
 
                 <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 mt-2">
                     <div class="overflow-hidden">
-                        <div class="d-flex justify-content-end">
+                    <div class="d-flex justify-content-between align-items-center gap-2">
+                        <a href="{{ route('team.gallery', $team) }}" class="btn btn-sm btn-outline-secondary" aria-label="Apri galleria di {{ $team->name }}" title="Galleria">
+                            <i class="fa-solid fa-images"></i>
+                        </a>
                         <div class="input-group w-auto">
                                 <span class="bg-white input-group-text text-decoration-none">Edition</span>
                                 <select class="form-select" name="changeEdition" id="changeEdition" aria-label="changeEdition" aria-describedby="editionLink">

@@ -15,6 +15,8 @@ Route::get('/', [DashboardController::class, 'welcome'])->name('welcome');
 Route::get('driver/{driver}/stats', [DashboardController::class, 'driverStats'])->name('driver.stats');
 Route::get('driver/{driver}', [DashboardController::class, 'driver'])->name('driver.single');
 Route::get('team/{team}/stats', [DashboardController::class, 'teamStats'])->name('team.stats');
+Route::get('team/{team}/gallery', [DashboardController::class, 'teamGallery'])->name('team.gallery');
+Route::get('team/{team}/gallery/image', [DashboardController::class, 'teamGalleryImage'])->name('team.gallery.image');
 Route::get('team/{team}', [DashboardController::class, 'team'])->name('team.single');
 Route::get('stats', [DashboardController::class, 'stats'])->name('stats');
 Route::get('edition/{edition}', [DashboardController::class, 'edition'])->name('edition.single');
