@@ -14,25 +14,29 @@
                 </button>
             </form>
         @else
-            <form method="post" action="{{route('editions.ranking.drivers.add')}}">
+            <form method="post" action="{{route('editions.ranking.drivers.add')}}" class="d-flex flex-nowrap align-items-center gap-2">
                 @csrf
                 <input type="hidden" name="edition_id_add" value="{{$edition->id}}">
 
-                <select name="team_id_add" id="team_id_add">
-                    <option value="" disabled selected>Team</option>
-                        @foreach($rankingDriverTeams as $driverAdd)
-                            <option value="{{$driverAdd->team->id}}">{{$driverAdd->team->name}}</option>
+                <div class="flex-grow-1" style="min-width: 0;">
+                    <select name="team_id_add" id="team_id_add" class="w-100" data-placeholder="Team" aria-label="Team" required>
+                        <option value=""></option>
+                            @foreach($rankingDriverTeams as $driverAdd)
+                                <option value="{{$driverAdd->team->id}}">{{$driverAdd->team->name}}</option>
+                            @endforeach
+                    </select>
+                </div>
+
+                <div class="flex-grow-1" style="min-width: 0;">
+                    <select name="driver_id_add" id="driver_id_add" class="w-100" data-placeholder="Driver" aria-label="Driver" required>
+                        <option value=""></option>
+                        @foreach($rankingDriversAdd as $driverAdd)
+                            <option value="{{$driverAdd->driver->id}}">{{$driverAdd->driver->name}}</option>
                         @endforeach
-                </select>
+                    </select>
+                </div>
 
-                <select name="driver_id_add" id="driver_id_add">
-                    <option value="" disabled selected>Driver</option>
-                    @foreach($rankingDriversAdd as $driverAdd)
-                        <option value="{{$driverAdd->driver->id}}">{{$driverAdd->driver->name}}</option>
-                    @endforeach
-                </select>
-
-                <button type="submit" class="btn btn-outline-primary">
+                <button type="submit" class="btn btn-outline-primary flex-shrink-0">
                     <i class="fa fa-floppy-disk"></i> Add
                 </button>
             </form>

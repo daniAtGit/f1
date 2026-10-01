@@ -14,18 +14,20 @@
                 </button>
             </form>
         @elseif($rankingTeamsAdd->isNotEmpty())
-            <form method="post" action="{{route('editions.ranking.teams.add')}}">
+            <form method="post" action="{{route('editions.ranking.teams.add')}}" class="d-flex flex-nowrap align-items-center gap-2">
                 @csrf
                 <input type="hidden" name="edition_id_add" value="{{$edition->id}}">
 
-                <select name="team_id_add" id="ranking_team_id_add" required>
-                    <option value="" disabled selected>Team</option>
-                    @foreach($rankingTeamsAdd as $teamAdd)
-                        <option value="{{$teamAdd->team->id}}">{{$teamAdd->team->name}}</option>
-                    @endforeach
-                </select>
+                <div class="flex-grow-1" style="min-width: 0;">
+                    <select name="team_id_add" id="ranking_team_id_add" class="w-100" data-placeholder="Team" aria-label="Team" required>
+                        <option value=""></option>
+                        @foreach($rankingTeamsAdd as $teamAdd)
+                            <option value="{{$teamAdd->team->id}}">{{$teamAdd->team->name}}</option>
+                        @endforeach
+                    </select>
+                </div>
 
-                <button type="submit" class="btn btn-outline-primary">
+                <button type="submit" class="btn btn-outline-primary flex-shrink-0">
                     <i class="fa fa-floppy-disk"></i> Add
                 </button>
             </form>
