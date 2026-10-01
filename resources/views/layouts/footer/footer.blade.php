@@ -21,6 +21,15 @@
                 width: $select.data('width') || ($select.hasClass('w-100') ? '100%' : 'style'),
                 placeholder: $select.data('placeholder'),
             });
+
+            // Select2 emette il suo `change` tramite jQuery. Propaghiamo anche
+            // l'evento nativo per i selettori che usano addEventListener('change', ...).
+            // Gli onchange inline sono già gestiti da jQuery e non vanno duplicati.
+            if (!$select.is('[onchange]')) {
+                $select.on('select2:select select2:unselect select2:clear', function () {
+                    this.dispatchEvent(new Event('change', { bubbles: true }));
+                });
+            }
         });
     })
 </script>
