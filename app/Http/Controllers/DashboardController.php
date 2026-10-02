@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Car;
 use App\Models\Circuit;
+use App\Models\Country;
 use App\Models\Driver;
 use App\Models\DriverTeam;
 use App\Models\Edition;
@@ -984,23 +985,28 @@ class DashboardController extends Controller
 
     public function stats(): View
     {
-        $championshipsByDriverId = Edition::query()
-            ->with(['rankingDrivers' => fn ($query) => $query->orderByRaw('CAST(points AS UNSIGNED) DESC')])
+        // Le edizioni complete servono sia per i titoli piloti sia per quelli
+        // costruttori: carichiamole una sola volta.
+        $completedEditions = Edition::query()
+            ->with([
+                'rankingDrivers' => fn ($query) => $query->orderByRaw('CAST(points AS UNSIGNED) DESC'),
+                'rankingTeams' => fn ($query) => $query->orderByRaw('CAST(points AS UNSIGNED) DESC'),
+            ])
             ->withCount([
                 'circuits',
                 'circuits as completed_races_count' => fn ($query) => $query->has('race'),
             ])
             ->get()
-            ->filter(fn (Edition $edition) =>
-                $edition->circuits_count > 0
+            ->filter(fn (Edition $edition) => $edition->circuits_count > 0
                 && $edition->circuits_count === $edition->completed_races_count
-            )
+            );
+
+        $championshipsByDriverId = $completedEditions
             ->map(fn (Edition $edition) => $edition->rankingDrivers->first()?->driver_id)
             ->filter()
             ->countBy();
 
         $driverStatistics = Driver::query()
-            ->with('country')
             ->withCount([
                 'RaceCircuits as races_count',
                 'gridCircuits as poles_count' => fn ($query) => $query->where('position', 1),
@@ -1027,17 +1033,7 @@ class DashboardController extends Controller
             })
             ->values();
 
-        $championshipsByTeamId = Edition::query()
-            ->with(['rankingTeams' => fn ($query) => $query->orderByRaw('CAST(points AS UNSIGNED) DESC')])
-            ->withCount([
-                'circuits',
-                'circuits as completed_races_count' => fn ($query) => $query->has('race'),
-            ])
-            ->get()
-            ->filter(fn (Edition $edition) =>
-                $edition->circuits_count > 0
-                && $edition->circuits_count === $edition->completed_races_count
-            )
+        $championshipsByTeamId = $completedEditions
             ->map(fn (Edition $edition) => $edition->rankingTeams->first()?->team_id)
             ->filter()
             ->countBy();
@@ -1067,7 +1063,6 @@ class DashboardController extends Controller
         $teamSprintWinsById = $teamEventCounts(SprintCircuit::class, fn ($query, $table) => $query->where("{$table}.position", 1));
 
         $teamStatistics = Team::query()
-            ->with('country')
             ->get()
             ->map(fn (Team $team) => [
                 'team' => $team,
@@ -1094,7 +1089,7 @@ class DashboardController extends Controller
         $gridResults = GridCircuit::query()->get(['circuit_id', 'driver_team_id', 'position']);
         $sprintResults = SprintCircuit::query()->get(['circuit_id', 'driver_team_id', 'position']);
         $driverTeamsById = DriverTeam::query()
-            ->with('driver.country')
+            ->with('driver')
             ->whereIn('id', $raceResults
                 ->pluck('driver_team_id')
                 ->merge($gridResults->pluck('driver_team_id'))
@@ -1143,7 +1138,6 @@ class DashboardController extends Controller
             ->pluck('editions_count', 'circuit_id');
 
         $circuitStatistics = Circuit::query()
-            ->with('country')
             ->get()
             ->map(function (Circuit $circuit) use ($editionsByCircuitId, $raceLeaders, $poleLeaders, $podiumLeaders, $raceWinLeaders, $sprintWinLeaders) {
                 return [
@@ -1185,8 +1179,8 @@ class DashboardController extends Controller
         $seasonWinStatistics = Edition::query()
             ->whereIn('id', $seasonWinCounts->pluck('edition_id')->unique())
             ->with([
-                'rankingDrivers.driver.country',
-                'rankingDrivers.team.country',
+                'rankingDrivers.driver',
+                'rankingDrivers.team',
                 'rankingTeams.team',
             ])
             ->get()
@@ -1244,6 +1238,23 @@ class DashboardController extends Controller
                     ?: ($right['year'] <=> $left['year']);
             })
             ->values();
+
+        // Driver, team e circuiti usano tutti la stessa tabella dei paesi.
+        // Eager loading separati producono query identiche; associamo invece i
+        // paesi caricati una volta ai modelli già presenti nelle statistiche.
+        $countriesById = Country::query()->get()->keyBy('id');
+        $attachCountries = function ($models) use ($countriesById): void {
+            collect($models)
+                ->filter()
+                ->each(fn ($model) => $model->setRelation('country', $countriesById->get($model->country_id)));
+        };
+
+        $attachCountries($driverStatistics->pluck('driver'));
+        $attachCountries($teamStatistics->pluck('team'));
+        $attachCountries($driverTeamsById->pluck('driver'));
+        $attachCountries($circuitStatistics->pluck('circuit'));
+        $attachCountries($seasonWinStatistics->pluck('driver'));
+        $attachCountries($seasonWinStatistics->pluck('team'));
 
         return view('global-stats', compact(
             'driverStatistics',

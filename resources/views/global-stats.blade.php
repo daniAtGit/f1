@@ -49,7 +49,7 @@
 
                     <div x-show="activeTab === 'drivers'">
                         <div class="d-flex justify-content-end mb-3">
-                            <button type="button" id="show-all-drivers" class="btn btn-sm btn-outline-secondary">Vedi tutti</button>
+                            <button type="button" id="show-all-drivers" class="btn btn-sm btn-outline-secondary">View all</button>
                         </div>
                         <div class="table-responsive stats-table-wrapper">
                             <table id="driver-stats-table" class="table table-sm table-hover align-middle mb-0 stats-table">
@@ -85,7 +85,7 @@
 
                     <div x-show="activeTab === 'teams'" x-cloak>
                         <div class="d-flex justify-content-end mb-3">
-                            <button type="button" id="show-all-teams" class="btn btn-sm btn-outline-secondary">Vedi tutti</button>
+                            <button type="button" id="show-all-teams" class="btn btn-sm btn-outline-secondary">View all</button>
                         </div>
                         <div class="table-responsive stats-table-wrapper">
                             <table id="team-stats-table" class="table table-sm table-hover align-middle mb-0 stats-table">
