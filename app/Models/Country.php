@@ -41,6 +41,7 @@ class Country extends Model
             'ESP' => 'es',
             'FIN' => 'fi',
             'FRA' => 'fr',
+            'GB-SCT' => 'gb',
             'GBR' => 'gb',
             'HUN' => 'hu',
             'IDN' => 'id',
