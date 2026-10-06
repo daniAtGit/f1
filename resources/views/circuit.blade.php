@@ -141,7 +141,7 @@
                                             class="btn btn-sm btn-outline-secondary mt-2"
                                             onclick="this.closest('.col-lg-3').querySelectorAll('.circuit-winner-extra').forEach((item) => item.classList.remove('d-none')); this.remove();"
                                         >
-                                            Vedi tutti
+                                            Show all
                                         </button>
                                     @endif
                                 </div>

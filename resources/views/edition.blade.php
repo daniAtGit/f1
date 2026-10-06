@@ -142,26 +142,21 @@
                                                 <div class="col-12 col-lg-3">
                                                     <div class="small fw-bold mb-2"></div>
                                                     <div class="d-grid gap-2">
-                                                        @forelse($circuit['videos'] as $video)
+                                                        @foreach($circuit['videos'] as $video)
                                                             <a href="{{ $video['url'] }}" target="_blank" rel="noopener" class="border p-1 small text-decoration-none d-inline-flex align-items-center gap-2">
                                                                 <i class="fa fa-youtube text-danger"></i>
                                                                 <span>{{ $video['title'] ?: 'Video' }}</span>
                                                             </a>
-                                                        @empty
-                                                            @if($circuit['gridResults']->isNotEmpty() && $circuit['raceResults']->isNotEmpty())
-                                                                <a
-                                                                    href="https://www.youtube.com/results?search_query={{ urlencode('F1 ' . $circuit['circuitName'] . ' ' . $edition->year) }}"
-                                                                    target="_blank"
-                                                                    rel="noopener"
-                                                                    class="btn btn-sm btn-outline-danger d-inline-flex align-items-center justify-content-center gap-2"
-                                                                >
-                                                                    <i class="fa fa-youtube"></i>
-                                                                    <span>Search on YouTube</span>
-                                                                </a>
-                                                            @else
-                                                                <div class="text-muted small">No related videos.</div>
-                                                            @endif
-                                                        @endforelse
+                                                        @endforeach
+                                                        <a
+                                                            href="https://www.youtube.com/results?search_query={{ urlencode('F1 ' . $circuit['circuitName'] . ' ' . $edition->year) }}"
+                                                            target="_blank"
+                                                            rel="noopener"
+                                                            class="btn btn-sm btn-outline-danger d-inline-flex align-items-center justify-content-center gap-2"
+                                                        >
+                                                            <i class="fa fa-youtube"></i>
+                                                            <span>Search on YouTube</span>
+                                                        </a>
                                                     </div>
                                                 </div>
                                             </div>
