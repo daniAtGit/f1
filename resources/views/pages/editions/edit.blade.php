@@ -550,7 +550,7 @@
                     const selectedCarId = button.getAttribute('data-car-id');
 
                     $('#edit_driver_team_id').val(button.getAttribute('data-driver-team-id'));
-                    $('#edit_team_id').val(teamId);
+                    $('#edit_team_id').val(teamId).trigger('change.select2');
                     $('#edit_driver_name').val(button.getAttribute('data-driver-name'));
                     $('#edit_number').val(button.getAttribute('data-number'));
 

@@ -15,11 +15,14 @@
 
         $('select').each(function () {
             const $select = $(this);
+            const $modal = $select.closest('.modal');
 
             $select.select2({
                 theme: 'bootstrap-5',
                 width: $select.data('width') || ($select.hasClass('w-100') ? '100%' : 'style'),
                 placeholder: $select.data('placeholder'),
+                // Mantiene la ricerca nel focus trap di Bootstrap quando la select è in una modale.
+                dropdownParent: $modal.length ? $modal : $(document.body),
             });
 
             // Select2 emette il suo `change` tramite jQuery. Propaghiamo anche
