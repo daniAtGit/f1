@@ -50,10 +50,6 @@ class ImportController extends Controller
 
         return response()->json([
             'drivers_count' => $edition->driversTeams()->count(),
-            'driver_numbers' => $edition->driversTeams()
-                ->pluck('number')
-                ->map(fn ($number) => (string) $number)
-                ->values(),
             'circuits' => $circuits,
         ]);
     }
@@ -97,13 +93,9 @@ class ImportController extends Controller
         $numbers = $rows->pluck(1);
         $driverNames = $rows->pluck(2);
         $teamNames = $rows->pluck(3);
-        $unknownNumbers = $numbers
-            ->filter()
-            ->reject(fn ($number) => $driversTeams->contains(fn (DriverTeam $driverTeam) => (string) $driverTeam->number === $number));
-
-        if ($numbers->contains('') || $driverNames->contains('') || $teamNames->contains('') || $rows->pluck(0)->contains('') || $unknownNumbers->isNotEmpty()) {
+        if ($numbers->contains('') || $driverNames->contains('') || $teamNames->contains('') || $rows->pluck(0)->contains('')) {
             throw ValidationException::withMessages([
-                'grid_data' => 'Verifica i dati: posizione, numero pilota, nome pilota e squadra sono obbligatori. Numeri non presenti nell\'edizione: '.$unknownNumbers->unique()->implode(', ').'.',
+                'grid_data' => 'Verifica i dati: posizione, numero pilota, nome pilota e squadra sono obbligatori.',
             ]);
         }
 
@@ -112,23 +104,41 @@ class ImportController extends Controller
             $driverName = $this->normalizeDriverName($row[2]);
             $teamName = $this->normalizeTeamName($row[3]);
 
-            $matches = $driversTeams->filter(function (DriverTeam $driverTeam) use ($number, $driverName, $teamName) {
+            $candidates = $driversTeams->filter(function (DriverTeam $driverTeam) use ($driverName, $teamName) {
                 $storedDriverName = $this->normalizeDriverName($driverTeam->driver?->name ?? '');
                 $storedTeamName = $this->normalizeTeamName($driverTeam->team?->name ?? '');
 
-                return (string) $driverTeam->number === $number
-                    && $driverName !== ''
+                return $driverName !== ''
                     && $this->driverNamesMatch($storedDriverName, $driverName)
                     && $teamName !== ''
                     && $storedTeamName !== ''
                     && $this->teamNamesMatch($storedTeamName, $teamName);
             });
 
+            $matches = $candidates->filter(fn (DriverTeam $driverTeam) => (string) $driverTeam->number === $number);
+
+            // Historical race numbers can differ from the edition's number.
+            // Only fall back when no candidate matches all three fields.
+            if ($matches->isEmpty()) {
+                $matches = $candidates;
+            }
+
             return [
                 'row' => $row,
                 'driverTeam' => $matches->count() === 1 ? $matches->first() : null,
+                'ambiguous' => $matches->count() > 1,
             ];
         });
+
+        $ambiguousRows = $matchedRows
+            ->filter(fn (array $match) => $match['ambiguous'])
+            ->map(fn (array $match) => '#'.$match['row'][1].' '.$match['row'][2].' ('.$match['row'][3].')');
+
+        if ($ambiguousRows->isNotEmpty()) {
+            throw ValidationException::withMessages([
+                'grid_data' => 'Verifica i dati: più abbinamenti pilota/squadra corrispondono ai dati indicati. Impossibile scegliere automaticamente: '.$ambiguousRows->implode(', ').'.',
+            ]);
+        }
 
         $unmatchedRows = $matchedRows
             ->filter(fn (array $match) => $match['driverTeam'] === null)
@@ -136,7 +146,7 @@ class ImportController extends Controller
 
         if ($unmatchedRows->isNotEmpty()) {
             throw ValidationException::withMessages([
-                'grid_data' => 'Verifica i dati: nessun pilota trovato con numero, nome e squadra indicati: '.$unmatchedRows->implode(', ').'.',
+                'grid_data' => 'Verifica i dati: nessun pilota trovato con nome e squadra indicati: '.$unmatchedRows->implode(', ').'.',
             ]);
         }
 
@@ -223,7 +233,7 @@ class ImportController extends Controller
         }
 
         // Two edits cover common transliterations such as Vitaly/Vitalij,
-        // while the exact surname, car number and team still disambiguate drivers.
+        // while the surname, team and (when available) number disambiguate drivers.
         $maximumDistance = max(mb_strlen($storedWord), mb_strlen($importedWord)) >= 5 ? 2 : 1;
 
         return levenshtein($storedWord, $importedWord) <= $maximumDistance;

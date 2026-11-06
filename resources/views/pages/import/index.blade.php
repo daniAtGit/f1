@@ -142,7 +142,6 @@
             const typeSelect = document.getElementById('type');
             const importForm = document.getElementById('importForm');
             const circuitsUrl = @json(route('import.editions.circuits', ['edition' => '__EDITION__']));
-            let availableDriverNumbers = new Set();
             let circuitImportStatus = {};
 
             function resetCircuitSelect(label = 'Select edition first') {
@@ -183,7 +182,6 @@
                             circuitImportStatus[String(circuit.id)] = circuit.existing_imports ?? {};
                         });
 
-                        availableDriverNumbers = new Set((data.driver_numbers ?? []).map(String));
                         circuitSelect.disabled = circuits.length === 0;
 
                         if (circuits.length === 0) {
@@ -521,18 +519,14 @@
                     return;
                 }
 
-                const unknownNumbers = [...new Set(parsedRows.map(row => row[1]).filter(number => availableDriverNumbers.size && !availableDriverNumbers.has(String(number))))];
                 const duplicateDrivers = parsedRows
                     .map(row => `${row[1]}|${row[2].trim().toLowerCase()}`)
                     .filter((driver, index, drivers) => drivers.indexOf(driver) !== index);
 
                 fillImportGrid(parsedRows);
 
-                if (unknownNumbers.length || duplicateDrivers.length) {
-                    const messages = [];
-                    if (unknownNumbers.length) messages.push(`numbers not present in the edition: ${unknownNumbers.join(', ')}`);
-                    if (duplicateDrivers.length) messages.push('the same driver appears more than once');
-                    showImportFeedback(`Check the data: ${messages.join('; ')}.`, true);
+                if (duplicateDrivers.length) {
+                    showImportFeedback('Check the data: the same driver appears more than once.', true);
                     return;
                 }
 
